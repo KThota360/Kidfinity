@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Kids Task Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body { font-family: Arial; background:#f5f7fb; margin:0; padding:20px; }
+    .app { max-width:900px; margin:auto; background:white; padding:20px; border-radius:15px; }
+    h1 { text-align:center; }
+    .tabs button { padding:10px 15px; margin:5px; border:0; border-radius:8px; cursor:pointer; }
+    .active { background:#2563eb; color:white; }
+    .card { background:#f1f5f9; padding:15px; margin:10px 0; border-radius:10px; }
+    input, button { padding:10px; margin:5px; }
+    .done { text-decoration: line-through; color:gray; }
+  </style>
+</head>
+<body>
+<div class="app">
+  <h1>Kids Task Tracker</h1>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="content"></div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://iviohybtosmtvzousqqq.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_Fwh9rc1najaPbZtKWncpvQ_eRHJZdk8";
+const PARENT_PIN = "3579";
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let kids = [];
+let chores = [];
+let logs = [];
+let currentTab = "kids";
+
+async function loadData() {
+  const { data: kidsData } = await supabase.from("kids").select("*").order("id");
+  const { data: choresData } = await supabase.from("chores").select("*").order("id");
+  const { data: logsData } = await supabase.from("task_logs").select("*");
+
+  kids = kidsData || [];
+  chores = choresData || [];
+  logs = logsData || [];
+
+  renderTabs();
+  renderKids();
+}
+
+function renderTabs() {
+  const tabs = document.getElementById("tabs");
+  tabs.innerHTML = "";
+
+  kids.forEach(kid => {
+    const btn = document.createElement("button");
+    btn.textContent = kid.name;
+    btn.onclick = () => renderKid(kid.id);
+    tabs.appendChild(btn);
+  });
+
+  const parentBtn = document.createElement("button");
+  parentBtn.textContent = "Parents";
+  parentBtn.onclick = openParents;
+  tabs.appendChild(parentBtn);
+}
+
+function today() {
+  return new Date().toISOString().slice(0,10);
+}
+
+function getPoints(kidId) {
+  let total = 0;
+  logs.filter(l => l.kid_id === kidId).forEach(l => total += l.points);
+  return total;
+}
+
+function renderKids() {
+  if (kids.length > 0) renderKid(kids[0].id);
+  else document.getElementById("content").innerHTML = "<p>No kids added yet. Open Parents tab.</p>";
+}
+
+function renderKid(kidId) {
+  const kid = kids.find(k => k.id === kidId);
+  const kidChores = chores.filter(c => c.kid_id === kidId);
+  const points = getPoints(kidId);
+
+  let html = `<h2>${kid.name}</h2>`;
+  html += `<h3>Total Points: ${points}</h3>`;
+
+  kidChores.forEach(chore => {
+    const completed = logs.some(l =>
+      l.kid_id === kidId &&
+      l.chore_id === chore.id &&
+      l.log_date === today()
+    );
+
+    html += `
+      <div class="card">
+        <strong class="${completed ? 'done' : ''}">${chore.name}</strong>
+        <p>Points: ${chore.points}</p>
+        ${completed
+          ? "<button disabled>Completed Today</button>"
+          : `<button onclick="completeChore(${kidId}, ${chore.id}, ${chore.points})">Mark Complete</button>`
+        }
+      </div>
+    `;
+  });
+
+  document.getElementById("content").innerHTML = html;
+}
+
+async function completeChore(kidId, choreId, points) {
+  await supabase.from("task_logs").insert({
+    kid_id: kidId,
+    chore_id: choreId,
+    points: points,
+    log_date: today()
+  });
+  await loadData();
+}
+
+function openParents() {
+  const pin = prompt("Enter Parent PIN");
+  if (pin !== PARENT_PIN) {
+    alert("Wrong PIN");
+    return;
+  }
+  renderParents();
+}
+
+function renderParents() {
+  let html = `<h2>Parents Portal</h2>`;
+
+  html += `
+    <div class="card">
+      <h3>Add Kid</h3>
+      <input id="kidName" placeholder="Kid name">
+      <button onclick="addKid()">Add Kid</button>
+    </div>
+  `;
+
+  html += `
+    <div class="card">
+      <h3>Add Chore</h3>
+      <select id="choreKid">
+        ${kids.map(k => `<option value="${k.id}">${k.name}</option>`).join("")}
+      </select>
+      <input id="choreName" placeholder="Chore name">
+      <input id="chorePoints" type="number" placeholder="Points">
+      <button onclick="addChore()">Add Chore</button>
+    </div>
+  `;
+
+  html += `<h3>Existing Chores</h3>`;
+
+  chores.forEach(chore => {
+    const kid = kids.find(k => k.id === chore.kid_id);
+    html += `
+      <div class="card">
+        <strong>${kid ? kid.name : ""}</strong>: ${chore.name} - ${chore.points} points
+        <button onclick="deleteChore(${chore.id})">Delete</button>
+      </div>
+    `;
+  });
+
+  html += `
+    <div class="card">
+      <h3>Manual Points Adjustment</h3>
+      <select id="adjustKid">
+        ${kids.map(k => `<option value="${k.id}">${k.name}</option>`).join("")}
+      </select>
+      <input id="adjustPoints" type="number" placeholder="+10 or -5">
+      <button onclick="adjustPoints()">Apply</button>
+    </div>
+  `;
+
+  document.getElementById("content").innerHTML = html;
+}
+
+async function addKid() {
+  const name = document.getElementById("kidName").value;
+  if (!name) return alert("Enter kid name");
+
+  await supabase.from("kids").insert({ name });
+  await loadData();
+}
+
+async function addChore() {
+  const kid_id = Number(document.getElementById("choreKid").value);
+  const name = document.getElementById("choreName").value;
+  const points = Number(document.getElementById("chorePoints").value);
+
+  if (!name || !points) return alert("Enter chore and points");
+
+  await supabase.from("chores").insert({ kid_id, name, points });
+  await loadData();
+}
+
+async function deleteChore(id) {
+  if (!confirm("Delete this chore?")) return;
+  await supabase.from("chores").delete().eq("id", id);
+  await loadData();
+}
+
+async function adjustPoints() {
+  const kid_id = Number(document.getElementById("adjustKid").value);
+  const points = Number(document.getElementById("adjustPoints").value);
+
+  await supabase.from("task_logs").insert({
+    kid_id,
+    chore_id: null,
+    points,
+    log_date: today()
+  });
+
+  await loadData();
+}
+
+loadData();
+</script>
+</body>
+</html>
