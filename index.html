@@ -251,13 +251,13 @@
 </div>
 
 <script>
-// IMPORTANT: Replace these with your actual Supabase configuration values
-const SUPABASE_URL = "https://iviohybtosmtvzousqqq.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2aW9oeWJ0b3NtdHZ6b3VzcXFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5NDYxOTAsImV4cCI6MjA5ODUyMjE5MH0.0LV25LS-6Yv3EF6_Td5uv-o4Jgm7qNstDSs3RHFRWeo";
+// IMPORTANT: Supabase URL and Anon Key
+const SUPABASE_URL = "https://iviohybtosmtvzousqqq.supabase.co"; 
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2aW9oeWJ0b3NtdHZ6b3VzcXFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5NDYxOTAsImV4cCI6MjA5ODUyMjE5MH0.0LV25LS-6Yv3EF6_Td5uv-o4Jgm7qNstDSs3RHFRWeo"; 
 const PARENT_PIN = "3579";
 
-
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// FIX: Renamed the variable to 'supabaseClient' to avoid conflicting with the global 'supabase' object
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let kids = [];
 let chores = [];
@@ -268,9 +268,9 @@ let currentTab = "kids"; // 'kids' or 'parents'
 // Fetch layout data from Supabase
 async function loadData() {
   try {
-    const { data: kidsData, error: ke } = await supabase.from("kids").select("*").order("id");
-    const { data: choresData, error: ce } = await supabase.from("chores").select("*").order("id");
-    const { data: logsData, error: le } = await supabase.from("task_logs").select("*");
+    const { data: kidsData, error: ke } = await supabaseClient.from("kids").select("*").order("id");
+    const { data: choresData, error: ce } = await supabaseClient.from("chores").select("*").order("id");
+    const { data: logsData, error: le } = await supabaseClient.from("task_logs").select("*");
 
     if (ke || ce || le) throw (ke || ce || le);
 
@@ -427,7 +427,7 @@ function renderKid(kidId) {
 }
 
 async function completeChore(kidId, choreId, points) {
-  const { error } = await supabase.from("task_logs").insert({
+  const { error } = await supabaseClient.from("task_logs").insert({
     kid_id: kidId,
     chore_id: choreId,
     points: points,
@@ -537,7 +537,7 @@ async function addKid() {
   const name = document.getElementById("kidName").value;
   if (!name) return alert("Please enter a kid name");
 
-  const { error } = await supabase.from("kids").insert({ name });
+  const { error } = await supabaseClient.from("kids").insert({ name });
   if (error) console.error(error);
   await loadData();
 }
@@ -549,14 +549,14 @@ async function addChore() {
 
   if (!name || isNaN(points)) return alert("Please fill out all fields correctly");
 
-  const { error } = await supabase.from("chores").insert({ kid_id, name, points });
+  const { error } = await supabaseClient.from("chores").insert({ kid_id, name, points });
   if (error) console.error(error);
   await loadData();
 }
 
 async function deleteChore(id) {
   if (!confirm("Are you sure you want to delete this chore? Past points logs will remain intact.")) return;
-  const { error } = await supabase.from("chores").delete().eq("id", id);
+  const { error } = await supabaseClient.from("chores").delete().eq("id", id);
   if (error) console.error(error);
   await loadData();
 }
@@ -567,7 +567,7 @@ async function adjustPoints() {
 
   if (isNaN(points)) return alert("Please enter a valid number");
 
-  const { error } = await supabase.from("task_logs").insert({
+  const { error } = await supabaseClient.from("task_logs").insert({
     kid_id,
     chore_id: null,
     points,
@@ -584,6 +584,5 @@ async function adjustPoints() {
 
 // Initial fetch
 loadData();
-</script>
-</body>
+</script></body>
 </html>
