@@ -13,6 +13,7 @@
       --text-muted: #64748b;
       --accent-green: #10b981;
       --accent-red: #ef4444;
+      --accent-purple: #8b5cf6;
       --border: #e2e8f0;
     }
 
@@ -66,22 +67,49 @@
       white-space: nowrap;
     }
     .tabs button:hover { transform: translateY(-2px); }
-    
-    /* Specific colors assigned in JS */
     .tab-active { color: white !important; box-shadow: 0 8px 16px rgba(0,0,0,0.15); }
 
-    /* Score Header */
+    /* Score Header Stats */
     .score-banner {
-      text-align: center;
       background: white;
       border: 2px solid var(--border);
       padding: 20px;
       border-radius: 20px;
       margin-bottom: 24px;
       box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      text-align: center;
     }
-    .score-banner h2 { margin: 0 0 5px 0; font-size: 1.8rem; }
-    .points-display { font-size: 3rem; font-weight: 900; margin: 5px 0; }
+    .banner-top h2 { margin: 0; font-size: 1.8rem; }
+    .stats-row {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background: #f8fafc;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+    }
+    .stat-box { display: flex; flex-direction: column; align-items: center; }
+    .stat-value { font-size: 1.8rem; font-weight: 900; }
+    .stat-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; }
+
+    /* Date Controller */
+    .date-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f1f5f9;
+      padding: 10px 16px;
+      border-radius: 14px;
+      margin-bottom: 20px;
+      font-weight: bold;
+    }
+    .date-bar button {
+      background: white; border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: bold;
+    }
 
     /* Chores & Cards */
     .section-title {
@@ -96,6 +124,7 @@
     .card {
       background: white;
       border: 2px solid var(--border);
+      border-left: 6px solid #cbd5e1; /* Colorful box accent */
       padding: 16px 20px;
       margin: 12px 0;
       border-radius: 16px;
@@ -116,36 +145,25 @@
 
     /* Custom Toggle Switch */
     .switch {
-      position: relative;
-      display: inline-block;
-      width: 56px;
-      height: 30px;
+      position: relative; display: inline-block; width: 56px; height: 30px;
     }
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider {
       position: absolute; cursor: pointer;
       top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #cbd5e1;
-      transition: .4s;
-      border-radius: 34px;
+      background-color: #cbd5e1; transition: .4s; border-radius: 34px;
     }
     .slider:before {
-      position: absolute; content: "";
-      height: 22px; width: 22px;
-      left: 4px; bottom: 4px;
-      background-color: white;
-      transition: .4s;
-      border-radius: 50%;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px;
+      background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     input:checked + .slider { background-color: var(--accent-green); }
     input:checked + .slider.penalty { background-color: var(--accent-red); }
     input:checked + .slider:before { transform: translateX(26px); }
-    input:disabled + .slider { opacity: 0.5; cursor: not-allowed; }
 
-    /* Parent Approval Bank Section */
+    /* Bank & Redeem Sections */
     .bank-section {
-      margin-top: 30px;
+      margin-top: 25px;
       background: #f8fafc;
       padding: 20px;
       border-radius: 16px;
@@ -153,53 +171,33 @@
       text-align: center;
     }
 
-    /* Inputs & Buttons */
     input[type="text"], input[type="number"], input[type="password"], select, textarea {
-      background: white;
-      border: 2px solid var(--border);
-      color: var(--text);
-      padding: 14px;
-      border-radius: 12px;
-      margin: 8px 0;
-      width: 100%;
-      box-sizing: border-box;
-      font-size: 1rem;
-      font-family: inherit;
+      background: white; border: 2px solid var(--border); color: var(--text);
+      padding: 14px; border-radius: 12px; margin: 8px 0; width: 100%; box-sizing: border-box; font-size: 1rem; font-family: inherit;
     }
     input:focus, textarea:focus, select:focus { outline: none; border-color: #3b82f6; }
     
     .btn {
-      padding: 14px 24px;
-      border: none;
-      border-radius: 12px;
-      font-size: 1.1rem;
-      font-weight: bold;
-      cursor: pointer;
-      width: 100%;
-      transition: background 0.2s;
+      padding: 14px 24px; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; width: 100%; transition: background 0.2s;
     }
     .btn-primary { background: #3b82f6; color: white; }
     .btn-primary:hover { background: #2563eb; }
     .btn-success { background: var(--accent-green); color: white; }
     .btn-danger { background: var(--accent-red); color: white; }
+    .btn-purple { background: var(--accent-purple); color: white; }
 
-    /* Sub-tabs for Kid View */
-    .kid-subtabs {
-      display: flex; gap: 10px; margin-bottom: 20px; justify-content: center;
-    }
+    /* Sub-tabs */
+    .kid-subtabs { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
     .kid-subtabs button {
-      padding: 8px 16px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer;
-      background: #e2e8f0; color: #64748b;
+      padding: 8px 16px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; background: #e2e8f0; color: #64748b;
     }
     .kid-subtabs button.active { background: #334155; color: white; }
 
-    /* History List */
-    .history-day {
-      margin-bottom: 20px; border-left: 4px solid #3b82f6; padding-left: 15px;
+    /* History Layout */
+    .history-card {
+      background: white; border: 2px solid var(--border); padding: 15px; border-radius: 14px; margin-bottom: 12px;
+      display: flex; justify-content: space-between; align-items: center; font-weight: bold;
     }
-    .history-date { font-weight: bold; color: #334155; margin-bottom: 10px; font-size: 1.1rem;}
-    .history-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f1f5f9; }
-
   </style>
 </head>
 <body>
@@ -220,28 +218,35 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_
 let kids = [];
 let chores = [];
 let logs = [];
+let redemptions = [];
 let selectedKidId = null;
-let currentTab = "kids"; // 'kids' or 'parents'
-let kidViewMode = "today"; // 'today' or 'history'
+let currentTab = "kids"; 
+let kidViewMode = "today"; 
 let parentUnlocked = false;
 
-// Kids specific colors
-const kidColors = ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
+// Active viewing date tracker (defaults to local today)
+let viewingDate = getLocalDateString(new Date());
 
-// Store toggled switches locally before parent approves
+const kidColors = ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
 let pendingChores = new Set(); 
+
+function getLocalDateString(dateObj) {
+  const offset = dateObj.getTimezoneOffset();
+  const localDate = new Date(dateObj.getTime() - (offset * 60 * 1000));
+  return localDate.toISOString().split('T')[0];
+}
 
 async function loadData() {
   try {
-    const { data: kidsData, error: ke } = await supabaseClient.from("kids").select("*").order("id");
-    const { data: choresData, error: ce } = await supabaseClient.from("chores").select("*").order("id");
-    const { data: logsData, error: le } = await supabaseClient.from("task_logs").select("*");
-
-    if (ke || ce || le) throw (ke || ce || le);
+    const { data: kidsData } = await supabaseClient.from("kids").select("*").order("id");
+    const { data: choresData } = await supabaseClient.from("chores").select("*").order("id");
+    const { data: logsData } = await supabaseClient.from("task_logs").select("*");
+    const { data: redData } = await supabaseClient.from("redemptions").select("*");
 
     kids = kidsData || [];
     chores = choresData || [];
     logs = logsData || [];
+    redemptions = redData || [];
 
     if (kids.length > 0 && !selectedKidId) selectedKidId = kids[0].id;
 
@@ -253,7 +258,6 @@ async function loadData() {
     }
   } catch (err) {
     console.error("Error:", err);
-    document.getElementById("content").innerHTML = `<p style="color:red">Error loading data.</p>`;
   }
 }
 
@@ -278,8 +282,9 @@ function renderTabs() {
     btn.onclick = () => {
       currentTab = "kids";
       selectedKidId = kid.id;
-      kidViewMode = "today"; // reset view to today
-      pendingChores.clear(); // clear pending when switching kids
+      kidViewMode = "today";
+      viewingDate = getLocalDateString(new Date());
+      pendingChores.clear();
       renderTabs();
       renderKid(kid.id);
     };
@@ -302,14 +307,12 @@ function renderTabs() {
   tabs.appendChild(parentBtn);
 }
 
-function today() {
-  const offset = new Date().getTimezoneOffset();
-  const localDate = new Date(Date.now() - (offset * 60 * 1000));
-  return localDate.toISOString().split('T')[0];
-}
-
 function getPoints(kidId) {
   return logs.filter(l => l.kid_id === kidId).reduce((sum, l) => sum + l.points, 0);
+}
+
+function getTotalRedeemed(kidId) {
+  return redemptions.filter(r => r.kid_id === kidId).reduce((sum, r) => sum + r.amount, 0);
 }
 
 function getKidColor(kidId) {
@@ -319,6 +322,18 @@ function getKidColor(kidId) {
 
 function setKidView(mode) {
   kidViewMode = mode;
+  renderKid(selectedKidId);
+}
+
+function changeDate(days) {
+  const curr = new Date(viewingDate + 'T00:00:00');
+  curr.setDate(curr.getDate() + days);
+  viewingDate = getLocalDateString(curr);
+  renderKid(selectedKidId);
+}
+
+function resetToToday() {
+  viewingDate = getLocalDateString(new Date());
   renderKid(selectedKidId);
 }
 
@@ -332,22 +347,34 @@ function renderKid(kidId) {
   const kid = kids.find(k => k.id === kidId);
   const color = getKidColor(kidId);
   const points = getPoints(kidId);
+  const totalCash = getTotalRedeemed(kidId);
 
   let html = `
     <div class="score-banner" style="border-color: ${color};">
-      <h2 style="color: ${color}">${kid.name}</h2>
-      <div class="points-display" style="color: ${color}">${points}</div>
-      <div style="font-size:0.9rem; color: var(--text-muted); text-transform:uppercase; font-weight:bold;">Total Points</div>
+      <div class="banner-top">
+        <h2 style="color: ${color}">${kid.name}</h2>
+      </div>
+      <div class="stats-row">
+        <div class="stat-box">
+          <div class="stat-value" style="color: ${color}">🏆 ${points}</div>
+          <div class="stat-label">Total Points</div>
+        </div>
+        <div style="width:1px; background:var(--border); height:35px;"></div>
+        <div class="stat-box">
+          <div class="stat-value" style="color: var(--accent-green)">💵 $${totalCash}</div>
+          <div class="stat-label">Apple Cash Redeemed</div>
+        </div>
+      </div>
     </div>
     
     <div class="kid-subtabs">
-      <button class="${kidViewMode === 'today' ? 'active' : ''}" onclick="setKidView('today')">Today's Tasks</button>
-      <button class="${kidViewMode === 'history' ? 'active' : ''}" onclick="setKidView('history')">History</button>
+      <button class="${kidViewMode === 'today' ? 'active' : ''}" onclick="setKidView('today')">Tasks & Approval</button>
+      <button class="${kidViewMode === 'history' ? 'active' : ''}" onclick="setKidView('history')">History & Cash</button>
     </div>
   `;
 
   if (kidViewMode === 'today') {
-    html += renderKidToday(kidId);
+    html += renderKidTasks(kidId);
   } else {
     html += renderKidHistory(kidId);
   }
@@ -356,28 +383,39 @@ function renderKid(kidId) {
 }
 
 function togglePending(choreId) {
-  if (pendingChores.has(choreId)) {
-    pendingChores.delete(choreId);
-  } else {
-    pendingChores.add(choreId);
-  }
+  if (pendingChores.has(choreId)) pendingChores.delete(choreId);
+  else pendingChores.add(choreId);
 }
 
-function renderKidToday(kidId) {
+function renderKidTasks(kidId) {
   const kidChores = chores.filter(c => c.kid_id === kidId);
   const regularChores = kidChores.filter(c => c.points >= 0);
   const penalties = kidChores.filter(c => c.points < 0);
+  const currentPoints = getPoints(kidId);
   let html = "";
 
-  html += `<div class="section-title">Today's Chores</div>`;
-  if (regularChores.length === 0) html += `<p>No positive chores listed.</p>`;
+  // Date Navigator Bar
+  html += `
+    <div class="date-bar">
+      <button onclick="changeDate(-1)">◀ Prev</button>
+      <span>📅 ${viewingDate}</span>
+      <button onclick="changeDate(1)">Next ▶</button>
+    </div>
+    <div style="text-align:center; margin-bottom:15px;">
+      <button style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:bold; font-size:0.85rem;" onclick="resetToToday()">Reset to Today</button>
+    </div>
+  `;
+
+  html += `<div class="section-title">Chores</div>`;
+  if (regularChores.length === 0) html += `<p>No chores listed.</p>";
   
-  regularChores.forEach(chore => {
-    const isBanked = logs.some(l => l.kid_id === kidId && l.chore_id === chore.id && l.log_date === today());
+  regularChores.forEach((chore, idx) => {
+    const isBanked = logs.some(l => l.kid_id === kidId && l.chore_id === chore.id && l.log_date === viewingDate);
     const isPending = pendingChores.has(chore.id);
+    const cardColor = kidColors[idx % kidColors.length];
 
     html += `
-      <div class="card">
+      <div class="card" style="border-left-color: ${cardColor};">
         <div class="card-info">
           <span class="card-title ${isBanked ? 'done' : ''}">${chore.name}</span>
           <span class="card-points points-plus">+${chore.points} pts</span>
@@ -395,14 +433,12 @@ function renderKidToday(kidId) {
   });
 
   html += `<div class="section-title" style="color:var(--accent-red)">⚠️ Penalties</div>`;
-  if (penalties.length === 0) html += `<p>No penalties listed.</p>`;
-  
   penalties.forEach(penalty => {
-    const isBanked = logs.some(l => l.kid_id === kidId && l.chore_id === penalty.id && l.log_date === today());
+    const isBanked = logs.some(l => l.kid_id === kidId && l.chore_id === penalty.id && l.log_date === viewingDate);
     const isPending = pendingChores.has(penalty.id);
 
     html += `
-      <div class="card">
+      <div class="card" style="border-left-color: var(--accent-red);">
         <div class="card-info">
           <span class="card-title ${isBanked ? 'done' : ''}">${penalty.name}</span>
           <span class="card-points points-minus">${penalty.points} pts</span>
@@ -419,13 +455,17 @@ function renderKidToday(kidId) {
     `;
   });
 
-  // Parent Bank Approval Section
+  // Parent Bank & Redeem Section
   html += `
     <div class="bank-section">
-      <h3 style="margin-top:0;">Parent Approval</h3>
-      <p style="font-size:0.9rem; color:var(--text-muted);">Enter PIN to log selected toggles to the Point Bank.</p>
+      <h3 style="margin-top:0;">Parent Approval & Bank</h3>
+      <p style="font-size:0.9rem; color:var(--text-muted);">Enter PIN to log selected toggles or redeem Apple Cash (500 pts = $10).</p>
       <input type="password" id="bankPinInput" placeholder="Enter Parent PIN">
-      <button class="btn btn-success" style="margin-top:10px;" onclick="bankSelectedPoints(${kidId})">🏦 Bank Points</button>
+      
+      <div style="display:flex; gap:10px; margin-top:10px;">
+        <button class="btn btn-success" onclick="bankSelectedPoints(${kidId})">🏦 Bank Points</button>
+        <button class="btn btn-purple" onclick="redeemAppleCash(${kidId}, ${currentPoints})" ${currentPoints < 500 ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>💵 Redeem $10 (500 pts)</button>
+      </div>
     </div>
   `;
   return html;
@@ -440,54 +480,97 @@ async function bankSelectedPoints(kidId) {
   pendingChores.forEach(choreId => {
     const chore = chores.find(c => c.id === choreId);
     if (chore) {
-      inserts.push({ kid_id: kidId, chore_id: chore.id, points: chore.points, log_date: today() });
+      inserts.push({ kid_id: kidId, chore_id: chore.id, points: chore.points, log_date: viewingDate });
     }
   });
 
   const { error } = await supabaseClient.from("task_logs").insert(inserts);
-  if (error) {
-    console.error(error);
-    alert("Error saving to database.");
-  } else {
+  if (!error) {
     pendingChores.clear();
     alert("Points successfully banked!");
     await loadData();
   }
 }
 
-function renderKidHistory(kidId) {
-  const kidLogs = logs.filter(l => l.kid_id === kidId).sort((a, b) => new Date(b.log_date) - new Date(a.log_date));
-  
-  if(kidLogs.length === 0) return `<p style="text-align:center; padding:20px;">No history yet.</p>`;
+async function redeemAppleCash(kidId, currentPoints) {
+  const pin = document.getElementById("bankPinInput").value;
+  if (pin !== PARENT_PIN) return alert("Incorrect PIN!");
+  if (currentPoints < 500) return alert("Not enough points! Need at least 500 points.");
 
-  // Group by date
-  const grouped = {};
-  kidLogs.forEach(log => {
-    if (!grouped[log.log_date]) grouped[log.log_date] = [];
-    grouped[log.log_date].push(log);
+  // Insert redemption record
+  const { error: redErr } = await supabaseClient.from("redemptions").insert({
+    kid_id: kidId,
+    amount: 10,
+    points_spent: 500,
+    redeem_date: viewingDate
   });
 
-  let html = `<div style="margin-top:20px;">`;
-  for (const [date, items] of Object.entries(grouped)) {
-    const displayDate = new Date(date).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
-    let dailyTotal = items.reduce((sum, item) => sum + item.points, 0);
-    
-    html += `<div class="history-day">
-               <div class="history-date">${displayDate} <span style="float:right; color:${dailyTotal >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}">${dailyTotal >= 0 ? '+' : ''}${dailyTotal}</span></div>`;
-    
-    items.forEach(item => {
-      const chore = chores.find(c => c.id === item.chore_id);
-      const choreName = chore ? chore.name : (item.chore_id ? "Deleted Chore" : "Manual Adjustment");
-      const color = item.points >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
-      const sign = item.points >= 0 ? '+' : '';
-      
-      html += `<div class="history-item">
-                 <span>${choreName}</span>
-                 <span style="color:${color}; font-weight:bold;">${sign}${item.points}</span>
-               </div>`;
-    });
-    html += `</div>`;
+  if (redErr) {
+    alert("Error processing redemption.");
+    return;
   }
+
+  // Deduct 500 points by inserting a negative log adjustment
+  const { error: logErr } = await supabaseClient.from("task_logs").insert({
+    kid_id: kidId,
+    chore_id: null,
+    points: -500,
+    log_date: viewingDate
+  });
+
+  if (!logErr) {
+    alert("🎉 Successfully redeemed $10 Apple Cash! 500 points deducted.");
+    await loadData();
+  }
+}
+
+function renderKidHistory(kidId) {
+  const kidLogs = logs.filter(l => l.kid_id === kidId);
+  const kidReds = redemptions.filter(r => r.kid_id === kidId).sort((a, b) => new Date(b.redeem_date) - new Date(a.redeem_date));
+
+  let html = `<div style="margin-top:20px;">`;
+  
+  // SECTION A: Daily Total Points Earned
+  html += `<h3 style="color:var(--text); border-bottom:2px solid var(--border); padding-bottom:5px;">📅 Daily Point Totals</h3>`;
+  
+  const dailyTotals = {};
+  kidLogs.forEach(l => {
+    dailyTotals[l.log_date] = (dailyTotals[l.log_date] || 0) + l.points;
+  });
+
+  const sortedDates = Object.keys(dailyTotals).sort((a, b) => new Date(b) - new Date(a));
+  
+  if (sortedDates.length === 0) {
+    html += `<p style="color:var(--text-muted); font-size:0.9rem;">No daily history recorded yet.</p>`;
+  } else {
+    sortedDates.forEach(date => {
+      const pts = dailyTotals[date];
+      const color = pts >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+      html += `
+        <div class="history-card">
+          <span>${date}</span>
+          <span style="color:${color};">${pts >= 0 ? '+' : ''}${pts} pts</span>
+        </div>
+      `;
+    });
+  }
+
+  // SECTION B: Apple Cash Redeemed History
+  html += `<h3 style="color:var(--text); border-bottom:2px solid var(--border); padding-bottom:5px; margin-top:30px;">💵 Apple Cash Redemptions</h3>`;
+  
+  if (kidReds.length === 0) {
+    html += `<p style="color:var(--text-muted); font-size:0.9rem;">No redemptions yet.</p>`;
+  } else {
+    kidReds.forEach(r => {
+      html += `
+        <div class="history-card" style="border-left: 6px solid var(--accent-purple);">
+          <span>${r.redeem_date}</span>
+          <span style="color:var(--accent-purple);">-$${r.amount} ($10 / 500pts)</span>
+        </div>
+      `;
+    });
+  }
+
   html += `</div>`;
   return html;
 }
@@ -624,7 +707,7 @@ async function adjustPoints() {
   const points = Number(document.getElementById("adjustPoints").value);
   if (isNaN(points)) return alert("Valid number required");
 
-  await supabaseClient.from("task_logs").insert({ kid_id, chore_id: null, points, log_date: today() });
+  await supabaseClient.from("task_logs").insert({ kid_id, chore_id: null, points, log_date: viewingDate });
   alert("Points successfully adjusted!");
   await loadData();
 }
