@@ -6,190 +6,23 @@
   <title>🏰 Kidfinity Chore Tracker</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    :root {
-      --bg-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-      --card-bg: rgba(255, 255, 255, 0.95);
-      --text: #334155;
-      --text-muted: #64748b;
-      --accent-green: #10b981;
-      --accent-red: #ef4444;
-      --accent-purple: #8b5cf6;
-      --border: #e2e8f0;
-    }
-
-    body {
-      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background: var(--bg-gradient);
-      background-attachment: fixed;
-      color: var(--text);
-      margin: 0;
-      padding: 20px 10px;
-    }
-
-    .app {
-      max-width: 650px;
-      margin: auto;
-      background: var(--card-bg);
-      padding: 24px;
-      border-radius: 24px;
-      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15);
-      border: 1px solid rgba(255,255,255,0.5);
-      backdrop-filter: blur(10px);
-    }
-
-    h1 {
-      text-align: center;
-      margin-top: 0;
-      font-size: 2.2rem;
-      color: #333;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-    }
-
-    .tabs {
-      display: flex;
-      gap: 10px;
-      overflow-x: auto;
-      padding-bottom: 12px;
-      margin-bottom: 20px;
-      border-bottom: 2px solid var(--border);
-    }
-    .tabs button {
-      padding: 12px 20px;
-      border: 2px solid transparent;
-      border-radius: 30px;
-      background: #f1f5f9;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 1rem;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      white-space: nowrap;
-    }
-    .tabs button:hover { transform: translateY(-2px); }
-    .tab-active { color: white !important; box-shadow: 0 8px 16px rgba(0,0,0,0.15); }
-
-    .score-banner {
-      background: white;
-      border: 2px solid var(--border);
-      padding: 20px;
-      border-radius: 20px;
-      margin-bottom: 24px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      text-align: center;
-    }
-    .banner-top h2 { margin: 0; font-size: 1.8rem; }
-    .stats-row {
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      background: #f8fafc;
-      padding: 12px;
-      border-radius: 14px;
-      border: 1px solid var(--border);
-    }
-    .stat-box { display: flex; flex-direction: column; align-items: center; }
-    .stat-value { font-size: 1.8rem; font-weight: 900; }
-    .stat-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; }
-
-    .date-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #f1f5f9;
-      padding: 10px 16px;
-      border-radius: 14px;
-      margin-bottom: 20px;
-      font-weight: bold;
-    }
-    .date-bar button {
-      background: white; border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: bold;
-    }
-
-    .section-title {
-      font-size: 1rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--text-muted);
-      margin: 25px 0 10px 0;
-      font-weight: 800;
-    }
-
-    .card {
-      background: white;
-      border: 2px solid var(--border);
-      border-left: 6px solid #cbd5e1;
-      padding: 16px 20px;
-      margin: 12px 0;
-      border-radius: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-      transition: transform 0.2s;
-    }
-    .card:hover { transform: scale(1.01); }
-    
-    .card-info { display: flex; flex-direction: column; gap: 4px; }
-    .card-title { font-weight: 700; font-size: 1.1rem; }
-    .card-points { font-size: 0.9rem; font-weight: 800; }
-    .points-plus { color: var(--accent-green); }
-    .points-minus { color: var(--accent-red); }
-    .done { text-decoration: line-through; color: var(--text-muted); opacity: 0.5; }
-
-    .switch {
-      position: relative; display: inline-block; width: 56px; height: 30px;
-    }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider {
-      position: absolute; cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #cbd5e1; transition: .4s; border-radius: 34px;
-    }
-    .slider:before {
-      position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px;
-      background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
+    :root { --bg-gradient: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); --card-bg: rgba(255, 255, 255, 0.95); --text: #334155; --text-muted: #64748b; --accent-green: #10b981; --accent-red: #ef4444; --accent-purple: #8b5cf6; --border: #e2e8f0; }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg-gradient); background-attachment: fixed; color: var(--text); margin: 0; padding: 20px 10px; }
+    .app { max-width: 650px; margin: auto; background: var(--card-bg); padding: 24px; border-radius: 24px; box-shadow: 0 20px 40px -10px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.5); }
+    h1 { text-align: center; font-size: 2rem; }
+    .tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 20px; border-bottom: 2px solid var(--border); }
+    .tabs button { padding: 12px 20px; border-radius: 30px; border: none; background: #f1f5f9; cursor: pointer; font-weight: bold; white-space: nowrap; }
+    .tab-active { color: white !important; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .score-banner { background: white; border: 2px solid var(--border); padding: 20px; border-radius: 20px; margin-bottom: 20px; text-align: center; }
+    .stats-row { display: flex; justify-content: space-around; background: #f8fafc; padding: 12px; border-radius: 14px; margin-top: 10px; }
+    .card { background: white; border: 2px solid var(--border); border-left: 6px solid #cbd5e1; padding: 16px; margin: 10px 0; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+    .switch input { opacity: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; border-radius: 34px; transition: .4s; }
+    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background: white; border-radius: 50%; transition: .4s; }
     input:checked + .slider { background-color: var(--accent-green); }
-    input:checked + .slider.penalty { background-color: var(--accent-red); }
-    input:checked + .slider:before { transform: translateX(26px); }
-
-    .bank-section {
-      margin-top: 25px;
-      background: #f8fafc;
-      padding: 20px;
-      border-radius: 16px;
-      border: 2px dashed #94a3b8;
-      text-align: center;
-    }
-
-    input[type="text"], input[type="number"], input[type="password"], select, textarea {
-      background: white; border: 2px solid var(--border); color: var(--text);
-      padding: 14px; border-radius: 12px; margin: 8px 0; width: 100%; box-sizing: border-box; font-size: 1rem; font-family: inherit;
-    }
-    input:focus, textarea:focus, select:focus { outline: none; border-color: #3b82f6; }
-    
-    .btn {
-      padding: 14px 24px; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; width: 100%; transition: background 0.2s;
-    }
-    .btn-primary { background: #3b82f6; color: white; }
-    .btn-primary:hover { background: #2563eb; }
-    .btn-success { background: var(--accent-green); color: white; }
-    .btn-danger { background: var(--accent-red); color: white; }
-    .btn-purple { background: var(--accent-purple); color: white; }
-
-    .kid-subtabs { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
-    .kid-subtabs button {
-      padding: 8px 16px; border-radius: 20px; border: none; font-weight: bold; cursor: pointer; background: #e2e8f0; color: #64748b;
-    }
-    .kid-subtabs button.active { background: #334155; color: white; }
-
-    .history-card {
-      background: white; border: 2px solid var(--border); padding: 15px; border-radius: 14px; margin-bottom: 12px;
-      display: flex; justify-content: space-between; align-items: center; font-weight: bold;
-    }
+    input:checked + .slider:before { transform: translateX(24px); }
+    .btn { padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 5px; }
   </style>
 </head>
 <body>
@@ -203,487 +36,99 @@
 var SUPABASE_URL = "https://iviohybtosmtvzousqqq.supabase.co"; 
 var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2aW9oeWJ0b3NtdHZ6b3VzcXFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5NDYxOTAsImV4cCI6MjA5ODUyMjE5MH0.0LV25LS-6Yv3EF6_Td5uv-o4Jgm7qNstDSs3RHFRWeo"; 
 var PARENT_PIN = "3579";
-
 var supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-var kids = [];
-var chores = [];
-var logs = [];
-var redemptions = [];
-var selectedKidId = null;
-var currentTab = "kids"; 
-var kidViewMode = "today"; 
-var parentUnlocked = false;
-
-var viewingDate = getLocalDateString(new Date());
-var kidColors = ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
-var pendingChores = new Set(); 
-
-function getLocalDateString(dateObj) {
-  var offset = dateObj.getTimezoneOffset();
-  var localDate = new Date(dateObj.getTime() - (offset * 60 * 1000));
-  return localDate.toISOString().split('T')[0];
-}
+var kids = [], chores = [], logs = [], redemptions = [], selectedKidId = null, currentTab = "kids", parentUnlocked = false;
+var viewingDate = new Date().toISOString().split('T')[0];
+var kidColors = ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
 
 async function loadData() {
-  try {
-    var kidsRes = await supabaseClient.from("kids").select("*").order("id");
-    var choresRes = await supabaseClient.from("chores").select("*").order("id");
-    var logsRes = await supabaseClient.from("task_logs").select("*");
-    var redRes = await supabaseClient.from("redemptions").select("*");
-
-    kids = kidsRes.data || [];
-    chores = choresRes.data || [];
-    logs = logsRes.data || [];
-    redemptions = redRes.data || [];
-
-    if (kids.length > 0 && !selectedKidId) selectedKidId = kids[0].id;
-
-    renderTabs();
-    if (currentTab === "parents") {
-      renderParents();
-    } else {
-      renderKid(selectedKidId);
-    }
-  } catch (err) {
-    console.error("Error:", err);
-  }
+  var [k, c, l, r] = await Promise.all([
+    supabaseClient.from("kids").select("*").order("id"),
+    supabaseClient.from("chores").select("*").order("id"),
+    supabaseClient.from("task_logs").select("*"),
+    supabaseClient.from("redemptions").select("*")
+  ]);
+  kids = k.data || []; chores = c.data || []; logs = l.data || []; redemptions = r.data || [];
+  if (!selectedKidId && kids.length) selectedKidId = kids[0].id;
+  render();
 }
 
-function renderTabs() {
-  var tabs = document.getElementById("tabs");
-  tabs.innerHTML = "";
+function getPending() { return JSON.parse(localStorage.getItem(`pend_${selectedKidId}_${viewingDate}`) || "[]"); }
+function savePending(arr) { localStorage.setItem(`pend_${selectedKidId}_${viewingDate}`, JSON.stringify(arr)); render(); }
 
-  kids.forEach(function(kid, index) {
-    var btn = document.createElement("button");
-    btn.textContent = kid.name;
-    var kidColor = kidColors[index % kidColors.length];
-    
-    if (currentTab === "kids" && selectedKidId === kid.id) {
-      btn.classList.add("tab-active");
-      btn.style.backgroundColor = kidColor;
-      btn.style.borderColor = kidColor;
-    } else {
-      btn.style.backgroundColor = '#f1f5f9';
-      btn.style.color = kidColor;
-    }
-    
-    btn.onclick = function() {
-      currentTab = "kids";
-      selectedKidId = kid.id;
-      kidViewMode = "today";
-      viewingDate = getLocalDateString(new Date());
-      pendingChores.clear();
-      renderTabs();
-      renderKid(kid.id);
-    };
+function render() {
+  var tabs = document.getElementById("tabs"); tabs.innerHTML = "";
+  kids.forEach((k, i) => {
+    var btn = document.createElement("button"); btn.textContent = k.name;
+    if (selectedKidId === k.id && currentTab === "kids") btn.classList.add("tab-active");
+    btn.style.backgroundColor = (selectedKidId === k.id) ? kidColors[i % 5] : '#f1f5f9';
+    btn.onclick = () => { selectedKidId = k.id; currentTab = "kids"; render(); };
     tabs.appendChild(btn);
   });
+  var pBtn = document.createElement("button"); pBtn.textContent = "⚙️ Parents";
+  if (currentTab === "parents") pBtn.classList.add("tab-active");
+  pBtn.onclick = () => { currentTab = "parents"; render(); };
+  tabs.appendChild(pBtn);
 
-  var parentBtn = document.createElement("button");
-  parentBtn.textContent = "⚙️ Parents";
-  if (currentTab === "parents") {
-    parentBtn.classList.add("tab-active");
-    parentBtn.style.backgroundColor = "#334155";
-  } else {
-    parentBtn.style.color = "#334155";
-  }
-  parentBtn.onclick = function() {
-    currentTab = "parents";
-    renderTabs();
-    renderParents();
-  };
-  tabs.appendChild(parentBtn);
+  if (currentTab === "parents") renderParents();
+  else renderKid();
 }
 
-function getPoints(kidId) {
-  return logs.filter(function(l) { return l.kid_id === kidId; }).reduce(function(sum, l) { return sum + l.points; }, 0);
-}
+function renderKid() {
+  var kid = kids.find(k => k.id === selectedKidId);
+  if (!kid) return;
+  var pts = logs.filter(l => l.kid_id === kid.id).reduce((s, l) => s + l.points, 0);
+  var cash = redemptions.filter(r => r.kid_id === kid.id).reduce((s, r) => s + r.amount, 0);
+  var pend = getPending();
+  var pendSum = pend.reduce((s, id) => s + (chores.find(c => c.id == id)?.points || 0), 0);
 
-function getTotalRedeemed(kidId) {
-  return redemptions.filter(function(r) { return r.kid_id === kidId; }).reduce(function(sum, r) { return sum + r.amount; }, 0);
-}
+  var html = `<div class="score-banner"><h2>${kid.name}</h2><div class="stats-row"><div>🏆 ${pts}</div><div>💵 $${cash}</div></div></div>`;
+  html += `<div style="display:flex; justify-content:space-between; margin:10px 0;">
+             <button onclick="changeDate(-1)">◀</button><span>${viewingDate}</span><button onclick="changeDate(1)">▶</button>
+           </div>
+           <div style="text-align:right; color:green; font-weight:bold;">Pending: ${pendSum} pts</div>`;
 
-function setKidView(mode) {
-  kidViewMode = mode;
-  renderKid(selectedKidId);
-}
-
-function changeDate(days) {
-  var curr = new Date(viewingDate + 'T00:00:00');
-  curr.setDate(curr.getDate() + days);
-  viewingDate = getLocalDateString(curr);
-  renderKid(selectedKidId);
-}
-
-function resetToToday() {
-  viewingDate = getLocalDateString(new Date());
-  renderKid(selectedKidId);
-}
-
-function renderKid(kidId) {
-  if (!kidId) {
-    document.getElementById("content").innerHTML = "<p style='text-align:center;'>Add kids in Parents Portal.</p>";
-    return;
-  }
-  
-  var kid = kids.find(function(k) { return k.id === kidId; });
-  var kidIndex = kids.findIndex(function(k) { return k.id === kidId; });
-  var color = kidColors[Math.max(0, kidIndex) % kidColors.length];
-  var points = getPoints(kidId);
-  var totalCash = getTotalRedeemed(kidId);
-
-  var html = `
-    <div class="score-banner" style="border-color: ${color};">
-      <div class="banner-top">
-        <h2 style="color: ${color}">${kid.name}</h2>
-      </div>
-      <div class="stats-row">
-        <div class="stat-box">
-          <div class="stat-value" style="color: ${color}">🏆 ${points}</div>
-          <div class="stat-label">Total Points</div>
-        </div>
-        <div style="width:1px; background:var(--border); height:35px;"></div>
-        <div class="stat-box">
-          <div class="stat-value" style="color: var(--accent-green)">💵 $${totalCash}</div>
-          <div class="stat-label">Apple Cash Redeemed</div>
-        </div>
-      </div>
-    </div>
-    
-    <div class="kid-subtabs">
-      <button class="${kidViewMode === 'today' ? 'active' : ''}" onclick="setKidView('today')">Tasks & Approval</button>
-      <button class="${kidViewMode === 'history' ? 'active' : ''}" onclick="setKidView('history')">History & Cash</button>
-    </div>
-  `;
-
-  if (kidViewMode === 'today') {
-    html += renderKidTasks(kidId);
-  } else {
-    html += renderKidHistory(kidId);
-  }
-
+  chores.filter(c => c.kid_id == kid.id).forEach(c => {
+    var banked = logs.some(l => l.chore_id == c.id && l.log_date == viewingDate);
+    html += `<div class="card"><span>${c.name} (+${c.points})</span>
+      ${banked ? '✅' : `<label class="switch"><input type="checkbox" ${pend.includes(c.id) ? 'checked':''} onchange="toggle(${c.id})"><span class="slider"></span></label>`}
+    </div>`;
+  });
+  html += `<input type="password" id="pin" placeholder="PIN"><button class="btn" style="background:#10b981; color:white;" onclick="bank()">Bank</button>
+           <button class="btn" style="background:#8b5cf6; color:white;" onclick="redeem()">Redeem $10</button>`;
   document.getElementById("content").innerHTML = html;
 }
 
-function togglePending(choreId) {
-  if (pendingChores.has(choreId)) pendingChores.delete(choreId);
-  else pendingChores.add(choreId);
+function toggle(id) { var p = getPending(); if (p.includes(id)) p = p.filter(i => i !== id); else p.push(id); savePending(p); }
+function changeDate(d) { var dt = new Date(viewingDate + 'T00:00:00'); dt.setDate(dt.getDate() + d); viewingDate = dt.toISOString().split('T')[0]; render(); }
+
+async function bank() {
+  if (document.getElementById('pin').value !== PARENT_PIN) return alert("Wrong PIN");
+  var p = getPending();
+  var rows = p.map(id => ({ kid_id: selectedKidId, chore_id: id, points: chores.find(c => c.id == id).points, log_date: viewingDate }));
+  await supabaseClient.from("task_logs").insert(rows);
+  localStorage.removeItem(`pend_${selectedKidId}_${viewingDate}`);
+  loadData();
 }
 
-function renderKidTasks(kidId) {
-  var kidChores = chores.filter(function(c) { return c.kid_id === kidId; });
-  var regularChores = kidChores.filter(function(c) { return c.points >= 0; });
-  var penalties = kidChores.filter(function(c) { return c.points < 0; });
-  var currentPoints = getPoints(kidId);
-  var html = "";
-
-  html += `
-    <div class="date-bar">
-      <button onclick="changeDate(-1)">◀ Prev</button>
-      <span>📅 ${viewingDate}</span>
-      <button onclick="changeDate(1)">Next ▶</button>
-    </div>
-    <div style="text-align:center; margin-bottom:15px;">
-      <button style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:bold; font-size:0.85rem;" onclick="resetToToday()">Reset to Today</button>
-    </div>
-  `;
-
-  html += `<div class="section-title">Chores</div>`;
-  if (regularChores.length === 0) html += `<p>No chores listed.</p>`;
-  
-  regularChores.forEach(function(chore, idx) {
-    var isBanked = logs.some(function(l) { return l.kid_id === kidId && l.chore_id === chore.id && l.log_date === viewingDate; });
-    var isPending = pendingChores.has(chore.id);
-    var cardColor = kidColors[idx % kidColors.length];
-
-    html += `
-      <div class="card" style="border-left-color: ${cardColor};">
-        <div class="card-info">
-          <span class="card-title ${isBanked ? 'done' : ''}">${chore.name}</span>
-          <span class="card-points points-plus">+${chore.points} pts</span>
-        </div>
-        <div>
-          ${isBanked ? `<span style="color:var(--accent-green); font-weight:bold;">✅ Banked</span>` 
-            : `<label class="switch">
-                 <input type="checkbox" onchange="togglePending(${chore.id})" ${isPending ? 'checked' : ''}>
-                 <span class="slider"></span>
-               </label>`
-          }
-        </div>
-      </div>
-    `;
-  });
-
-  html += `<div class="section-title" style="color:var(--accent-red)">⚠️ Penalties</div>`;
-  penalties.forEach(function(penalty) {
-    var isBanked = logs.some(function(l) { return l.kid_id === kidId && l.chore_id === penalty.id && l.log_date === viewingDate; });
-    var isPending = pendingChores.has(penalty.id);
-
-    html += `
-      <div class="card" style="border-left-color: var(--accent-red);">
-        <div class="card-info">
-          <span class="card-title ${isBanked ? 'done' : ''}">${penalty.name}</span>
-          <span class="card-points points-minus">${penalty.points} pts</span>
-        </div>
-        <div>
-          ${isBanked ? `<span style="color:var(--accent-red); font-weight:bold;">⚠️ Applied</span>` 
-            : `<label class="switch">
-                 <input type="checkbox" onchange="togglePending(${penalty.id})" ${isPending ? 'checked' : ''}>
-                 <span class="slider penalty"></span>
-               </label>`
-          }
-        </div>
-      </div>
-    `;
-  });
-
-  html += `
-    <div class="bank-section">
-      <h3 style="margin-top:0;">Parent Approval & Bank</h3>
-      <p style="font-size:0.9rem; color:var(--text-muted);">Enter PIN to log selected toggles or redeem Apple Cash (500 pts = $10).</p>
-      <input type="password" id="bankPinInput" placeholder="Enter Parent PIN">
-      
-      <div style="display:flex; gap:10px; margin-top:10px;">
-        <button class="btn btn-success" onclick="bankSelectedPoints(${kidId})">🏦 Bank Points</button>
-        <button class="btn btn-purple" onclick="redeemAppleCash(${kidId}, ${currentPoints})" ${currentPoints < 500 ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>💵 Redeem $10 (500 pts)</button>
-      </div>
-    </div>
-  `;
-  return html;
-}
-
-async function bankSelectedPoints(kidId) {
-  var pin = document.getElementById("bankPinInput").value;
-  if (pin !== PARENT_PIN) return alert("Incorrect PIN!");
-  if (pendingChores.size === 0) return alert("No switches turned on to bank!");
-
-  var inserts = [];
-  pendingChores.forEach(function(choreId) {
-    var chore = chores.find(function(c) { return c.id === choreId; });
-    if (chore) {
-      inserts.push({ kid_id: kidId, chore_id: chore.id, points: chore.points, log_date: viewingDate });
-    }
-  });
-
-  var res = await supabaseClient.from("task_logs").insert(inserts);
-  if (!res.error) {
-    pendingChores.clear();
-    alert("Points successfully banked!");
-    await loadData();
-  }
-}
-
-async function redeemAppleCash(kidId, currentPoints) {
-  var pin = document.getElementById("bankPinInput").value;
-  if (pin !== PARENT_PIN) return alert("Incorrect PIN!");
-  if (currentPoints < 500) return alert("Not enough points! Need at least 500 points.");
-
-  var redResult = await supabaseClient.from("redemptions").insert({
-    kid_id: kidId,
-    amount: 10,
-    points_spent: 500,
-    redeem_date: viewingDate
-  });
-
-  if (redResult.error) {
-    alert("Error processing redemption.");
-    return;
-  }
-
-  var logResult = await supabaseClient.from("task_logs").insert({
-    kid_id: kidId,
-    chore_id: null,
-    points: -500,
-    log_date: viewingDate
-  });
-
-  if (!logResult.error) {
-    alert("🎉 Successfully redeemed $10 Apple Cash! 500 points deducted.");
-    await loadData();
-  }
-}
-
-function renderKidHistory(kidId) {
-  var kidLogs = logs.filter(function(l) { return l.kid_id === kidId; });
-  var kidReds = redemptions.filter(function(r) { return r.kid_id === kidId; }).sort(function(a, b) { return new Date(b.redeem_date) - new Date(a.redeem_date); });
-
-  var html = `<div style="margin-top:20px;">`;
-  
-  html += `<h3 style="color:var(--text); border-bottom:2px solid var(--border); padding-bottom:5px;">📅 Daily Point Totals</h3>`;
-  
-  var dailyTotals = {};
-  kidLogs.forEach(function(l) {
-    dailyTotals[l.log_date] = (dailyTotals[l.log_date] || 0) + l.points;
-  });
-
-  var sortedDates = Object.keys(dailyTotals).sort(function(a, b) { return new Date(b) - new Date(a); });
-  
-  if (sortedDates.length === 0) {
-    html += `<p style="color:var(--text-muted); font-size:0.9rem;">No daily history recorded yet.</p>`;
-  } else {
-    sortedDates.forEach(function(date) {
-      var pts = dailyTotals[date];
-      var color = pts >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
-      html += `
-        <div class="history-card">
-          <span>${date}</span>
-          <span style="color:${color};">${pts >= 0 ? '+' : ''}${pts} pts</span>
-        </div>
-      `;
-    });
-  }
-
-  html += `<h3 style="color:var(--text); border-bottom:2px solid var(--border); padding-bottom:5px; margin-top:30px;">💵 Apple Cash Redemptions</h3>`;
-  
-  if (kidReds.length === 0) {
-    html += `<p style="color:var(--text-muted); font-size:0.9rem;">No redemptions yet.</p>`;
-  } else {
-    kidReds.forEach(function(r) {
-      html += `
-        <div class="history-card" style="border-left: 6px solid var(--accent-purple);">
-          <span>${r.redeem_date}</span>
-          <span style="color:var(--accent-purple);">-$${r.amount} ($10 / 500pts)</span>
-        </div>
-      `;
-    });
-  }
-
-  html += `</div>`;
-  return html;
+async function redeem() {
+  if (document.getElementById('pin').value !== PARENT_PIN) return alert("Wrong PIN");
+  await supabaseClient.from("redemptions").insert({ kid_id: selectedKidId, amount: 10, points_spent: 500, redeem_date: viewingDate });
+  await supabaseClient.from("task_logs").insert({ kid_id: selectedKidId, points: -500, log_date: viewingDate });
+  loadData();
 }
 
 function renderParents() {
-  if (!parentUnlocked) {
-    document.getElementById("content").innerHTML = `
-      <div style="text-align:center; padding: 40px 20px;">
-        <h2>🔒 Restricted Area</h2>
-        <p>Please enter the Parent PIN to access settings.</p>
-        <input type="password" id="loginPin" placeholder="Parent PIN" style="max-width:300px; text-align:center;">
-        <br>
-        <button class="btn btn-primary" style="max-width:300px; margin-top:15px;" onclick="checkParentPin()">Unlock Portal</button>
-      </div>
-    `;
-    return;
-  }
-
-  var html = `
-    <h2 style="margin-top:0;">⚙️ Setup Portal</h2>
-    <div style="display:flex; flex-direction:column; gap:20px;">
-      
-      <div class="score-banner" style="text-align: left;">
-        <h3 style="margin-top:0;">Add Kid</h3>
-        <input id="kidName" placeholder="e.g., Aadya">
-        <button class="btn btn-primary" style="margin-top:10px;" onclick="addKid()">Add Kid</button>
-      </div>
-
-      <div class="score-banner" style="text-align: left;">
-        <h3 style="margin-top:0;">Add Chores / Penalties</h3>
-        <label style="font-size:0.9rem; font-weight:bold;">Assign to:</label>
-        <select id="choreKid">
-          ${kids.map(function(k) { return `<option value="${k.id}">${k.name}</option>`; }).join("")}
-        </select>
-        <label style="font-size:0.9rem; font-weight:bold; display:block; margin-top:10px;">Format: <i>Name, Points</i> (One per line)</label>
-        <textarea id="choreList" rows="5" placeholder="🛏️ Make Bed, 5&#10;🍽️ Help with Dishes, 5&#10;🚫 Talking Back, -10"></textarea>
-        <button class="btn btn-primary" style="margin-top:10px;" onclick="addBulkChores()">Save All Actions</button>
-      </div>
-
-      <div class="score-banner" style="text-align: left;">
-        <h3 style="margin-top:0;">Manual Adjustment</h3>
-        <select id="adjustKid">
-          ${kids.map(function(k) { return `<option value="${k.id}">${k.name}</option>`; }).join("")}
-        </select>
-        <input id="adjustPoints" type="number" placeholder="Points (e.g. +20 or -15)">
-        <button class="btn" style="background:#f59e0b; color:white; margin-top:10px;" onclick="adjustPoints()">Apply Adjustment</button>
-      </div>
-
-      <div>
-        <h3>Manage Existing Actions</h3>
-        ${chores.length === 0 ? `<p>No chores setup yet.</p>` : ''}
-        ${chores.map(function(chore) {
-          var kid = kids.find(function(k) { return k.id === chore.kid_id; });
-          var pointsLabel = chore.points >= 0 ? `+${chore.points}` : `${chore.points}`;
-          var colorClass = chore.points >= 0 ? 'points-plus' : 'points-minus';
-          return `
-            <div class="card" style="padding:10px 15px;">
-              <div class="card-info">
-                <span><strong>${kid ? kid.name : "System"}</strong>: ${chore.name}</span>
-                <span class="${colorClass}" style="font-weight:bold;">${pointsLabel} pts</span>
-              </div>
-              <button class="btn btn-danger" style="width:auto; padding:8px 12px; font-size:0.9rem;" onclick="deleteChore(${chore.id})">Delete</button>
-            </div>
-          `;
-        }).join("")}
-      </div>
-    </div>
-  `;
-
-  document.getElementById("content").innerHTML = html;
+  if (!parentUnlocked) document.getElementById("content").innerHTML = `<input type="password" id="pPin"><button class="btn" onclick="if(document.getElementById('pPin').value=='${PARENT_PIN}'){parentUnlocked=true; render();}">Unlock</button>`;
+  else document.getElementById("content").innerHTML = `<h3>Portal</h3><textarea id='cList' rows='4'></textarea><button class='btn' onclick='addBulk()'>Bulk Add</button>`;
 }
 
-function checkParentPin() {
-  var pin = document.getElementById("loginPin").value;
-  if (pin === PARENT_PIN) {
-    parentUnlocked = true;
-    renderParents();
-  } else {
-    alert("Incorrect PIN");
-  }
-}
-
-async function addKid() {
-  var name = document.getElementById("kidName").value;
-  if (!name) return alert("Please enter a kid name");
-  await supabaseClient.from("kids").insert({ name: name });
-  await loadData();
-}
-
-async function addBulkChores() {
-  var kid_id = Number(document.getElementById("choreKid").value);
-  var rawText = document.getElementById("choreList").value;
-
-  if (!rawText.trim()) return alert("Please enter at least one chore.");
-
-  var lines = rawText.split('\n');
-  var insertData = [];
-
-  for (var i = 0; i < lines.length; i++) {
-    var line = lines[i];
-    if (!line.trim()) continue;
-    var parts = line.split(',');
-    if (parts.length < 2) return alert(`Format error on line: "${line}"\nUse a comma between name and points.`);
-    
-    var pointsStr = parts.pop().trim();
-    var name = parts.join(',').trim();
-    var points = Number(pointsStr);
-
-    if (!name || isNaN(points)) return alert(`Data error on line: "${line}"`);
-    insertData.push({ kid_id: kid_id, name: name, points: points });
-  }
-
-  if (insertData.length > 0) {
-    var res = await supabaseClient.from("chores").insert(insertData);
-    if (!res.error) {
-      alert(`Successfully saved ${insertData.length} actions!`);
-      await loadData();
-    }
-  }
-}
-
-async function deleteChore(id) {
-  if (!confirm("Delete this chore? Past logs will remain intact.")) return;
-  await supabaseClient.from("chores").delete().eq("id", id);
-  await loadData();
-}
-
-async function adjustPoints() {
-  var kid_id = Number(document.getElementById("adjustKid").value);
-  var points = Number(document.getElementById("adjustPoints").value);
-  if (isNaN(points)) return alert("Valid number required");
-
-  await supabaseClient.from("task_logs").insert({ kid_id: kid_id, chore_id: null, points: points, log_date: viewingDate });
-  alert("Points successfully adjusted!");
-  await loadData();
+async function addBulk() {
+  var list = document.getElementById('cList').value.split('\n');
+  var data = list.map(l => ({ kid_id: selectedKidId, name: l.split(',')[0], points: Number(l.split(',')[1]) }));
+  await supabaseClient.from("chores").insert(data);
+  loadData();
 }
 
 loadData();
