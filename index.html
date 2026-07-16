@@ -354,91 +354,53 @@ function renderKid() {
   document.getElementById("content").innerHTML = html;
 }
 
-function renderKidTasks(kidId, pendSum) {
-  var kidChores = chores.filter(function(c) { return c.kid_id === kidId; });
-  var regularChores = kidChores.filter(function(c) { return c.points >= 0; });
-  var penalties = kidChores.filter(function(c) { return c.points < 0; });
-  var currentPoints = logs.filter(function(l) { return l.kid_id === kidId; }).reduce(function(sum, l) { return sum + l.points; }, 0);
-  var pend = getPending();
-  var html = "";
-
-  html += `
-    <div class="date-bar">
-      <button onclick="changeDate(-1)">◀ Prev</button>
-      <span>📅 ${viewingDate}</span>
-      <button onclick="changeDate(1)">Next ▶</button>
-    </div>
-    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 5px; margin-bottom: 15px;">
-      <button style="background:none; border:none; color:#3b82f6; cursor:pointer; font-weight:bold; font-size:0.85rem;" onclick="resetToToday()">Reset to Today</button>
-      <span style="font-weight: 800; color: var(--accent-green); background: #ecfdf5; padding: 4px 10px; border-radius: 8px; border: 1px solid #10b981;">
-        Pending Approval: ${pendSum >= 0 ? '+' : ''}${pendSum} pts
-      </span>
-    </div>
-  `;
-
-  html += `<div class="section-title">Chores</div>`;
-  if (regularChores.length === 0) html += `<p style="color:var(--text-muted); font-size:0.9rem;">No chores listed. Add some in the Parents portal.</p>`;
+// --- NEW KID FUNCTION: Send for Approval ---
+async function sendForApproval(kidId) {
+  var p = getPending();
+  if (p.length === 0) return alert("Nothing to send!");
   
-  regularChores.forEach(function(chore, idx) {
-    var isBanked = logs.some(function(l) { return l.kid_id === kidId && l.chore_id === chore.id && l.log_date === viewingDate; });
-    var isChecked = pend.includes(chore.id);
-    var cardColor = kidColors[idx % kidColors.length];
-
-    html += `
-      <div class="card" style="border-left-color: ${cardColor};">
-        <div class="card-info">
-          <span class="card-title ${isBanked ? 'done' : ''}">${chore.name}</span>
-          <span class="card-points points-plus">+${chore.points} pts</span>
-        </div>
-        <div>
-          ${isBanked ? `<span style="color:var(--accent-green); font-weight:bold;">✅ Banked</span>` 
-            : `<label class="switch">
-                 <input type="checkbox" onchange="togglePending(${chore.id})" ${isChecked ? 'checked' : ''}>
-                 <span class="slider"></span>
-               </label>`
-          }
-        </div>
-      </div>
-    `;
+  var total = p.reduce((sum, id) => sum + (chores.find(c => c.id == id)?.points || 0), 0);
+  
+  var res = await supabaseClient.from("pending_requests").insert({
+    kid_id: kidId,
+    chore_ids: p,
+    total_points: total,
+    log_date: viewingDate
   });
 
-  html += `<div class="section-title" style="color:var(--accent-red)">⚠️ Penalties</div>`;
-  penalties.forEach(function(penalty) {
-    var isBanked = logs.some(function(l) { return l.kid_id === kidId && l.chore_id === penalty.id && l.log_date === viewingDate; });
-    var isChecked = pend.includes(penalty.id);
-
-    html += `
-      <div class="card" style="border-left-color: var(--accent-red);">
-        <div class="card-info">
-          <span class="card-title ${isBanked ? 'done' : ''}">${penalty.name}</span>
-          <span class="card-points points-minus">${penalty.points} pts</span>
-        </div>
-        <div>
-          ${isBanked ? `<span style="color:var(--accent-red); font-weight:bold;">⚠️ Applied</span>` 
-            : `<label class="switch">
-                 <input type="checkbox" onchange="togglePending(${penalty.id})" ${isChecked ? 'checked' : ''}>
-                 <span class="slider penalty"></span>
-               </label>`
-          }
-        </div>
-      </div>
-    `;
-  });
-
-  html += `
-    <div class="bank-section">
-      <h3 style="margin-top:0;">Parent Approval & Bank</h3>
-      <p style="font-size:0.9rem; color:var(--text-muted);">Enter PIN to log toggles for ${viewingDate} or redeem Apple Cash (500 pts = $10).</p>
-      <input type="password" id="bankPinInput" placeholder="Enter Parent PIN">
-      
-      <div style="display:flex; gap:10px; margin-top:10px;">
-        <button class="btn btn-success" onclick="bankSelectedPoints(${kidId})">🏦 Bank Points</button>
-        <button class="btn btn-purple" onclick="redeemAppleCash(${kidId}, ${currentPoints})" ${currentPoints < 500 ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>💵 Redeem $10 (500 pts)</button>
-      </div>
-    </div>
-  `;
-  return html;
+  if (!res.error) {
+    localStorage.removeItem(`pend_${kidId}_${viewingDate}`);
+    alert("Request sent to Parent!");
+    loadData();
+  }
 }
+
+// --- NEW PARENT FUNCTION: Approve Requests ---
+async function approveRequest(reqId, kidId, choreIds, totalPoints, date) {
+  // 1. Log the points officially
+  await supabaseClient.from("task_logs").insert({
+    kid_id: kidId, points: totalPoints, log_date: date
+  });
+  
+  // 2. Mark request as banked
+  await supabaseClient.from("pending_requests").update({ status: 'banked' }).eq('id', reqId);
+  
+  loadData();
+}
+
+// --- UPDATE RENDER KID TASKS ---
+// Replace the "Bank Points" button in renderKidTasks with this:
+/* 
+   <button class="btn btn-success" onclick="sendForApproval(${kidId})">🚀 Send for Parent Approval</button>
+*/
+
+// --- UPDATE RENDER PARENTS ---
+// Add this to renderParents() to show pending requests:
+/*
+  var pendingReqs = await supabaseClient.from("pending_requests").select("*").eq("status", "pending");
+  // Loop through pendingReqs and create buttons to approve them
+*/
+  
 
 function togglePending(choreId) {
   var p = getPending();
