@@ -212,17 +212,23 @@ var kidColors = ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899
 
 async function loadData() {
   try {
-    var [k, c, l, r] = await Promise.all([
-      supabaseClient.from("kids").select("*").order("id"),
-      supabaseClient.from("chores").select("*").order("id"),
-      supabaseClient.from("task_logs").select("*"),
-      supabaseClient.from("redemptions").select("*")
-    ]);
-    kids = k.data || []; chores = c.data || []; logs = l.data || []; redemptions = r.data || [];
-    if (!selectedKidId && kids.length) selectedKidId = kids[0].id;
+    var kRes = await supabaseClient.from("kids").select("*").order("id");
+    var cRes = await supabaseClient.from("chores").select("*").order("id");
+    var lRes = await supabaseClient.from("task_logs").select("*");
+    var rRes = await supabaseClient.from("redemptions").select("*");
+
+    kids = kRes.data || [];
+    chores = cRes.data || [];
+    logs = lRes.data || [];
+    redemptions = rRes.data || [];
+
+    if (!selectedKidId && kids.length > 0) {
+      selectedKidId = kids[0].id;
+    }
     render();
   } catch (err) {
-    console.error("Error loading data:", err);
+    console.error("Supabase load error:", err);
+    document.getElementById("content").innerHTML = "<p style='text-align:center; color:red;'>Error connecting to Supabase database. Check table names.</p>";
   }
 }
 
@@ -297,7 +303,11 @@ function resetToToday() {
 function renderKid() {
   var kid = kids.find(function(k) { return k.id === selectedKidId; });
   if (!kid) {
-    document.getElementById("content").innerHTML = "<p style='text-align:center;'>Add kids in Parents Portal.</p>";
+    document.getElementById("content").innerHTML = `
+      <div style="text-align:center; padding: 20px;">
+        <p>No kids found in the database.</p>
+        <p>Click on <strong>⚙️ Parents</strong> above to unlock and add your first kid!</p>
+      </div>`;
     return;
   }
   var kidIndex = kids.findIndex(function(k) { return k.id === kid.id; });
@@ -367,7 +377,7 @@ function renderKidTasks(kidId, pendSum) {
   `;
 
   html += `<div class="section-title">Chores</div>`;
-  if (regularChores.length === 0) html += `<p style="color:var(--text-muted); font-size:0.9rem;">No chores listed. Add some in the Parents portal.</p>";
+  if (regularChores.length === 0) html += `<p style="color:var(--text-muted); font-size:0.9rem;">No chores listed. Add some in the Parents portal.</p>`;
   
   regularChores.forEach(function(chore, idx) {
     var isBanked = logs.some(function(l) { return l.kid_id === kidId && l.chore_id === chore.id && l.log_date === viewingDate; });
