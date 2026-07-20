@@ -155,7 +155,7 @@
     input:checked + .slider { background-color: var(--accent-green); }
     input:checked + .slider.penalty { background-color: var(--accent-red); }
     input:checked + .slider:before { transform: translateX(26px); }
-
+    
     .bank-section {
       margin-top: 25px;
       background: #f8fafc;
@@ -314,18 +314,16 @@ function renderKid() {
   var cash = redemptions.filter(function(r) { return r.kid_id === kid.id; }).reduce(function(sum, r) { return sum + r.amount; }, 0);
   var pend = getPending();
 
+  // Split chores into Chores (positive) and Penalties (negative)
+  var regularChores = chores.filter(c => c.kid_id == kid.id && c.points >= 0);
+  var penalties = chores.filter(c => c.kid_id == kid.id && c.points < 0);
+
   var html = `
     <div class="score-banner" style="border-color: ${color};">
       <div class="banner-top"><h2 style="color: ${color}">${kid.name}</h2></div>
       <div class="stats-row">
-        <div class="stat-box">
-          <div class="stat-value" style="color: ${color}">🏆 ${pts}</div>
-          <div class="stat-label">Total Points</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-value" style="color: var(--accent-green)">💵 $${cash}</div>
-          <div class="stat-label">Apple Cash</div>
-        </div>
+        <div class="stat-box"><div class="stat-value" style="color: ${color}">🏆 ${pts}</div><div class="stat-label">Points</div></div>
+        <div class="stat-box"><div class="stat-value" style="color: var(--accent-green)">💵 $${cash}</div><div class="stat-label">Apple Cash</div></div>
       </div>
     </div>
     
@@ -336,11 +334,23 @@ function renderKid() {
   `;
 
   if (kidViewMode === 'today') {
-    html += chores.filter(c => c.kid_id == kid.id).map(c => 
-      `<div class="card"><span>${c.name} (${c.points} pts)</span>
+    // Render Chores
+    html += `<div class="section-title">Daily Chores</div>`;
+    html += regularChores.map(c => 
+      `<div class="card"><span>${c.name} (+${c.points})</span>
        <label class="switch"><input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="togglePending(${c.id})"><span class="slider"></span></label>
       </div>`).join('');
-    html += `<button class="btn btn-primary" onclick="sendForApproval(${kid.id})">🚀 Send for Approval</button>`;
+      
+    // Render Penalties
+    if (penalties.length > 0) {
+        html += `<div class="section-title" style="color:var(--accent-red)">⚠️ Penalties</div>`;
+        html += penalties.map(c => 
+          `<div class="card" style="border-left-color: var(--accent-red);"><span>${c.name} (${c.points})</span>
+           <label class="switch"><input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="togglePending(${c.id})"><span class="slider penalty"></span></label>
+          </div>`).join('');
+    }
+
+    html += `<button class="btn btn-primary" style="margin-top:20px;" onclick="sendForApproval(${kid.id})">🚀 Send for Approval</button>`;
   } else {
     html += renderKidHistory(kid.id);
   }
