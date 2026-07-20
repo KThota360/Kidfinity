@@ -263,6 +263,12 @@
       color: var(--text);
     }
 
+    .card-actions {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
     /* Badges */
     .pts-badge {
       font-size: 0.8rem;
@@ -297,6 +303,7 @@
     }
 
     .btn-primary { background: var(--accent-blue); color: white; }
+    .btn-secondary { background: #e2e8f0; color: var(--text); }
     .btn-danger { background: var(--accent-red); color: white; }
 
     input, select, textarea {
@@ -471,7 +478,7 @@
         <h2 style="margin:0 0 10px 0; color: ${color}; font-size:1.6rem; font-weight:800;">${kid.name}</h2>
         <div class="stats-row">
           <div class="stat-box">
-            <div class="stat-value" style="color: var(--accent-green)">🪙 ${available}</div>
+            <div class="stat-value" style="color: var(--accent-green)">💰 ${available}</div>
             <div class="stat-label">Available</div>
           </div>
           <div class="stat-box">
@@ -738,7 +745,10 @@
                   <span>${chore.name}</span>
                   <span class="pts-badge ${isPenalty ? 'penalty' : ''}">${ptsLabel} pts</span>
                 </div>
-                <button class="btn btn-danger" style="width:auto; padding:6px 12px; font-size:0.85rem;" onclick="deleteChore(${chore.id})">Delete</button>
+                <div class="card-actions">
+                  <button class="btn btn-secondary" style="width:auto; padding:6px 12px; font-size:0.85rem;" onclick="editChore(${chore.id})">✏️ Edit</button>
+                  <button class="btn btn-danger" style="width:auto; padding:6px 12px; font-size:0.85rem;" onclick="deleteChore(${chore.id})">Delete</button>
+                </div>
               </div>
             `;
           }).join("")}
@@ -828,6 +838,30 @@
     var today = new Date().toISOString().split('T')[0];
     await supabaseClient.from("task_logs").insert({ kid_id: kidId, points: pts, log_date: today });
     showAlert("✅ Adjustment applied!", "success");
+    await loadData();
+  }
+
+  async function editChore(id) {
+    const chore = chores.find(c => c.id === id);
+    if (!chore) return;
+
+    const newName = prompt("Edit Action Name:", chore.name);
+    if (newName === null) return; // Cancelled
+
+    const newPtsStr = prompt("Edit Point Value (use positive for chores, negative for penalties):", chore.points);
+    if (newPtsStr === null) return; // Cancelled
+
+    const newPts = parseInt(newPtsStr, 10);
+    if (!newName.trim() || isNaN(newPts)) {
+      return showAlert("⚠️ Invalid action name or points value", "error");
+    }
+
+    await supabaseClient
+      .from("chores")
+      .update({ name: newName.trim(), points: newPts })
+      .eq("id", id);
+
+    showAlert("✏️ Action updated successfully!", "success");
     await loadData();
   }
 
