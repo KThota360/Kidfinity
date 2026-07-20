@@ -300,53 +300,47 @@ function resetToToday() {
   render();
 }
 
+  
 function renderKid() {
   var kid = kids.find(function(k) { return k.id === selectedKidId; });
   if (!kid) {
-    document.getElementById("content").innerHTML = `
-      <div style="text-align:center; padding: 20px;">
-        <p>No kids found in the database.</p>
-        <p>Click on <strong>⚙️ Parents</strong> above to unlock and add your first kid!</p>
-      </div>`;
+    document.getElementById("content").innerHTML = "<p style='text-align:center;'>Add kids in Parents Portal.</p>";
     return;
   }
+  
   var kidIndex = kids.findIndex(function(k) { return k.id === kid.id; });
   var color = kidColors[Math.max(0, kidIndex) % kidColors.length];
   var pts = logs.filter(function(l) { return l.kid_id === kid.id; }).reduce(function(sum, l) { return sum + l.points; }, 0);
   var cash = redemptions.filter(function(r) { return r.kid_id === kid.id; }).reduce(function(sum, r) { return sum + r.amount; }, 0);
-  
   var pend = getPending();
-  var pendSum = pend.reduce(function(sum, id) {
-    var c = chores.find(function(item) { return item.id == id; });
-    return sum + (c ? c.points : 0);
-  }, 0);
 
   var html = `
     <div class="score-banner" style="border-color: ${color};">
-      <div class="banner-top">
-        <h2 style="color: ${color}">${kid.name}</h2>
-      </div>
+      <div class="banner-top"><h2 style="color: ${color}">${kid.name}</h2></div>
       <div class="stats-row">
         <div class="stat-box">
           <div class="stat-value" style="color: ${color}">🏆 ${pts}</div>
           <div class="stat-label">Total Points</div>
         </div>
-        <div style="width:1px; background:var(--border); height:35px;"></div>
         <div class="stat-box">
           <div class="stat-value" style="color: var(--accent-green)">💵 $${cash}</div>
-          <div class="stat-label">Apple Cash Redeemed</div>
+          <div class="stat-label">Apple Cash</div>
         </div>
       </div>
     </div>
     
     <div class="kid-subtabs">
-      <button class="${kidViewMode === 'today' ? 'active' : ''}" onclick="setKidView('today')">Tasks & Approval</button>
-      <button class="${kidViewMode === 'history' ? 'active' : ''}" onclick="setKidView('history')">History & Cash</button>
+      <button class="${kidViewMode === 'today' ? 'active' : ''}" onclick="setKidView('today')">Tasks</button>
+      <button class="${kidViewMode === 'history' ? 'active' : ''}" onclick="setKidView('history')">History</button>
     </div>
   `;
 
   if (kidViewMode === 'today') {
-    html += renderKidTasks(kid.id, pendSum);
+    html += chores.filter(c => c.kid_id == kid.id).map(c => 
+      `<div class="card"><span>${c.name} (${c.points} pts)</span>
+       <label class="switch"><input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="togglePending(${c.id})"><span class="slider"></span></label>
+      </div>`).join('');
+    html += `<button class="btn btn-primary" onclick="sendForApproval(${kid.id})">🚀 Send for Approval</button>`;
   } else {
     html += renderKidHistory(kid.id);
   }
