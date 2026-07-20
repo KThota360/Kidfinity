@@ -201,24 +201,21 @@ function renderKid() {
   
   // Score Calculations
   var pts = logs.filter(l => l.kid_id === kid.id).reduce((sum, l) => sum + l.points, 0);
+  var totalRedeemed = redemptions.filter(r => r.kid_id === kid.id).reduce((sum, r) => sum + r.points_spent, 0);
   var cash = redemptions.filter(r => r.kid_id === kid.id).reduce((sum, r) => sum + r.amount, 0);
+  var available = pts - totalRedeemed; // Available for Redemption
   
   var pend = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
-  var pendSum = pend.reduce((sum, id) => {
-    var c = chores.find(item => item.id == id);
-    return sum + (c ? c.points : 0);
-  }, 0);
-
   var regularChores = chores.filter(c => c.kid_id == kid.id && c.points >= 0);
   var penalties = chores.filter(c => c.kid_id == kid.id && c.points < 0);
 
-  // Header Banner with Total, Pending, and Cash
+  // Header Banner with Total, Available, and Cash
   var html = `
     <div class="score-banner" style="border-color: ${color};">
       <h2 style="margin:0 0 10px 0; color: ${color}">${kid.name}</h2>
       <div class="stats-row">
+        <div class="stat-box"><div class="stat-value" style="color: var(--accent-green)">💰 ${available}</div><div class="stat-label">Available</div></div>
         <div class="stat-box"><div class="stat-value" style="color: ${color}">🏆 ${pts}</div><div class="stat-label">Total</div></div>
-        <div class="stat-box"><div class="stat-value" style="color: var(--accent-green)">⏳ ${pendSum}</div><div class="stat-label">Pending</div></div>
         <div class="stat-box"><div class="stat-value" style="color: var(--accent-blue)">💵 $${cash}</div><div class="stat-label">Cash</div></div>
       </div>
     </div>
