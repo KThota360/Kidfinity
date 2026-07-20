@@ -535,7 +535,7 @@ function renderKidHistory(kidId) {
   return html;
 }
 
-function renderParents() {
+async function renderParents() {
   if (!parentUnlocked) {
     document.getElementById("content").innerHTML = `
       <div style="text-align:center; padding: 40px 20px;">
@@ -549,10 +549,42 @@ function renderParents() {
     return;
   }
 
+  // 1. Fetch pending requests dynamically when portal is opened
+  var { data: pending } = await supabaseClient
+    .from("pending_requests")
+    .select("*")
+    .eq("status", "pending");
+
+  // 2. Build the Pending Approvals HTML if there are any requests
+  var pendingHtml = '';
+  if (pending && pending.length > 0) {
+    pendingHtml = `
+      <div class="score-banner" style="text-align: left; border-color: var(--accent-green); background: #ecfdf5;">
+        <h3 style="margin-top:0; color: var(--accent-green);">✅ Pending Approvals</h3>
+        ${pending.map(function(r) {
+          var kid = kids.find(function(k) { return k.id === r.kid_id; });
+          var kidName = kid ? kid.name : "Unknown Kid";
+          var pointsLabel = r.total_points >= 0 ? '+' + r.total_points : r.total_points;
+          return `
+            <div class="card" style="margin-bottom: 10px; background: white;">
+              <div class="card-info">
+                <strong>${kidName}</strong> is requesting to bank <strong style="color: ${r.total_points >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}">${pointsLabel} pts</strong>
+              </div>
+              <button class="btn btn-primary" style="background: var(--accent-green); width: auto; padding: 8px 15px;" onclick="approve(${r.id}, ${r.kid_id}, ${r.total_points})">Approve & Bank</button>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
+
+  // 3. Render the rest of your custom Setup Portal
   var html = `
     <h2 style="margin-top:0;">⚙️ Setup Portal</h2>
     <div style="display:flex; flex-direction:column; gap:20px;">
       
+      ${pendingHtml}
+
       <div class="score-banner" style="text-align: left;">
         <h3 style="margin-top:0;">Add Kid</h3>
         <input id="kidName" placeholder="e.g., Aadya">
@@ -603,6 +635,18 @@ function renderParents() {
   document.getElementById("content").innerHTML = html;
 }
 
+async function approve(rid, kidId, pts) {
+  // Add to permanent history
+  await supabaseClient.from("task_logs").insert({ kid_id: kidId, points: pts, log_date: new Date().toISOString() });
+  
+  // Mark the request as banked 
+  await supabaseClient.from("pending_requests").update({ status: 'banked' }).eq('id', rid);
+  
+  // Refresh data and re-render
+  await loadData();
+  alert("Points successfully banked!");
+}
+  
 function checkParentPin() {
   var pin = document.getElementById("loginPin").value;
   if (pin === PARENT_PIN) {
