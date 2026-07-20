@@ -9,7 +9,7 @@
   
   <style>
     :root {
-      --bg: #f3f4f6;
+      --bg: #f4f6f9;
       --card-bg: #ffffff;
       --text: #1f2937;
       --text-muted: #6b7280;
@@ -17,76 +17,249 @@
       --accent-green: #10b981;
       --accent-red: #ef4444;
       --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
       --accent-gold: #f59e0b;
       --parent-dark: #1f2937;
+      --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+      --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     }
     
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background-color: var(--bg);
+      background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+      background-size: 20px 20px;
       color: var(--text);
       margin: 0;
-      padding: 20px;
+      padding: 16px;
       display: flex;
       justify-content: center;
+      min-height: 100vh;
+      box-sizing: border-box;
     }
 
     #app-container {
       background: var(--card-bg);
       width: 100%;
-      max-width: 600px;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      max-width: 580px;
+      border-radius: 24px;
+      box-shadow: var(--shadow-md);
       overflow: hidden;
-      min-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(229, 231, 235, 0.8);
+      margin: auto;
     }
 
     /* Header & Tabs */
-    .header { text-align: center; padding: 20px; border-bottom: 1px solid var(--border); }
-    .header h1 { margin: 0 0 15px 0; font-size: 1.5rem; }
-    .tabs { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
-    .tab-btn {
-      padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border);
-      background: var(--bg); cursor: pointer; font-weight: 600; color: var(--text-muted);
-      transition: all 0.2s;
+    .header {
+      text-align: center;
+      padding: 24px 20px 16px 20px;
+      background: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
+      border-bottom: 1px solid var(--border);
     }
-    .tab-btn.active { background: #eef2ff; color: var(--accent-blue); border-color: #c7d2fe; }
-    .tab-btn.parent-tab { background: var(--parent-dark); color: white; border-color: var(--parent-dark); }
+    
+    .header h1 {
+      margin: 0 0 16px 0;
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+    }
 
-    #content { padding: 20px; }
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
 
-    /* Score Banner */
-    .score-banner { border: 2px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 20px; text-align: center; }
-    .stats-row { display: flex; justify-content: space-around; margin-top: 10px; }
-    .stat-box { text-align: center; }
-    .stat-value { font-size: 1.5rem; font-weight: bold; }
-    .stat-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .tab-btn {
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+
+    .tab-btn:hover {
+      background: #f3f4f6;
+    }
+
+    .tab-btn.active {
+      background: #eef2ff;
+      color: var(--accent-blue);
+      border-color: #c7d2fe;
+      box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15);
+    }
+
+    .tab-btn.parent-tab {
+      background: var(--parent-dark);
+      color: white;
+      border-color: var(--parent-dark);
+    }
+
+    #content {
+      padding: 20px;
+      flex: 1;
+    }
+
+    /* Banner Cards */
+    .score-banner {
+      background: #ffffff;
+      border: 2px solid var(--border);
+      border-radius: 20px;
+      padding: 18px;
+      margin-bottom: 20px;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s ease;
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 12px;
+      gap: 8px;
+    }
+
+    .stat-box {
+      text-align: center;
+      background: #f9fafb;
+      padding: 10px 12px;
+      border-radius: 14px;
+      flex: 1;
+      border: 1px solid var(--border);
+    }
+
+    .stat-value {
+      font-size: 1.35rem;
+      font-weight: 800;
+    }
+
+    .stat-label {
+      font-size: 0.725rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
 
     /* Subtabs */
-    .kid-subtabs { display: flex; margin-bottom: 15px; border-bottom: 2px solid var(--border); }
-    .kid-subtabs button { flex: 1; background: none; border: none; padding: 10px; font-weight: bold; color: var(--text-muted); cursor: pointer; }
-    .kid-subtabs button.active { color: var(--accent-blue); border-bottom: 3px solid var(--accent-blue); margin-bottom: -2px; }
+    .kid-subtabs {
+      display: flex;
+      margin-bottom: 18px;
+      background: #f3f4f6;
+      padding: 4px;
+      border-radius: 14px;
+    }
+
+    .kid-subtabs button {
+      flex: 1;
+      background: none;
+      border: none;
+      padding: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 10px;
+      transition: all 0.2s ease;
+    }
+
+    .kid-subtabs button.active {
+      background: #ffffff;
+      color: var(--accent-blue);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    /* Section Titles */
+    .section-title {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      margin: 20px 0 10px 0;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+    }
 
     /* Cards & Lists */
-    .section-title { font-size: 0.9rem; font-weight: 800; color: var(--text-muted); margin: 20px 0 10px 0; letter-spacing: 0.5px; }
     .card {
-      background: white; border: 1px solid var(--border); border-radius: 12px; padding: 15px;
-      margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-left: 4px solid var(--accent-green);
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-sm);
+      border-left: 5px solid var(--accent-green);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
-    
+
+    .card:active {
+      transform: scale(0.99);
+    }
+
     /* UI Elements */
-    .btn { padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; }
+    .btn {
+      padding: 12px 18px;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
     .btn-primary { background: var(--accent-blue); color: white; }
     .btn-danger { background: var(--accent-red); color: white; }
-    
-    input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; font-family: inherit; }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+      font-family: inherit;
+      font-size: 0.95rem;
+      background-color: #fafafa;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+      background-color: #ffffff;
+    }
 
     /* Toggle Switch */
-    .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+    .switch { position: relative; display: inline-block; width: 52px; height: 30px; }
     .switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
-    .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+    .slider {
+      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #e5e7eb; transition: .3s; border-radius: 34px;
+    }
+    .slider:before {
+      position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px;
+      background-color: white; transition: .3s; border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
     input:checked + .slider { background-color: var(--accent-green); }
     input:checked + .slider.penalty { background-color: var(--accent-red); }
     input:checked + .slider:before { transform: translateX(22px); }
@@ -121,7 +294,7 @@
   let selectedKidId = 'parents';
   let parentUnlocked = false;
   let kidViewMode = 'today'; 
-  let parentManageTab = null; // To track which kid's actions to show in Parent Portal
+  let parentManageTab = null;
   
   const PARENT_PIN = "3579";
   const kidColors = ["#ec4899", "#8b5cf6", "#14b8a6", "#f59e0b"];
@@ -150,7 +323,6 @@
         selectedKidId = kids[0].id;
       }
       
-      // Default the parent manage tab to the first kid if not set
       if (!parentManageTab && kids.length > 0) {
         parentManageTab = kids[0].id;
       }
@@ -167,7 +339,7 @@
   // 4. CORE ROUTING & TABS
   // ==========================================
   function renderTabs() {
-    let html = kids.map(k => `<button class="tab-btn ${selectedKidId === k.id ? 'active' : ''}" onclick="selectTab(${k.id})">${k.name}</button>`).join('');
+    let html = kids.map(k => `<button class="tab-btn ${selectedKidId === k.id ? 'active' : ''}" onclick="selectTab(${k.id})">🌟 ${k.name}</button>`).join('');
     html += `<button class="tab-btn parent-tab" onclick="selectTab('parents')">⚙️ Parents</button>`;
     document.getElementById("tabs-container").innerHTML = html;
   }
@@ -189,77 +361,84 @@
   // 5. KID VIEW (TODAY & HISTORY)
   // ==========================================
   function updateTaskDate(val) { selectedTaskDate = val; }
-  
   function setParentManageTab(id) { parentManageTab = id; render(); }
 
-function renderKid() {
-  var kid = kids.find(k => k.id === selectedKidId);
-  if (!kid) return;
+  function renderKid() {
+    var kid = kids.find(k => k.id === selectedKidId);
+    if (!kid) return;
 
-  var kidIndex = kids.findIndex(k => k.id === kid.id);
-  var color = kidColors[Math.max(0, kidIndex) % kidColors.length];
-  
-  // Score Calculations
-  var pts = logs.filter(l => l.kid_id === kid.id).reduce((sum, l) => sum + l.points, 0);
-  var totalRedeemed = redemptions.filter(r => r.kid_id === kid.id).reduce((sum, r) => sum + r.points_spent, 0);
-  var cash = redemptions.filter(r => r.kid_id === kid.id).reduce((sum, r) => sum + r.amount, 0);
-  var available = pts - totalRedeemed; // Available for Redemption
-  
-  var pend = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
-  var regularChores = chores.filter(c => c.kid_id == kid.id && c.points >= 0);
-  var penalties = chores.filter(c => c.kid_id == kid.id && c.points < 0);
-
-  // Header Banner with Total, Available, and Cash
-  var html = `
-    <div class="score-banner" style="border-color: ${color};">
-      <h2 style="margin:0 0 10px 0; color: ${color}">${kid.name}</h2>
-      <div class="stats-row">
-        <div class="stat-box"><div class="stat-value" style="color: var(--accent-green)">💰 ${available}</div><div class="stat-label">Available</div></div>
-        <div class="stat-box"><div class="stat-value" style="color: ${color}">🏆 ${pts}</div><div class="stat-label">Total</div></div>
-        <div class="stat-box"><div class="stat-value" style="color: var(--accent-blue)">💵 $${cash}</div><div class="stat-label">Cash</div></div>
-      </div>
-    </div>
+    var kidIndex = kids.findIndex(k => k.id === kid.id);
+    var color = kidColors[Math.max(0, kidIndex) % kidColors.length];
     
-    <div class="kid-subtabs">
-      <button class="${kidViewMode === 'today' ? 'active' : ''}" onclick="setKidView('today')">Tasks</button>
-      <button class="${kidViewMode === 'history' ? 'active' : ''}" onclick="setKidView('history')">History</button>
-    </div>
-  `;
+    // Score Calculations
+    var pts = logs.filter(l => l.kid_id === kid.id).reduce((sum, l) => sum + l.points, 0);
+    var totalRedeemed = redemptions.filter(r => r.kid_id === kid.id).reduce((sum, r) => sum + r.points_spent, 0);
+    var cash = redemptions.filter(r => r.kid_id === kid.id).reduce((sum, r) => sum + r.amount, 0);
+    var available = pts - totalRedeemed;
+    
+    var pend = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
+    var regularChores = chores.filter(c => c.kid_id == kid.id && c.points >= 0);
+    var penalties = chores.filter(c => c.kid_id == kid.id && c.points < 0);
 
-  if (kidViewMode === 'today') {
-    // Top Control Bar
-    html += `
-      <div style="display:flex; gap:10px; margin-top:15px; margin-bottom:15px; align-items:center;">
-        <input type="date" id="taskDate" value="${selectedTaskDate}" onchange="updateTaskDate(this.value)" style="flex:2; margin:0; padding:10px; font-size:0.9rem;">
-        <button class="btn btn-danger" style="flex:1; padding:10px; background:#ef4444;" onclick="resetToggles()">🔄 Reset</button>
-        <button class="btn btn-primary" style="flex:1.5; padding:10px; background:#10b981;" onclick="send()">🚀 Send</button>
+    var html = `
+      <div class="score-banner" style="border-color: ${color}; background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);">
+        <h2 style="margin:0 0 10px 0; color: ${color}; font-size:1.6rem; font-weight:800;">${kid.name}</h2>
+        <div class="stats-row">
+          <div class="stat-box">
+            <div class="stat-value" style="color: var(--accent-green)">💰 ${available}</div>
+            <div class="stat-label">Available</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" style="color: ${color}">🏆 ${pts}</div>
+            <div class="stat-label">Total Earned</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" style="color: var(--accent-blue)">💵 $${cash}</div>
+            <div class="stat-label">Cash Out</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="kid-subtabs">
+        <button class="${kidViewMode === 'today' ? 'active' : ''}" onclick="setKidView('today')">📋 Daily Chores</button>
+        <button class="${kidViewMode === 'history' ? 'active' : ''}" onclick="setKidView('history')">📜 History & Rewards</button>
       </div>
     `;
 
-    // Chores
-    html += `<div class="section-title">DAILY CHORES</div>`;
-    if(regularChores.length === 0) html += `<p style="font-size:0.9rem; color:#666;">No chores assigned yet.</p>`;
-    
-    html += regularChores.map(c => 
-      `<div class="card"><span>${c.name} (+${c.points})</span>
-       <label class="switch"><input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="toggle(${c.id})"><span class="slider"></span></label>
-      </div>`).join('');
-      
-    // Penalties
-    if (penalties.length > 0) {
-        html += `<div class="section-title" style="color:var(--accent-red);">⚠️ PENALTIES</div>`;
-        html += penalties.map(c => 
-          `<div class="card" style="border-left-color: var(--accent-red);"><span>${c.name} (${c.points})</span>
-           <label class="switch"><input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="toggle(${c.id})"><span class="slider penalty"></span></label>
-          </div>`).join('');
-    }
-  } else {
-    // History View
-    html += renderKidHistory(kid.id);
-  }
+    if (kidViewMode === 'today') {
+      html += `
+        <div style="display:flex; gap:10px; margin-top:15px; margin-bottom:15px; align-items:center;">
+          <input type="date" id="taskDate" value="${selectedTaskDate}" onchange="updateTaskDate(this.value)" style="flex:2; margin:0; padding:10px 12px; font-weight:600;">
+          <button class="btn btn-danger" style="flex:1; padding:11px;" onclick="resetToggles()">🔄 Reset</button>
+          <button class="btn btn-primary" style="flex:1.5; padding:11px; background:#10b981;" onclick="send()">🚀 Send</button>
+        </div>
+      `;
 
-  document.getElementById("content").innerHTML = html;
-}
+      // Chores
+      html += `<div class="section-title">✨ TODAY'S CHORES</div>`;
+      if(regularChores.length === 0) html += `<p style="font-size:0.9rem; color:#666; text-align:center; padding:10px;">No chores assigned yet.</p>`;
+      
+      html += regularChores.map(c => 
+        `<div class="card">
+          <span style="font-weight:600;">${c.name} <strong style="color:var(--accent-green); font-size:0.9rem;">(+${c.points} pts)</strong></span>
+          <label class="switch"><input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="toggle(${c.id})"><span class="slider"></span></label>
+        </div>`).join('');
+        
+      // Penalties
+      if (penalties.length > 0) {
+          html += `<div class="section-title" style="color:var(--accent-red);">⚠️ PENALTIES / BEHAVIOR</div>`;
+          html += penalties.map(c => 
+            `<div class="card" style="border-left-color: var(--accent-red);">
+              <span style="font-weight:600;">${c.name} <strong style="color:var(--accent-red); font-size:0.9rem;">(${c.points} pts)</strong></span>
+              <label class="switch"><input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="toggle(${c.id})"><span class="slider penalty"></span></label>
+            </div>`).join('');
+      }
+    } else {
+      html += renderKidHistory(kid.id);
+    }
+
+    document.getElementById("content").innerHTML = html;
+  }
 
   function setKidView(mode) { kidViewMode = mode; render(); }
 
@@ -273,9 +452,9 @@ function renderKid() {
 
     var html = `
       <div class="score-banner" style="background:#f9fafb; border-color:var(--border);">
-        <h3 style="margin:0 0 5px 0; color:var(--text);">Available Points</h3>
-        <div style="font-size:2rem; font-weight:bold; color:var(--accent-blue);">${available}</div>
-        <p style="font-size:0.85rem; color:var(--text-muted); margin:5px 0 0 0;">
+        <h3 style="margin:0 0 5px 0; color:var(--text); font-weight:700;">Available Balance</h3>
+        <div style="font-size:2.2rem; font-weight:800; color:var(--accent-blue);">${available} pts</div>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin:6px 0 0 0; font-weight:600;">
           Total Earned: ${totalEarned} | Redeemed: ${totalSpent}
         </p>
       </div>
@@ -284,9 +463,9 @@ function renderKid() {
     // Redemption Button Logic
     html += `<div style="text-align: center; margin: 20px 0;">`;
     if (available >= 500) {
-      html += `<button class="btn btn-primary" style="background: var(--accent-gold); color: white; padding: 15px; font-size: 1.1rem;" onclick="requestRedeem(${kidId})">🎁 Request $5 Apple Cash (500 pts)</button>`;
+      html += `<button class="btn btn-primary" style="background: var(--accent-gold); color: white; padding: 14px 20px; font-size: 1.05rem; width:100%; box-shadow:0 4px 10px rgba(245, 158, 11, 0.25);" onclick="requestRedeem(${kidId})">🎁 Request $5 Apple Cash (500 pts)</button>`;
     } else {
-      html += `<p style="color: var(--text-muted); font-weight: bold;">Earn ${500 - available} more points to redeem $5 Apple Cash!</p>`;
+      html += `<div style="background:#fffbeb; padding:12px; border-radius:12px; border:1px solid #fef3c7; color:#b45309; font-weight:700; font-size:0.9rem;">Earn ${500 - available} more points to redeem $5 Apple Cash!</div>`;
     }
     html += `</div>`;
 
@@ -295,9 +474,9 @@ function renderKid() {
       html += kidReds.map(r => {
         var dateStr = new Date(r.redeem_date).toLocaleDateString();
         return `
-        <div class="card" style="border-left-color: var(--accent-green);">
-          <div><strong>$${r.amount} Apple Cash</strong><br><small style="color:var(--text-muted)">${dateStr}</small></div>
-          <strong style="color:var(--accent-red)">-${r.points_spent} pts</strong>
+        <div class="card" style="border-left-color: var(--accent-gold);">
+          <div><strong style="font-size:1rem;">$${r.amount} Apple Cash</strong><br><small style="color:var(--text-muted)">${dateStr}</small></div>
+          <strong style="color:var(--accent-red); font-size:1rem;">-${r.points_spent} pts</strong>
         </div>`;
       }).join('');
     }
@@ -357,11 +536,11 @@ function renderKid() {
     if (!parentUnlocked) {
       document.getElementById("content").innerHTML = `
         <div style="text-align:center; padding: 40px 20px;">
-          <h2>🔒 Restricted Area</h2>
-          <p>Please enter the Parent PIN to access settings.</p>
-          <input type="password" id="loginPin" placeholder="Parent PIN" style="max-width:300px; text-align:center;">
+          <h2 style="margin-top:0;">🔒 Restricted Area</h2>
+          <p style="color:var(--text-muted); margin-bottom:20px;">Please enter the Parent PIN to access settings.</p>
+          <input type="password" id="loginPin" placeholder="Parent PIN" style="max-width:280px; text-align:center; font-size:1.2rem; letter-spacing:4px;">
           <br>
-          <button class="btn btn-primary" style="max-width:300px; margin-top:15px;" onclick="checkParentPin()">Unlock Portal</button>
+          <button class="btn btn-primary" style="max-width:280px; width:100%; margin-top:10px;" onclick="checkParentPin()">Unlock Portal</button>
         </div>
       `;
       return;
@@ -376,19 +555,18 @@ function renderKid() {
     if (pending && pending.length > 0) {
       pendingHtml = `
         <div class="score-banner" style="text-align: left; border-color: var(--accent-green); background: #ecfdf5;">
-          <h3 style="margin-top:0; color: var(--accent-green);">✅ Pending Approvals</h3>
+          <h3 style="margin-top:0; color: var(--accent-green); font-size:1.1rem;">✅ Pending Approvals</h3>
           ${pending.map(r => {
             var kid = kids.find(k => k.id === r.kid_id);
             var kidName = kid ? kid.name : "Unknown Kid";
             var logDateFmt = new Date(r.log_date).toLocaleDateString();
             
-            // Check if this is a redemption request
             if (r.status === 'pending_redeem') {
                return `
                 <div class="card" style="margin-bottom: 10px; background: white; border-left-color: var(--accent-gold); flex-direction: column; align-items: stretch; gap: 10px;">
                   <div>
-                    <strong>${kidName}</strong> (<small>${logDateFmt}</small>)<br> 
-                    Requests to <strong>REDEEM ${r.total_points} pts</strong> for <strong>$${r.total_points/100} Apple Cash</strong>!
+                    <strong style="font-size:1rem;">${kidName}</strong> (<small style="color:var(--text-muted)">${logDateFmt}</small>)<br> 
+                    Requests to <strong style="color:var(--accent-gold)">REDEEM ${r.total_points} pts</strong> for <strong>$${r.total_points/100} Apple Cash</strong>!
                   </div>
                   <div style="display: flex; gap: 10px;">
                     <button class="btn btn-primary" style="background: var(--accent-gold); flex: 1; padding: 8px;" onclick="approveRedeem(${r.id}, ${r.kid_id}, ${r.total_points}, '${r.log_date}')">Approve Redeem</button>
@@ -397,13 +575,12 @@ function renderKid() {
                 </div>
               `;
             } else {
-               // Standard Chore Request
                var ptsLabel = r.total_points >= 0 ? '+' + r.total_points : r.total_points;
                var ptsColor = r.total_points >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
                return `
                 <div class="card" style="margin-bottom: 10px; background: white; border-left-color: ${ptsColor}; flex-direction: column; align-items: stretch; gap: 10px;">
                   <div>
-                    <strong>${kidName}</strong> (<small>${logDateFmt}</small>)<br> 
+                    <strong style="font-size:1rem;">${kidName}</strong> (<small style="color:var(--text-muted)">${logDateFmt}</small>)<br> 
                     Requesting: <strong style="color: ${ptsColor}">${ptsLabel} pts</strong>
                   </div>
                   <div style="display: flex; gap: 10px;">
@@ -419,39 +596,39 @@ function renderKid() {
     }
 
     let html = `
-      <h2 style="margin-top:0;">⚙️ Setup Portal</h2>
-      <div style="display:flex; flex-direction:column; gap:20px;">
+      <h2 style="margin-top:0; font-size:1.3rem;">⚙️ Setup Portal</h2>
+      <div style="display:flex; flex-direction:column; gap:16px;">
         
         ${pendingHtml}
 
         <div class="score-banner" style="text-align: left;">
-          <h3 style="margin-top:0;">Add Kid</h3>
+          <h3 style="margin-top:0; font-size:1.05rem;">Add Kid</h3>
           <input id="kidName" placeholder="e.g., Aadya">
-          <button class="btn btn-primary" style="margin-top:10px;" onclick="addKid()">Add Kid</button>
+          <button class="btn btn-primary" style="margin-top:5px; width:100%;" onclick="addKid()">Add Kid</button>
         </div>
 
         <div class="score-banner" style="text-align: left;">
-          <h3 style="margin-top:0;">Add Chores / Penalties</h3>
-          <label style="font-size:0.9rem; font-weight:bold;">Assign to:</label>
+          <h3 style="margin-top:0; font-size:1.05rem;">Add Chores / Penalties</h3>
+          <label style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">Assign to:</label>
           <select id="choreKid">
             ${kids.map(k => `<option value="${k.id}">${k.name}</option>`).join("")}
           </select>
-          <label style="font-size:0.9rem; font-weight:bold; display:block; margin-top:10px;">Format: <i>Name, Points</i> (One per line)</label>
-          <textarea id="choreList" rows="5" placeholder="🛏️ Make Bed, 5&#10;🍽️ Help with Dishes, 5&#10;🚫 Talking Back, -10"></textarea>
-          <button class="btn btn-primary" style="margin-top:10px;" onclick="addBulkChores()">Save All Actions</button>
+          <label style="font-size:0.85rem; font-weight:700; color:var(--text-muted); display:block; margin-top:6px;">Format: <i>Name, Points</i> (One per line)</label>
+          <textarea id="choreList" rows="4" placeholder="🛏️ Make Bed, 5&#10;🍽️ Help with Dishes, 5&#10;🚫 Talking Back, -10"></textarea>
+          <button class="btn btn-primary" style="margin-top:5px; width:100%;" onclick="addBulkChores()">Save All Actions</button>
         </div>
 
         <div class="score-banner" style="text-align: left;">
-          <h3 style="margin-top:0;">Manual Adjustment</h3>
+          <h3 style="margin-top:0; font-size:1.05rem;">Manual Adjustment</h3>
           <select id="adjustKid">
             ${kids.map(k => `<option value="${k.id}">${k.name}</option>`).join("")}
           </select>
           <input id="adjustPoints" type="number" placeholder="Points (e.g. 20 or -15)">
-          <button class="btn" style="background:var(--accent-gold); color:white; margin-top:10px;" onclick="adjustPoints()">Apply Adjustment</button>
+          <button class="btn" style="background:var(--accent-gold); color:white; margin-top:5px; width:100%;" onclick="adjustPoints()">Apply Adjustment</button>
         </div>
 
         <div>
-          <h3>Manage Existing Actions</h3>
+          <h3 style="font-size:1.1rem; margin-bottom:12px;">Manage Existing Actions</h3>
           
           <div class="kid-subtabs">
             ${kids.map(k => `
@@ -459,17 +636,17 @@ function renderKid() {
             `).join('')}
           </div>
 
-          ${chores.filter(c => c.kid_id === parentManageTab).length === 0 ? `<p>No chores setup yet for this child.</p>` : ''}
+          ${chores.filter(c => c.kid_id === parentManageTab).length === 0 ? `<p style="text-align:center; color:var(--text-muted); padding:10px;">No chores setup yet for this child.</p>` : ''}
           ${chores.filter(c => c.kid_id === parentManageTab).map(chore => {
             var ptsLabel = chore.points >= 0 ? `+${chore.points}` : `${chore.points}`;
             var colorClass = chore.points >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
             return `
               <div class="card" style="padding:10px 15px; border-left-color: ${colorClass};">
                 <div>
-                  <span>${chore.name}</span><br>
-                  <span style="color:${colorClass}; font-weight:bold; font-size:0.9rem;">${ptsLabel} pts</span>
+                  <span style="font-weight:600;">${chore.name}</span><br>
+                  <span style="color:${colorClass}; font-weight:bold; font-size:0.85rem;">${ptsLabel} pts</span>
                 </div>
-                <button class="btn btn-danger" style="width:auto; padding:8px 12px; font-size:0.9rem;" onclick="deleteChore(${chore.id})">Delete</button>
+                <button class="btn btn-danger" style="width:auto; padding:6px 12px; font-size:0.85rem;" onclick="deleteChore(${chore.id})">Delete</button>
               </div>
             `;
           }).join("")}
@@ -497,7 +674,7 @@ function renderKid() {
   }
 
   async function approveRedeem(rid, kidId, pts, originalDate) {
-    var amount = pts / 100; // 500 pts = $5
+    var amount = pts / 100;
     await supabaseClient.from("redemptions").insert({ kid_id: kidId, amount: amount, points_spent: pts, redeem_date: originalDate });
     await supabaseClient.from("pending_requests").update({ status: 'banked' }).eq('id', rid);
     alert("Apple Cash redemption approved!");
