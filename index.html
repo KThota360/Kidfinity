@@ -54,7 +54,23 @@
     .tab-btn.parent-tab { background: var(--parent-dark); color: white; border-color: var(--parent-dark); }
 
     #content { padding: 20px; }
-
+.chore-card {
+  background: white;
+  padding: 18px;
+  margin-bottom: 12px;
+  border-radius: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+  border-left: 8px solid var(--border-color);
+}
+.scoreboard {
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  color: white; padding: 25px; border-radius: 24px; text-align: center; margin-bottom: 20px;
+  box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+}
+.stat-val { font-size: 2rem; font-weight: 800; }
     /* Score Banner */
     .score-banner { border: 2px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 20px; text-align: center; }
     .stats-row { display: flex; justify-content: space-around; margin-top: 10px; }
@@ -193,30 +209,29 @@
   function setParentManageTab(id) { parentManageTab = id; render(); }
 
 function renderKid() {
-  var kid = kids.find(k => k.id === selectedKidId);
+  var kid = kids.find(k => k.id == selectedKidId);
   if (!kid) return;
 
-  var kidIndex = kids.findIndex(k => k.id === kid.id);
+  var kidIndex = kids.findIndex(k => k.id == kid.id);
   var color = kidColors[Math.max(0, kidIndex) % kidColors.length];
   
   // Score Calculations
-  var pts = logs.filter(l => l.kid_id === kid.id).reduce((sum, l) => sum + l.points, 0);
-  var totalRedeemed = redemptions.filter(r => r.kid_id === kid.id).reduce((sum, r) => sum + r.points_spent, 0);
-  var cash = redemptions.filter(r => r.kid_id === kid.id).reduce((sum, r) => sum + r.amount, 0);
-  var available = pts - totalRedeemed; // Available for Redemption
+  var pts = logs.filter(l => l.kid_id == kid.id).reduce((sum, l) => sum + l.points, 0);
+  var totalRedeemed = redemptions.filter(r => r.kid_id == kid.id).reduce((sum, r) => sum + r.points_spent, 0);
+  var available = pts - totalRedeemed;
+  var cash = redemptions.filter(r => r.kid_id == kid.id).reduce((sum, r) => sum + r.amount, 0);
   
-  var pend = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
+  var pend = JSON.parse(localStorage.getItem(`pend_${kid.id}`) || "[]");
   var regularChores = chores.filter(c => c.kid_id == kid.id && c.points >= 0);
   var penalties = chores.filter(c => c.kid_id == kid.id && c.points < 0);
 
-  // Header Banner with Total, Available, and Cash
+  // Updated Header Banner with Premium Styling
   var html = `
-    <div class="score-banner" style="border-color: ${color};">
-      <h2 style="margin:0 0 10px 0; color: ${color}">${kid.name}</h2>
-      <div class="stats-row">
-        <div class="stat-box"><div class="stat-value" style="color: var(--accent-green)">💰 ${available}</div><div class="stat-label">Available</div></div>
-        <div class="stat-box"><div class="stat-value" style="color: ${color}">🏆 ${pts}</div><div class="stat-label">Total</div></div>
-        <div class="stat-box"><div class="stat-value" style="color: var(--accent-blue)">💵 $${cash}</div><div class="stat-label">Cash</div></div>
+    <div class="scoreboard" style="background: linear-gradient(135deg, ${color}, #666);">
+      <div style="font-size: 1.2rem; margin-bottom: 5px;">${kid.name}</div>
+      <div class="stat-val">💰 ${available} pts Available</div>
+      <div style="display:flex; justify-content:space-between; margin-top:15px; font-weight:bold; opacity:0.9;">
+        <span>🏆 Total: ${pts}</span> <span>💵 Cash: $${cash}</span>
       </div>
     </div>
     
@@ -229,38 +244,37 @@ function renderKid() {
   if (kidViewMode === 'today') {
     // Top Control Bar
     html += `
-      <div style="display:flex; gap:10px; margin-top:15px; margin-bottom:15px; align-items:center;">
-        <input type="date" id="taskDate" value="${selectedTaskDate}" onchange="updateTaskDate(this.value)" style="flex:2; margin:0; padding:10px; font-size:0.9rem;">
-        <button class="btn btn-danger" style="flex:1; padding:10px; background:#ef4444;" onclick="resetToggles()">🔄 Reset</button>
-        <button class="btn btn-primary" style="flex:1.5; padding:10px; background:#10b981;" onclick="send()">🚀 Send</button>
+      <div style="display:flex; gap:10px; margin-top:15px; margin-bottom:20px; align-items:center;">
+        <input type="date" id="taskDate" value="${selectedTaskDate}" onchange="updateTaskDate(this.value)" style="flex:2; padding:12px; border-radius:12px; border:1px solid #ddd;">
+        <button class="btn btn-danger" style="flex:1; padding:12px;" onclick="resetToggles()">🔄</button>
+        <button class="btn btn-primary" style="flex:1.5; padding:12px;" onclick="send()">🚀 Send</button>
       </div>
     `;
 
-    // Chores
+    // Chores - Using 'chore-card' class for embossed Dallas Palace style
     html += `<div class="section-title">DAILY CHORES</div>`;
-    if(regularChores.length === 0) html += `<p style="font-size:0.9rem; color:#666;">No chores assigned yet.</p>`;
-    
     html += regularChores.map(c => 
-      `<div class="card"><span>${c.name} (+${c.points})</span>
-       <label class="switch"><input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="toggle(${c.id})"><span class="slider"></span></label>
+      `<div class="chore-card" style="--border-color: ${colors[c.id % colors.length]}">
+        <span><strong>${c.name}</strong><br><small>${c.points} pts</small></span>
+        <label class="switch"><input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="toggle(${c.id})"><span class="slider"></span></label>
       </div>`).join('');
       
     // Penalties
     if (penalties.length > 0) {
         html += `<div class="section-title" style="color:var(--accent-red);">⚠️ PENALTIES</div>`;
         html += penalties.map(c => 
-          `<div class="card" style="border-left-color: var(--accent-red);"><span>${c.name} (${c.points})</span>
-           <label class="switch"><input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="toggle(${c.id})"><span class="slider penalty"></span></label>
+          `<div class="chore-card" style="--border-color: var(--accent-red)">
+            <span><strong>${c.name}</strong><br><small>${c.points} pts</small></span>
+            <label class="switch"><input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="toggle(${c.id})"><span class="slider penalty"></span></label>
           </div>`).join('');
     }
   } else {
-    // History View
     html += renderKidHistory(kid.id);
   }
 
   document.getElementById("content").innerHTML = html;
 }
-
+  
   function setKidView(mode) { kidViewMode = mode; render(); }
 
   function renderKidHistory(kidId) {
