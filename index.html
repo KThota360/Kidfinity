@@ -218,7 +218,7 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
 
-    /* Section Titles - Dallas Palace Inspired */
+    /* Section Titles */
     .section-title {
       font-size: 0.8rem;
       font-weight: 800;
@@ -231,7 +231,7 @@
       gap: 6px;
     }
 
-    /* Cards & Lists - Dallas Palace Inspired */
+    /* Cards & Lists */
     .card {
       background: white;
       border: 1px solid var(--border);
@@ -261,6 +261,21 @@
       font-weight: 600;
       font-size: 0.95rem;
       color: var(--text);
+      flex: 1;
+    }
+
+    .inline-edit-container {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      width: 100%;
+      margin-right: 8px;
+    }
+
+    .inline-edit-input {
+      margin-bottom: 0 !important;
+      padding: 6px 10px !important;
+      font-size: 0.9rem !important;
     }
 
     .card-actions {
@@ -373,6 +388,7 @@
   let parentUnlocked = false;
   let kidViewMode = 'today'; 
   let parentManageTab = null;
+  let editingChoreId = null; // Track which action is currently being edited inline
   
   const PARENT_PIN = "3579";
   const kidColors = ["#ec4899", "#8b5cf6", "#14b8a6", "#f59e0b"];
@@ -454,7 +470,11 @@
   // 5. KID VIEW (TODAY & HISTORY)
   // ==========================================
   function updateTaskDate(val) { selectedTaskDate = val; }
-  function setParentManageTab(id) { parentManageTab = id; render(); }
+  function setParentManageTab(id) { 
+    parentManageTab = id; 
+    editingChoreId = null; // Clear active inline edit when changing child tabs
+    render(); 
+  }
 
   function renderKid() {
     var kid = kids.find(k => k.id === selectedKidId);
@@ -507,7 +527,7 @@
         </div>
       `;
 
-      // Chores - Dallas Palace Styled
+      // Chores
       html += `<div class="section-title">✨ DAILY CHORES</div>`;
       if(regularChores.length === 0) html += `<p style="font-size:0.9rem; color:#666; text-align:center; padding:10px;">No chores assigned yet.</p>`;
       
@@ -520,7 +540,7 @@
           <label class="switch"><input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="toggle(${c.id})"><span class="slider"></span></label>
         </div>`).join('');
         
-      // Penalties - Dallas Palace Styled
+      // Penalties
       if (penalties.length > 0) {
           html += `<div class="section-title" style="color:var(--accent-red);">⚠️ PENALTIES & BEHAVIOR</div>`;
           html += penalties.map(c => 
@@ -559,7 +579,7 @@
       </div>
     `;
 
-    // Redemption Button Logic
+    // Redemption Button
     html += `<div style="text-align: center; margin: 20px 0;">`;
     if (available >= 500) {
       html += `<button class="btn btn-primary" style="background: var(--accent-gold); color: white; padding: 14px 20px; font-size: 1.05rem; width:100%; box-shadow:0 4px 10px rgba(245, 158, 11, 0.25);" onclick="requestRedeem(${kidId})">🎁 Request $5 Apple Cash (500 pts)</button>`;
@@ -584,7 +604,7 @@
   }
 
   // ==========================================
-  // 6. TOGGLE & SEND LOGIC (KID ACTIONS)
+  // 6. TOGGLE & SEND LOGIC
   // ==========================================
   function toggle(id) {
     var p = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
@@ -739,18 +759,35 @@
           ${chores.filter(c => c.kid_id === parentManageTab).map(chore => {
             var ptsLabel = chore.points >= 0 ? `+${chore.points}` : `${chore.points}`;
             var isPenalty = chore.points < 0;
-            return `
-              <div class="card ${isPenalty ? 'penalty-card' : ''}" style="padding:10px 15px;">
-                <div class="chore-info">
-                  <span>${chore.name}</span>
-                  <span class="pts-badge ${isPenalty ? 'penalty' : ''}">${ptsLabel} pts</span>
+            var isEditing = (editingChoreId === chore.id);
+
+            if (isEditing) {
+              return `
+                <div class="card ${isPenalty ? 'penalty-card' : ''}" style="padding:10px 12px;">
+                  <div class="inline-edit-container">
+                    <input id="editName_${chore.id}" class="inline-edit-input" value="${chore.name.replace(/"/g, '&quot;')}" style="flex:2;" placeholder="Task Name">
+                    <input id="editPts_${chore.id}" type="number" class="inline-edit-input" value="${chore.points}" style="flex:1; max-width:80px;" placeholder="Pts">
+                  </div>
+                  <div class="card-actions">
+                    <button class="btn btn-primary" style="width:auto; padding:6px 10px; font-size:0.85rem; background:var(--accent-green);" onclick="saveInlineEdit(${chore.id})">💾 Save</button>
+                    <button class="btn btn-secondary" style="width:auto; padding:6px 10px; font-size:0.85rem;" onclick="cancelInlineEdit()">❌ Cancel</button>
+                  </div>
                 </div>
-                <div class="card-actions">
-                  <button class="btn btn-secondary" style="width:auto; padding:6px 12px; font-size:0.85rem;" onclick="editChore(${chore.id})">✏️ Edit</button>
-                  <button class="btn btn-danger" style="width:auto; padding:6px 12px; font-size:0.85rem;" onclick="deleteChore(${chore.id})">Delete</button>
+              `;
+            } else {
+              return `
+                <div class="card ${isPenalty ? 'penalty-card' : ''}" style="padding:10px 15px;">
+                  <div class="chore-info">
+                    <span>${chore.name}</span>
+                    <span class="pts-badge ${isPenalty ? 'penalty' : ''}">${ptsLabel} pts</span>
+                  </div>
+                  <div class="card-actions">
+                    <button class="btn btn-secondary" style="width:auto; padding:6px 12px; font-size:0.85rem;" onclick="startInlineEdit(${chore.id})">✏️ Edit</button>
+                    <button class="btn btn-danger" style="width:auto; padding:6px 12px; font-size:0.85rem;" onclick="deleteChore(${chore.id})">Delete</button>
+                  </div>
                 </div>
-              </div>
-            `;
+              `;
+            }
           }).join("")}
         </div>
       </div>
@@ -841,26 +878,36 @@
     await loadData();
   }
 
-  async function editChore(id) {
-    const chore = chores.find(c => c.id === id);
-    if (!chore) return;
+  // Inline Editing Helpers
+  function startInlineEdit(id) {
+    editingChoreId = id;
+    render();
+  }
 
-    const newName = prompt("Edit Action Name:", chore.name);
-    if (newName === null) return; // Cancelled
+  function cancelInlineEdit() {
+    editingChoreId = null;
+    render();
+  }
 
-    const newPtsStr = prompt("Edit Point Value (use positive for chores, negative for penalties):", chore.points);
-    if (newPtsStr === null) return; // Cancelled
+  async function saveInlineEdit(id) {
+    const nameInput = document.getElementById(`editName_${id}`);
+    const ptsInput = document.getElementById(`editPts_${id}`);
 
-    const newPts = parseInt(newPtsStr, 10);
-    if (!newName.trim() || isNaN(newPts)) {
+    if (!nameInput || !ptsInput) return;
+
+    const newName = nameInput.value.trim();
+    const newPts = parseInt(ptsInput.value, 10);
+
+    if (!newName || isNaN(newPts)) {
       return showAlert("⚠️ Invalid action name or points value", "error");
     }
 
     await supabaseClient
       .from("chores")
-      .update({ name: newName.trim(), points: newPts })
+      .update({ name: newName, points: newPts })
       .eq("id", id);
 
+    editingChoreId = null;
     showAlert("✏️ Action updated successfully!", "success");
     await loadData();
   }
