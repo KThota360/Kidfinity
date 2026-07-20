@@ -192,76 +192,77 @@
   
   function setParentManageTab(id) { parentManageTab = id; render(); }
 
-  function renderKid() {
-    var kid = kids.find(k => k.id === selectedKidId);
-    if (!kid) return;
+function renderKid() {
+  var kid = kids.find(k => k.id === selectedKidId);
+  if (!kid) return;
 
-    var kidIndex = kids.findIndex(k => k.id === kid.id);
-    var color = kidColors[Math.max(0, kidIndex) % kidColors.length];
-    
-    var pts = logs.filter(l => l.kid_id === kid.id).reduce((sum, l) => sum + l.points, 0);
-    var cash = redemptions.filter(r => r.kid_id === kid.id).reduce((sum, r) => sum + r.amount, 0);
-    var pend = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
-    var pendSum = pend.reduce((sum, id) => {
-      var c = chores.find(item => item.id == id);
-      return sum + (c ? c.points : 0);
-    }, 0);
+  var kidIndex = kids.findIndex(k => k.id === kid.id);
+  var color = kidColors[Math.max(0, kidIndex) % kidColors.length];
+  
+  // Score Calculations
+  var pts = logs.filter(l => l.kid_id === kid.id).reduce((sum, l) => sum + l.points, 0);
+  var cash = redemptions.filter(r => r.kid_id === kid.id).reduce((sum, r) => sum + r.amount, 0);
+  
+  var pend = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
+  var pendSum = pend.reduce((sum, id) => {
+    var c = chores.find(item => item.id == id);
+    return sum + (c ? c.points : 0);
+  }, 0);
 
-    var regularChores = chores.filter(c => c.kid_id == kid.id && c.points >= 0);
-    var penalties = chores.filter(c => c.kid_id == kid.id && c.points < 0);
+  var regularChores = chores.filter(c => c.kid_id == kid.id && c.points >= 0);
+  var penalties = chores.filter(c => c.kid_id == kid.id && c.points < 0);
 
-    var html = `
-      <div class="score-banner" style="border-color: ${color};">
-        <h2 style="margin:0 0 10px 0; color: ${color}">${kid.name}</h2>
-        <div class="stats-row">
-          <div class="stat-box"><div class="stat-value" style="color: ${color}">🏆 ${pts}</div><div class="stat-label">Total Points</div></div>
-          <div class="stat-box"><div class="stat-value" style="color: var(--accent-green)">💵 $${cash}</div><div class="stat-label">Apple Cash</div></div>
-        </div>
+  // Header Banner with Total, Pending, and Cash
+  var html = `
+    <div class="score-banner" style="border-color: ${color};">
+      <h2 style="margin:0 0 10px 0; color: ${color}">${kid.name}</h2>
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-value" style="color: ${color}">🏆 ${pts}</div><div class="stat-label">Total</div></div>
+        <div class="stat-box"><div class="stat-value" style="color: var(--accent-green)">⏳ ${pendSum}</div><div class="stat-label">Pending</div></div>
+        <div class="stat-box"><div class="stat-value" style="color: var(--accent-blue)">💵 $${cash}</div><div class="stat-label">Cash</div></div>
       </div>
-      
-      <div class="kid-subtabs">
-        <button class="${kidViewMode === 'today' ? 'active' : ''}" onclick="setKidView('today')">Tasks</button>
-        <button class="${kidViewMode === 'history' ? 'active' : ''}" onclick="setKidView('history')">History</button>
+    </div>
+    
+    <div class="kid-subtabs">
+      <button class="${kidViewMode === 'today' ? 'active' : ''}" onclick="setKidView('today')">Tasks</button>
+      <button class="${kidViewMode === 'history' ? 'active' : ''}" onclick="setKidView('history')">History</button>
+    </div>
+  `;
+
+  if (kidViewMode === 'today') {
+    // Top Control Bar
+    html += `
+      <div style="display:flex; gap:10px; margin-top:15px; margin-bottom:15px; align-items:center;">
+        <input type="date" id="taskDate" value="${selectedTaskDate}" onchange="updateTaskDate(this.value)" style="flex:2; margin:0; padding:10px; font-size:0.9rem;">
+        <button class="btn btn-danger" style="flex:1; padding:10px; background:#ef4444;" onclick="resetToggles()">🔄 Reset</button>
+        <button class="btn btn-primary" style="flex:1.5; padding:10px; background:#10b981;" onclick="send()">🚀 Send</button>
       </div>
     `;
 
-    if (kidViewMode === 'today') {
-      html += `
-        <div style="display:flex; gap:10px; margin-top:15px; margin-bottom:5px; align-items:center;">
-          <input type="date" id="taskDate" value="${selectedTaskDate}" onchange="updateTaskDate(this.value)" style="flex:2; margin:0; padding:10px; font-size:0.9rem;">
-          <button class="btn btn-danger" style="flex:1; padding:10px; background:#ef4444;" onclick="resetToggles()">🔄 Reset</button>
-          <button class="btn btn-primary" style="flex:1.5; padding:10px; background:#10b981;" onclick="send()">🚀 Send</button>
-        </div>
-        
-        <div style="text-align: center; margin-bottom: 20px;">
-          <span style="font-weight: 800; color: var(--accent-green); background: #ecfdf5; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--accent-green); display: inline-block; font-size:0.9rem;">
-            Pending Approval: ${pendSum >= 0 ? '+' : ''}${pendSum} pts
-          </span>
-        </div>
-      `;
-
-      html += `<div class="section-title">DAILY CHORES</div>`;
-      if(regularChores.length === 0) html += `<p style="font-size:0.9rem; color:#666;">No chores assigned yet.</p>`;
+    // Chores
+    html += `<div class="section-title">DAILY CHORES</div>`;
+    if(regularChores.length === 0) html += `<p style="font-size:0.9rem; color:#666;">No chores assigned yet.</p>`;
+    
+    html += regularChores.map(c => 
+      `<div class="card"><span>${c.name} (+${c.points})</span>
+       <label class="switch"><input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="toggle(${c.id})"><span class="slider"></span></label>
+      </div>`).join('');
       
-      html += regularChores.map(c => 
-        `<div class="card"><span>${c.name} (+${c.points})</span>
-         <label class="switch"><input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="toggle(${c.id})"><span class="slider"></span></label>
-        </div>`).join('');
-        
-      if (penalties.length > 0) {
-          html += `<div class="section-title" style="color:var(--accent-red);">⚠️ PENALTIES</div>`;
-          html += penalties.map(c => 
-            `<div class="card" style="border-left-color: var(--accent-red);"><span>${c.name} (${c.points})</span>
-             <label class="switch"><input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="toggle(${c.id})"><span class="slider penalty"></span></label>
-            </div>`).join('');
-      }
-
-    } else {
-      html += renderKidHistory(kid.id);
+    // Penalties
+    if (penalties.length > 0) {
+        html += `<div class="section-title" style="color:var(--accent-red);">⚠️ PENALTIES</div>`;
+        html += penalties.map(c => 
+          `<div class="card" style="border-left-color: var(--accent-red);"><span>${c.name} (${c.points})</span>
+           <label class="switch"><input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="toggle(${c.id})"><span class="slider penalty"></span></label>
+          </div>`).join('');
     }
-
-    document.getElementById("content").innerHTML = html;
+  } else {
+    // History View
+    html += renderKidHistory(kid.id);
   }
+
+  document.getElementById("content").innerHTML = html;
+}
 
   function setKidView(mode) { kidViewMode = mode; render(); }
 
