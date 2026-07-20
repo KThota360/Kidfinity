@@ -152,7 +152,6 @@
     
     /* UI Elements */
     .btn {
-      width: 100%;
       padding: 12px;
       border: none;
       border-radius: 8px;
@@ -221,6 +220,9 @@
   let kidViewMode = 'today'; 
   const PARENT_PIN = "3579";
   const kidColors = ["#ec4899", "#8b5cf6", "#14b8a6", "#f59e0b"];
+  
+  // Persist the date so re-rendering doesn't reset it
+  let selectedTaskDate = new Date().toISOString().split('T')[0];
 
   // ==========================================
   // 3. INITIALIZATION & DATA FETCHING
@@ -233,7 +235,7 @@
         supabaseClient.from("kids").select("*").order("id"),
         supabaseClient.from("chores").select("*").order("id"),
         supabaseClient.from("task_logs").select("*").order("log_date", { ascending: false }),
-        supabaseClient.from("redemptions").select("*")
+        supabaseClient.from("redemptions").select("*").order("redeem_date", { ascending: false })
       ]);
 
       kids = k.data || [];
@@ -241,7 +243,6 @@
       logs = l.data || [];
       redemptions = r.data || [];
 
-      // Set default tab if none selected and kids exist
       if (selectedKidId === 'parents' && !parentUnlocked && kids.length > 0) {
         selectedKidId = kids[0].id;
       }
@@ -268,7 +269,8 @@
 
   function selectTab(id) {
     selectedKidId = id;
-    kidViewMode = 'today'; // Reset view when switching tabs
+    kidViewMode = 'today'; 
+    selectedTaskDate = new Date().toISOString().split('T')[0]; // Reset date to today on tab switch
     renderTabs();
     render();
   }
@@ -284,6 +286,10 @@
   // ==========================================
   // 5. KID VIEW (TODAY & HISTORY)
   // ==========================================
+  function updateTaskDate(val) {
+    selectedTaskDate = val;
+  }
+
   function renderKid() {
     var kid = kids.find(k => k.id === selectedKidId);
     if (!kid) return;
@@ -291,18 +297,18 @@
     var kidIndex = kids.findIndex(k => k.id === kid.id);
     var color = kidColors[Math.max(0, kidIndex) % kidColors.length];
     
-    // Calculate total scores
+    // Scores
     var pts = logs.filter(l => l.kid_id === kid.id).reduce((sum, l) => sum + l.points, 0);
     var cash = redemptions.filter(r => r.kid_id === kid.id).reduce((sum, r) => sum + r.amount, 0);
     
-    // Get pending selection from local storage
+    // Pending
     var pend = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
     var pendSum = pend.reduce((sum, id) => {
       var c = chores.find(item => item.id == id);
       return sum + (c ? c.points : 0);
     }, 0);
 
-    // Split actions
+    // Filter tasks
     var regularChores = chores.filter(c => c.kid_id == kid.id && c.points >= 0);
     var penalties = chores.filter(c => c.kid_id == kid.id && c.points < 0);
 
@@ -322,6 +328,22 @@
     `;
 
     if (kidViewMode === 'today') {
+      
+      // Top Control Bar (Date Picker, Reset, Send)
+      html += `
+        <div style="display:flex; gap:10px; margin-top:15px; margin-bottom:5px; align-items:center;">
+          <input type="date" id="taskDate" value="${selectedTaskDate}" onchange="updateTaskDate(this.value)" style="flex:2; margin:0; padding:10px; font-size:0.9rem;">
+          <button class="btn btn-danger" style="flex:1; padding:10px; background:#ef4444;" onclick="resetToggles()">🔄 Reset</button>
+          <button class="btn btn-primary" style="flex:1.5; padding:10px; background:#10b981;" onclick="send()">🚀 Send</button>
+        </div>
+        
+        <div style="text-align: center; margin-bottom: 20px;">
+          <span style="font-weight: 800; color: var(--accent-green); background: #ecfdf5; padding: 6px 12px; border-radius: 8px; border: 1px solid var(--accent-green); display: inline-block; font-size:0.9rem;">
+            Pending Approval: ${pendSum >= 0 ? '+' : ''}${pendSum} pts
+          </span>
+        </div>
+      `;
+
       // Chores
       html += `<div class="section-title">DAILY CHORES</div>`;
       if(regularChores.length === 0) html += `<p style="font-size:0.9rem; color:#666;">No chores assigned yet.</p>`;
@@ -340,17 +362,7 @@
             </div>`).join('');
       }
 
-      // Pending Counter & Send
-      html += `
-        <div style="text-align: center; margin: 25px 0;">
-          <span style="font-weight: 800; color: var(--accent-green); background: #ecfdf5; padding: 8px 16px; border-radius: 12px; border: 1px solid var(--accent-green); display: inline-block;">
-            Pending Approval: ${pendSum >= 0 ? '+' : ''}${pendSum} pts
-          </span>
-        </div>
-        <button class="btn btn-primary" onclick="send()">🚀 Send for Approval</button>
-      `;
     } else {
-      // History View
       html += renderKidHistory(kid.id);
     }
 
@@ -364,22 +376,37 @@
 
   function renderKidHistory(kidId) {
     var kidLogs = logs.filter(l => l.kid_id === kidId);
-    if (kidLogs.length === 0) return `<p>No history available.</p>`;
-    
-    return kidLogs.map(l => {
-      // Try to find chore name if it exists, otherwise just show manual adjustment
-      var chore = chores.find(c => c.id === l.chore_id);
-      var name = chore ? chore.name : "Manual Adjustment / Approved Tasks";
-      var dateStr = new Date(l.log_date).toLocaleDateString();
-      var color = l.points >= 0 ? "var(--accent-green)" : "var(--accent-red)";
-      var sign = l.points >= 0 ? "+" : "";
-      
-      return `
-        <div class="card" style="border-left-color: ${color};">
-          <div><strong>${name}</strong><br><small style="color:var(--text-muted)">${dateStr}</small></div>
-          <strong style="color:${color}">${sign}${l.points} pts</strong>
+    var kidReds = redemptions.filter(r => r.kid_id === kidId);
+
+    var totalEarned = kidLogs.reduce((sum, l) => sum + l.points, 0);
+    var totalSpent = kidReds.reduce((sum, r) => sum + r.points_spent, 0);
+    var available = totalEarned - totalSpent;
+
+    var html = `
+      <div class="score-banner" style="background:#f9fafb; border-color:var(--border);">
+        <h3 style="margin:0 0 5px 0; color:var(--text);">Available Points</h3>
+        <div style="font-size:2rem; font-weight:bold; color:var(--accent-blue);">${available}</div>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin:5px 0 0 0;">
+          Total Earned: ${totalEarned} | Redeemed: ${totalSpent}
+        </p>
+      </div>
+    `;
+
+    if (kidReds.length === 0) {
+      html += `<p style="text-align:center; color:var(--text-muted);">No Apple Cash redeemed yet.</p>`;
+    } else {
+      html += `<div class="section-title">🍎 REDEMPTION HISTORY</div>`;
+      html += kidReds.map(r => {
+        var dateStr = new Date(r.redeem_date).toLocaleDateString();
+        return `
+        <div class="card" style="border-left-color: var(--accent-green);">
+          <div><strong>$${r.amount} Apple Cash</strong><br><small style="color:var(--text-muted)">${dateStr}</small></div>
+          <strong style="color:var(--accent-red)">-${r.points_spent} pts</strong>
         </div>`;
-    }).join('');
+      }).join('');
+    }
+    
+    return html;
   }
 
   // ==========================================
@@ -393,7 +420,12 @@
       p.push(id);
     }
     localStorage.setItem(`pend_${selectedKidId}`, JSON.stringify(p));
-    render(); // Instantly update UI for the pending counter
+    render(); 
+  }
+
+  function resetToggles() {
+    localStorage.removeItem(`pend_${selectedKidId}`);
+    render();
   }
 
   async function send() {
@@ -408,13 +440,11 @@
       return sum + (c ? c.points : 0);
     }, 0);
 
-    var today = new Date().toISOString().split('T')[0];
-
     await supabaseClient.from("pending_requests").insert({ 
       kid_id: selectedKidId, 
       chore_ids: p, 
       total_points: total, 
-      log_date: today 
+      log_date: selectedTaskDate // Uses the date chosen in the UI
     });
 
     localStorage.removeItem(`pend_${selectedKidId}`);
@@ -439,7 +469,6 @@
       return;
     }
 
-    // Fetch pending requests specifically for the Parent Portal
     const { data: pending } = await supabaseClient
       .from("pending_requests")
       .select("*")
@@ -455,12 +484,15 @@
             var kidName = kid ? kid.name : "Unknown Kid";
             var ptsLabel = r.total_points >= 0 ? '+' + r.total_points : r.total_points;
             var ptsColor = r.total_points >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+            var logDateFmt = new Date(r.log_date).toLocaleDateString();
+            
             return `
               <div class="card" style="margin-bottom: 10px; background: white; border-left-color: ${ptsColor};">
                 <div>
-                  <strong>${kidName}</strong> requests to bank <strong style="color: ${ptsColor}">${ptsLabel} pts</strong>
+                  <strong>${kidName}</strong> (<small>${logDateFmt}</small>)<br> 
+                  Requesting: <strong style="color: ${ptsColor}">${ptsLabel} pts</strong>
                 </div>
-                <button class="btn btn-primary" style="background: var(--accent-green); width: auto; padding: 8px 15px;" onclick="approve(${r.id}, ${r.kid_id}, ${r.total_points})">Approve & Bank</button>
+                <button class="btn btn-primary" style="background: var(--accent-green); width: auto; padding: 8px 15px;" onclick="approve(${r.id}, ${r.kid_id}, ${r.total_points}, '${r.log_date}')">Approve & Bank</button>
               </div>
             `;
           }).join('')}
@@ -536,11 +568,9 @@
     }
   }
 
-  async function approve(rid, kidId, pts) {
-    var today = new Date().toISOString();
-    // 1. Add to permanent history
-    await supabaseClient.from("task_logs").insert({ kid_id: kidId, points: pts, log_date: today });
-    // 2. Mark the request as banked 
+  async function approve(rid, kidId, pts, originalDate) {
+    // Save to task_logs using the date the child selected
+    await supabaseClient.from("task_logs").insert({ kid_id: kidId, points: pts, log_date: originalDate });
     await supabaseClient.from("pending_requests").update({ status: 'banked' }).eq('id', rid);
     
     alert("Points successfully banked!");
@@ -588,7 +618,7 @@
     const pts = parseInt(document.getElementById("adjustPoints").value, 10);
     if (!kidId || isNaN(pts)) return alert("Invalid kid or points");
     
-    var today = new Date().toISOString();
+    var today = new Date().toISOString().split('T')[0];
     await supabaseClient.from("task_logs").insert({ kid_id: kidId, points: pts, log_date: today });
     alert("Adjustment applied!");
     await loadData();
