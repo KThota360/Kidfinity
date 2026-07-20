@@ -9,26 +9,26 @@
   
   <style>
     :root {
-      --bg: #f4f6f9;
+      --bg: #f8fafc;
       --card-bg: #ffffff;
-      --text: #1f2937;
-      --text-muted: #6b7280;
-      --border: #e5e7eb;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
       --accent-green: #10b981;
       --accent-red: #ef4444;
       --accent-blue: #3b82f6;
       --accent-purple: #8b5cf6;
       --accent-gold: #f59e0b;
-      --parent-dark: #1f2937;
-      --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-      --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --parent-dark: #0f172a;
+      --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+      --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
     }
     
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background-color: var(--bg);
-      background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
-      background-size: 20px 20px;
+      background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+      background-size: 24px 24px;
       color: var(--text);
       margin: 0;
       padding: 16px;
@@ -47,7 +47,7 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      border: 1px solid rgba(229, 231, 235, 0.8);
+      border: 1px solid rgba(226, 232, 240, 0.8);
       margin: auto;
     }
 
@@ -55,16 +55,16 @@
     .header {
       text-align: center;
       padding: 24px 20px 16px 20px;
-      background: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
+      background: #ffffff;
       border-bottom: 1px solid var(--border);
     }
     
     .header h1 {
       margin: 0 0 16px 0;
-      font-size: 1.75rem;
+      font-size: 1.8rem;
       font-weight: 800;
       letter-spacing: -0.5px;
-      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       display: inline-block;
@@ -91,13 +91,13 @@
     }
 
     .tab-btn:hover {
-      background: #f3f4f6;
+      background: #f1f5f9;
     }
 
     .tab-btn.active {
-      background: #eef2ff;
+      background: #eff6ff;
       color: var(--accent-blue);
-      border-color: #c7d2fe;
+      border-color: #bfdbfe;
       box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15);
     }
 
@@ -105,6 +105,42 @@
       background: var(--parent-dark);
       color: white;
       border-color: var(--parent-dark);
+    }
+
+    /* On-Page Alert Box */
+    #alert-box {
+      display: none;
+      padding: 12px 16px;
+      margin: 16px 20px 0 20px;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      animation: fadeIn 0.3s ease;
+    }
+
+    #alert-box.success {
+      background-color: #d1fae5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    #alert-box.error {
+      background-color: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+
+    #alert-box.info {
+      background-color: #e0f2fe;
+      color: #075985;
+      border: 1px solid #bae6fd;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     #content {
@@ -133,7 +169,7 @@
 
     .stat-box {
       text-align: center;
-      background: #f9fafb;
+      background: #f8fafc;
       padding: 10px 12px;
       border-radius: 14px;
       flex: 1;
@@ -158,7 +194,7 @@
     .kid-subtabs {
       display: flex;
       margin-bottom: 18px;
-      background: #f3f4f6;
+      background: #f1f5f9;
       padding: 4px;
       border-radius: 14px;
     }
@@ -182,17 +218,20 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
 
-    /* Section Titles */
+    /* Section Titles - Dallas Palace Inspired */
     .section-title {
       font-size: 0.8rem;
       font-weight: 800;
       color: var(--text-muted);
-      margin: 20px 0 10px 0;
-      letter-spacing: 0.8px;
+      margin: 22px 0 12px 0;
+      letter-spacing: 1px;
       text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
 
-    /* Cards & Lists */
+    /* Cards & Lists - Dallas Palace Inspired */
     .card {
       background: white;
       border: 1px solid var(--border);
@@ -204,11 +243,42 @@
       align-items: center;
       box-shadow: var(--shadow-sm);
       border-left: 5px solid var(--accent-green);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      transition: all 0.15s ease;
+    }
+
+    .card.penalty-card {
+      border-left-color: var(--accent-red);
     }
 
     .card:active {
       transform: scale(0.99);
+    }
+
+    .chore-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text);
+    }
+
+    /* Badges */
+    .pts-badge {
+      font-size: 0.8rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 20px;
+      background: #ecfdf5;
+      color: var(--accent-green);
+      border: 1px solid #a7f3d0;
+      white-space: nowrap;
+    }
+
+    .pts-badge.penalty {
+      background: #fef2f2;
+      color: var(--accent-red);
+      border-color: #fca5a5;
     }
 
     /* UI Elements */
@@ -238,7 +308,7 @@
       box-sizing: border-box;
       font-family: inherit;
       font-size: 0.95rem;
-      background-color: #fafafa;
+      background-color: #f8fafc;
       transition: border-color 0.2s;
     }
 
@@ -249,16 +319,16 @@
     }
 
     /* Toggle Switch */
-    .switch { position: relative; display: inline-block; width: 52px; height: 30px; }
+    .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider {
       position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #e5e7eb; transition: .3s; border-radius: 34px;
+      background-color: #cbd5e1; transition: .25s; border-radius: 34px;
     }
     .slider:before {
-      position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px;
-      background-color: white; transition: .3s; border-radius: 50%;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px;
+      background-color: white; transition: .25s; border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
     }
     input:checked + .slider { background-color: var(--accent-green); }
     input:checked + .slider.penalty { background-color: var(--accent-red); }
@@ -272,6 +342,7 @@
     <h1>🏰 Kidfinity</h1>
     <div class="tabs" id="tabs-container"></div>
   </div>
+  <div id="alert-box"></div>
   <div id="content">Loading database...</div>
 </div>
 
@@ -284,7 +355,7 @@
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // ==========================================
-  // 2. GLOBAL STATE
+  // 2. GLOBAL STATE & UI HELPER
   // ==========================================
   let kids = [];
   let chores = [];
@@ -299,6 +370,21 @@
   const PARENT_PIN = "3579";
   const kidColors = ["#ec4899", "#8b5cf6", "#14b8a6", "#f59e0b"];
   let selectedTaskDate = new Date().toISOString().split('T')[0];
+
+  let alertTimer = null;
+  function showAlert(msg, type = 'info') {
+    const alertBox = document.getElementById("alert-box");
+    if (!alertBox) return;
+
+    alertBox.className = type;
+    alertBox.innerHTML = msg;
+    alertBox.style.display = "block";
+
+    clearTimeout(alertTimer);
+    alertTimer = setTimeout(() => {
+      alertBox.style.display = "none";
+    }, 4000);
+  }
 
   // ==========================================
   // 3. INITIALIZATION & DATA FETCHING
@@ -414,22 +500,28 @@
         </div>
       `;
 
-      // Chores
-      html += `<div class="section-title">✨ TODAY'S CHORES</div>`;
+      // Chores - Dallas Palace Styled
+      html += `<div class="section-title">✨ DAILY CHORES</div>`;
       if(regularChores.length === 0) html += `<p style="font-size:0.9rem; color:#666; text-align:center; padding:10px;">No chores assigned yet.</p>`;
       
       html += regularChores.map(c => 
         `<div class="card">
-          <span style="font-weight:600;">${c.name} <strong style="color:var(--accent-green); font-size:0.9rem;">(+${c.points} pts)</strong></span>
+          <div class="chore-info">
+            <span>${c.name}</span>
+            <span class="pts-badge">+${c.points} pts</span>
+          </div>
           <label class="switch"><input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="toggle(${c.id})"><span class="slider"></span></label>
         </div>`).join('');
         
-      // Penalties
+      // Penalties - Dallas Palace Styled
       if (penalties.length > 0) {
-          html += `<div class="section-title" style="color:var(--accent-red);">⚠️ PENALTIES / BEHAVIOR</div>`;
+          html += `<div class="section-title" style="color:var(--accent-red);">⚠️ PENALTIES & BEHAVIOR</div>`;
           html += penalties.map(c => 
-            `<div class="card" style="border-left-color: var(--accent-red);">
-              <span style="font-weight:600;">${c.name} <strong style="color:var(--accent-red); font-size:0.9rem;">(${c.points} pts)</strong></span>
+            `<div class="card penalty-card">
+              <div class="chore-info">
+                <span>${c.name}</span>
+                <span class="pts-badge penalty">${c.points} pts</span>
+              </div>
               <label class="switch"><input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="toggle(${c.id})"><span class="slider penalty"></span></label>
             </div>`).join('');
       }
@@ -451,7 +543,7 @@
     var available = totalEarned - totalSpent;
 
     var html = `
-      <div class="score-banner" style="background:#f9fafb; border-color:var(--border);">
+      <div class="score-banner" style="background:#f8fafc; border-color:var(--border);">
         <h3 style="margin:0 0 5px 0; color:var(--text); font-weight:700;">Available Balance</h3>
         <div style="font-size:2.2rem; font-weight:800; color:var(--accent-blue);">${available} pts</div>
         <p style="font-size:0.85rem; color:var(--text-muted); margin:6px 0 0 0; font-weight:600;">
@@ -502,7 +594,7 @@
 
   async function send() {
     var p = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
-    if (p.length === 0) return alert("Please select at least one task or penalty before sending!");
+    if (p.length === 0) return showAlert("⚠️ Please select at least one task or penalty before sending!", "error");
     
     var total = p.reduce((sum, id) => {
       var c = chores.find(item => item.id == id);
@@ -514,7 +606,7 @@
     });
 
     localStorage.removeItem(`pend_${selectedKidId}`);
-    alert("Request successfully sent to Parents!"); 
+    showAlert("🚀 Request successfully sent to Parents!", "success"); 
     await loadData();
   }
 
@@ -525,7 +617,7 @@
     await supabaseClient.from("pending_requests").insert({ 
       kid_id: kidId, chore_ids: [0], total_points: 500, log_date: today, status: 'pending_redeem'
     });
-    alert("Apple Cash redemption request sent to your parents!");
+    showAlert("🎁 Apple Cash redemption request sent to your parents!", "success");
     await loadData();
   }
 
@@ -613,8 +705,8 @@
           <select id="choreKid">
             ${kids.map(k => `<option value="${k.id}">${k.name}</option>`).join("")}
           </select>
-          <label style="font-size:0.85rem; font-weight:700; color:var(--text-muted); display:block; margin-top:6px;">Format: <i>Name, Points</i> (One per line)</label>
-          <textarea id="choreList" rows="4" placeholder="🛏️ Make Bed, 5&#10;🍽️ Help with Dishes, 5&#10;🚫 Talking Back, -10"></textarea>
+          <label style="font-size:0.85rem; font-weight:700; color:var(--text-muted); display:block; margin-top:6px;">Format: <i>Emoji Name, Points</i> (One per line)</label>
+          <textarea id="choreList" rows="4" placeholder="🚴 Exercise/Cycling, 10&#10;🧹 Clean Bathroom, 10&#10;🚫 Talking Back, -10"></textarea>
           <button class="btn btn-primary" style="margin-top:5px; width:100%;" onclick="addBulkChores()">Save All Actions</button>
         </div>
 
@@ -639,12 +731,12 @@
           ${chores.filter(c => c.kid_id === parentManageTab).length === 0 ? `<p style="text-align:center; color:var(--text-muted); padding:10px;">No chores setup yet for this child.</p>` : ''}
           ${chores.filter(c => c.kid_id === parentManageTab).map(chore => {
             var ptsLabel = chore.points >= 0 ? `+${chore.points}` : `${chore.points}`;
-            var colorClass = chore.points >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+            var isPenalty = chore.points < 0;
             return `
-              <div class="card" style="padding:10px 15px; border-left-color: ${colorClass};">
-                <div>
-                  <span style="font-weight:600;">${chore.name}</span><br>
-                  <span style="color:${colorClass}; font-weight:bold; font-size:0.85rem;">${ptsLabel} pts</span>
+              <div class="card ${isPenalty ? 'penalty-card' : ''}" style="padding:10px 15px;">
+                <div class="chore-info">
+                  <span>${chore.name}</span>
+                  <span class="pts-badge ${isPenalty ? 'penalty' : ''}">${ptsLabel} pts</span>
                 </div>
                 <button class="btn btn-danger" style="width:auto; padding:6px 12px; font-size:0.85rem;" onclick="deleteChore(${chore.id})">Delete</button>
               </div>
@@ -662,14 +754,18 @@
   // ==========================================
   function checkParentPin() {
     if(document.getElementById("loginPin").value === PARENT_PIN) {
-      parentUnlocked = true; render();
-    } else alert("Incorrect PIN");
+      parentUnlocked = true;
+      showAlert("🔓 Parent Portal Unlocked", "success");
+      render();
+    } else {
+      showAlert("❌ Incorrect PIN", "error");
+    }
   }
 
   async function approve(rid, kidId, pts, originalDate) {
     await supabaseClient.from("task_logs").insert({ kid_id: kidId, points: pts, log_date: originalDate });
     await supabaseClient.from("pending_requests").update({ status: 'banked' }).eq('id', rid);
-    alert("Points successfully banked!");
+    showAlert("🎉 Points successfully banked!", "success");
     await loadData();
   }
 
@@ -677,28 +773,30 @@
     var amount = pts / 100;
     await supabaseClient.from("redemptions").insert({ kid_id: kidId, amount: amount, points_spent: pts, redeem_date: originalDate });
     await supabaseClient.from("pending_requests").update({ status: 'banked' }).eq('id', rid);
-    alert("Apple Cash redemption approved!");
+    showAlert("💵 Apple Cash redemption approved!", "success");
     await loadData();
   }
 
   async function declineRequest(rid) {
     if(confirm("Are you sure you want to decline this request?")) {
       await supabaseClient.from("pending_requests").update({ status: 'declined' }).eq('id', rid);
+      showAlert("Request declined", "info");
       await loadData();
     }
   }
 
   async function addKid() {
     const name = document.getElementById("kidName").value.trim();
-    if (!name) return alert("Please enter a name");
+    if (!name) return showAlert("⚠️ Please enter a name", "error");
     await supabaseClient.from("kids").insert({ name: name });
+    showAlert(`✨ Added ${name}!`, "success");
     await loadData();
   }
 
   async function addBulkChores() {
     const kidId = document.getElementById("choreKid").value;
     const list = document.getElementById("choreList").value;
-    if (!kidId || !list.trim()) return alert("Missing kid or chores list");
+    if (!kidId || !list.trim()) return showAlert("⚠️ Missing kid or chores list", "error");
     
     const lines = list.split('\n');
     const inserts = [];
@@ -715,25 +813,28 @@
     
     if (inserts.length > 0) {
       await supabaseClient.from("chores").insert(inserts);
-      alert("Actions added successfully!");
+      showAlert("✅ Actions added successfully!", "success");
       await loadData();
-    } else alert("Could not parse actions. Ensure format is 'Name, Points'");
+    } else {
+      showAlert("⚠️ Could not parse actions. Ensure format is 'Name, Points'", "error");
+    }
   }
 
   async function adjustPoints() {
     const kidId = document.getElementById("adjustKid").value;
     const pts = parseInt(document.getElementById("adjustPoints").value, 10);
-    if (!kidId || isNaN(pts)) return alert("Invalid kid or points");
+    if (!kidId || isNaN(pts)) return showAlert("⚠️ Invalid kid or points", "error");
     
     var today = new Date().toISOString().split('T')[0];
     await supabaseClient.from("task_logs").insert({ kid_id: kidId, points: pts, log_date: today });
-    alert("Adjustment applied!");
+    showAlert("✅ Adjustment applied!", "success");
     await loadData();
   }
 
   async function deleteChore(id) {
     if(confirm("Are you sure you want to delete this action?")) {
       await supabaseClient.from("chores").delete().eq("id", id);
+      showAlert("Action deleted", "info");
       await loadData();
     }
   }
