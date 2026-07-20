@@ -17,6 +17,7 @@
       --accent-green: #10b981;
       --accent-red: #ef4444;
       --accent-blue: #3b82f6;
+      --accent-gold: #f59e0b;
       --parent-dark: #1f2937;
     }
     
@@ -41,148 +42,51 @@
     }
 
     /* Header & Tabs */
-    .header {
-      text-align: center;
-      padding: 20px;
-      border-bottom: 1px solid var(--border);
-    }
-    .header h1 {
-      margin: 0 0 15px 0;
-      font-size: 1.5rem;
-    }
-    .tabs {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+    .header { text-align: center; padding: 20px; border-bottom: 1px solid var(--border); }
+    .header h1 { margin: 0 0 15px 0; font-size: 1.5rem; }
+    .tabs { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
     .tab-btn {
-      padding: 8px 16px;
-      border-radius: 20px;
-      border: 1px solid var(--border);
-      background: var(--bg);
-      cursor: pointer;
-      font-weight: 600;
-      color: var(--text-muted);
+      padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border);
+      background: var(--bg); cursor: pointer; font-weight: 600; color: var(--text-muted);
       transition: all 0.2s;
     }
-    .tab-btn.active {
-      background: #eef2ff;
-      color: var(--accent-blue);
-      border-color: #c7d2fe;
-    }
-    .tab-btn.parent-tab {
-      background: var(--parent-dark);
-      color: white;
-      border-color: var(--parent-dark);
-    }
+    .tab-btn.active { background: #eef2ff; color: var(--accent-blue); border-color: #c7d2fe; }
+    .tab-btn.parent-tab { background: var(--parent-dark); color: white; border-color: var(--parent-dark); }
 
-    #content {
-      padding: 20px;
-    }
+    #content { padding: 20px; }
 
     /* Score Banner */
-    .score-banner {
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      padding: 15px;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-    .stats-row {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 10px;
-    }
-    .stat-box {
-      text-align: center;
-    }
-    .stat-value {
-      font-size: 1.5rem;
-      font-weight: bold;
-    }
-    .stat-label {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
+    .score-banner { border: 2px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 20px; text-align: center; }
+    .stats-row { display: flex; justify-content: space-around; margin-top: 10px; }
+    .stat-box { text-align: center; }
+    .stat-value { font-size: 1.5rem; font-weight: bold; }
+    .stat-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
-    /* Subtabs (Tasks vs History) */
-    .kid-subtabs {
-      display: flex;
-      margin-bottom: 15px;
-      border-bottom: 2px solid var(--border);
-    }
-    .kid-subtabs button {
-      flex: 1;
-      background: none;
-      border: none;
-      padding: 10px;
-      font-weight: bold;
-      color: var(--text-muted);
-      cursor: pointer;
-    }
-    .kid-subtabs button.active {
-      color: var(--accent-blue);
-      border-bottom: 3px solid var(--accent-blue);
-      margin-bottom: -2px;
-    }
+    /* Subtabs */
+    .kid-subtabs { display: flex; margin-bottom: 15px; border-bottom: 2px solid var(--border); }
+    .kid-subtabs button { flex: 1; background: none; border: none; padding: 10px; font-weight: bold; color: var(--text-muted); cursor: pointer; }
+    .kid-subtabs button.active { color: var(--accent-blue); border-bottom: 3px solid var(--accent-blue); margin-bottom: -2px; }
 
     /* Cards & Lists */
-    .section-title {
-      font-size: 0.9rem;
-      font-weight: 800;
-      color: var(--text-muted);
-      margin: 20px 0 10px 0;
-      letter-spacing: 0.5px;
-    }
+    .section-title { font-size: 0.9rem; font-weight: 800; color: var(--text-muted); margin: 20px 0 10px 0; letter-spacing: 0.5px; }
     .card {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 15px;
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-      border-left: 4px solid var(--accent-green);
+      background: white; border: 1px solid var(--border); border-radius: 12px; padding: 15px;
+      margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02); border-left: 4px solid var(--accent-green);
     }
     
     /* UI Elements */
-    .btn {
-      padding: 12px;
-      border: none;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 1rem;
-    }
+    .btn { padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem; }
     .btn-primary { background: var(--accent-blue); color: white; }
     .btn-danger { background: var(--accent-red); color: white; }
     
-    input, select, textarea {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      margin-bottom: 10px;
-      box-sizing: border-box;
-      font-family: inherit;
-    }
+    input, select, textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; font-family: inherit; }
 
     /* Toggle Switch */
     .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
     .switch input { opacity: 0; width: 0; height: 0; }
-    .slider {
-      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #ccc; transition: .4s; border-radius: 34px;
-    }
-    .slider:before {
-      position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px;
-      background-color: white; transition: .4s; border-radius: 50%;
-    }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+    .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
     input:checked + .slider { background-color: var(--accent-green); }
     input:checked + .slider.penalty { background-color: var(--accent-red); }
     input:checked + .slider:before { transform: translateX(22px); }
@@ -206,7 +110,6 @@
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2aW9oeWJ0b3NtdHZ6b3VzcXFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5NDYxOTAsImV4cCI6MjA5ODUyMjE5MH0.0LV25LS-6Yv3EF6_Td5uv-o4Jgm7qNstDSs3RHFRWeo";
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-
   // ==========================================
   // 2. GLOBAL STATE
   // ==========================================
@@ -218,10 +121,10 @@
   let selectedKidId = 'parents';
   let parentUnlocked = false;
   let kidViewMode = 'today'; 
+  let parentManageTab = null; // To track which kid's actions to show in Parent Portal
+  
   const PARENT_PIN = "3579";
   const kidColors = ["#ec4899", "#8b5cf6", "#14b8a6", "#f59e0b"];
-  
-  // Persist the date so re-rendering doesn't reset it
   let selectedTaskDate = new Date().toISOString().split('T')[0];
 
   // ==========================================
@@ -246,6 +149,11 @@
       if (selectedKidId === 'parents' && !parentUnlocked && kids.length > 0) {
         selectedKidId = kids[0].id;
       }
+      
+      // Default the parent manage tab to the first kid if not set
+      if (!parentManageTab && kids.length > 0) {
+        parentManageTab = kids[0].id;
+      }
 
       renderTabs();
       render();
@@ -259,10 +167,7 @@
   // 4. CORE ROUTING & TABS
   // ==========================================
   function renderTabs() {
-    let html = kids.map(k => 
-      `<button class="tab-btn ${selectedKidId === k.id ? 'active' : ''}" onclick="selectTab(${k.id})">${k.name}</button>`
-    ).join('');
-    
+    let html = kids.map(k => `<button class="tab-btn ${selectedKidId === k.id ? 'active' : ''}" onclick="selectTab(${k.id})">${k.name}</button>`).join('');
     html += `<button class="tab-btn parent-tab" onclick="selectTab('parents')">⚙️ Parents</button>`;
     document.getElementById("tabs-container").innerHTML = html;
   }
@@ -270,25 +175,22 @@
   function selectTab(id) {
     selectedKidId = id;
     kidViewMode = 'today'; 
-    selectedTaskDate = new Date().toISOString().split('T')[0]; // Reset date to today on tab switch
+    selectedTaskDate = new Date().toISOString().split('T')[0]; 
     renderTabs();
     render();
   }
 
   function render() {
-    if (selectedKidId === 'parents') {
-      renderParents();
-    } else {
-      renderKid();
-    }
+    if (selectedKidId === 'parents') renderParents();
+    else renderKid();
   }
 
   // ==========================================
   // 5. KID VIEW (TODAY & HISTORY)
   // ==========================================
-  function updateTaskDate(val) {
-    selectedTaskDate = val;
-  }
+  function updateTaskDate(val) { selectedTaskDate = val; }
+  
+  function setParentManageTab(id) { parentManageTab = id; render(); }
 
   function renderKid() {
     var kid = kids.find(k => k.id === selectedKidId);
@@ -297,18 +199,14 @@
     var kidIndex = kids.findIndex(k => k.id === kid.id);
     var color = kidColors[Math.max(0, kidIndex) % kidColors.length];
     
-    // Scores
     var pts = logs.filter(l => l.kid_id === kid.id).reduce((sum, l) => sum + l.points, 0);
     var cash = redemptions.filter(r => r.kid_id === kid.id).reduce((sum, r) => sum + r.amount, 0);
-    
-    // Pending
     var pend = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
     var pendSum = pend.reduce((sum, id) => {
       var c = chores.find(item => item.id == id);
       return sum + (c ? c.points : 0);
     }, 0);
 
-    // Filter tasks
     var regularChores = chores.filter(c => c.kid_id == kid.id && c.points >= 0);
     var penalties = chores.filter(c => c.kid_id == kid.id && c.points < 0);
 
@@ -328,8 +226,6 @@
     `;
 
     if (kidViewMode === 'today') {
-      
-      // Top Control Bar (Date Picker, Reset, Send)
       html += `
         <div style="display:flex; gap:10px; margin-top:15px; margin-bottom:5px; align-items:center;">
           <input type="date" id="taskDate" value="${selectedTaskDate}" onchange="updateTaskDate(this.value)" style="flex:2; margin:0; padding:10px; font-size:0.9rem;">
@@ -344,7 +240,6 @@
         </div>
       `;
 
-      // Chores
       html += `<div class="section-title">DAILY CHORES</div>`;
       if(regularChores.length === 0) html += `<p style="font-size:0.9rem; color:#666;">No chores assigned yet.</p>`;
       
@@ -353,7 +248,6 @@
          <label class="switch"><input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="toggle(${c.id})"><span class="slider"></span></label>
         </div>`).join('');
         
-      // Penalties
       if (penalties.length > 0) {
           html += `<div class="section-title" style="color:var(--accent-red);">⚠️ PENALTIES</div>`;
           html += penalties.map(c => 
@@ -369,10 +263,7 @@
     document.getElementById("content").innerHTML = html;
   }
 
-  function setKidView(mode) {
-    kidViewMode = mode;
-    render();
-  }
+  function setKidView(mode) { kidViewMode = mode; render(); }
 
   function renderKidHistory(kidId) {
     var kidLogs = logs.filter(l => l.kid_id === kidId);
@@ -392,9 +283,16 @@
       </div>
     `;
 
-    if (kidReds.length === 0) {
-      html += `<p style="text-align:center; color:var(--text-muted);">No Apple Cash redeemed yet.</p>`;
+    // Redemption Button Logic
+    html += `<div style="text-align: center; margin: 20px 0;">`;
+    if (available >= 500) {
+      html += `<button class="btn btn-primary" style="background: var(--accent-gold); color: white; padding: 15px; font-size: 1.1rem;" onclick="requestRedeem(${kidId})">🎁 Request $5 Apple Cash (500 pts)</button>`;
     } else {
+      html += `<p style="color: var(--text-muted); font-weight: bold;">Earn ${500 - available} more points to redeem $5 Apple Cash!</p>`;
+    }
+    html += `</div>`;
+
+    if (kidReds.length > 0) {
       html += `<div class="section-title">🍎 REDEMPTION HISTORY</div>`;
       html += kidReds.map(r => {
         var dateStr = new Date(r.redeem_date).toLocaleDateString();
@@ -414,11 +312,8 @@
   // ==========================================
   function toggle(id) {
     var p = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
-    if (p.includes(id)) {
-      p = p.filter(i => i !== id);
-    } else {
-      p.push(id);
-    }
+    if (p.includes(id)) p = p.filter(i => i !== id);
+    else p.push(id);
     localStorage.setItem(`pend_${selectedKidId}`, JSON.stringify(p));
     render(); 
   }
@@ -430,10 +325,7 @@
 
   async function send() {
     var p = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
-    if (p.length === 0) {
-      alert("Please select at least one task or penalty before sending!");
-      return;
-    }
+    if (p.length === 0) return alert("Please select at least one task or penalty before sending!");
     
     var total = p.reduce((sum, id) => {
       var c = chores.find(item => item.id == id);
@@ -441,14 +333,22 @@
     }, 0);
 
     await supabaseClient.from("pending_requests").insert({ 
-      kid_id: selectedKidId, 
-      chore_ids: p, 
-      total_points: total, 
-      log_date: selectedTaskDate // Uses the date chosen in the UI
+      kid_id: selectedKidId, chore_ids: p, total_points: total, log_date: selectedTaskDate, status: 'pending'
     });
 
     localStorage.removeItem(`pend_${selectedKidId}`);
     alert("Request successfully sent to Parents!"); 
+    await loadData();
+  }
+
+  async function requestRedeem(kidId) {
+    if(!confirm("Are you sure you want to request $5 for 500 points?")) return;
+    
+    var today = new Date().toISOString().split('T')[0];
+    await supabaseClient.from("pending_requests").insert({ 
+      kid_id: kidId, chore_ids: [0], total_points: 500, log_date: today, status: 'pending_redeem'
+    });
+    alert("Apple Cash redemption request sent to your parents!");
     await loadData();
   }
 
@@ -472,7 +372,7 @@
     const { data: pending } = await supabaseClient
       .from("pending_requests")
       .select("*")
-      .eq("status", "pending");
+      .in("status", ["pending", "pending_redeem"]);
 
     let pendingHtml = '';
     if (pending && pending.length > 0) {
@@ -482,19 +382,39 @@
           ${pending.map(r => {
             var kid = kids.find(k => k.id === r.kid_id);
             var kidName = kid ? kid.name : "Unknown Kid";
-            var ptsLabel = r.total_points >= 0 ? '+' + r.total_points : r.total_points;
-            var ptsColor = r.total_points >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
             var logDateFmt = new Date(r.log_date).toLocaleDateString();
             
-            return `
-              <div class="card" style="margin-bottom: 10px; background: white; border-left-color: ${ptsColor};">
-                <div>
-                  <strong>${kidName}</strong> (<small>${logDateFmt}</small>)<br> 
-                  Requesting: <strong style="color: ${ptsColor}">${ptsLabel} pts</strong>
+            // Check if this is a redemption request
+            if (r.status === 'pending_redeem') {
+               return `
+                <div class="card" style="margin-bottom: 10px; background: white; border-left-color: var(--accent-gold); flex-direction: column; align-items: stretch; gap: 10px;">
+                  <div>
+                    <strong>${kidName}</strong> (<small>${logDateFmt}</small>)<br> 
+                    Requests to <strong>REDEEM ${r.total_points} pts</strong> for <strong>$${r.total_points/100} Apple Cash</strong>!
+                  </div>
+                  <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-primary" style="background: var(--accent-gold); flex: 1; padding: 8px;" onclick="approveRedeem(${r.id}, ${r.kid_id}, ${r.total_points}, '${r.log_date}')">Approve Redeem</button>
+                    <button class="btn btn-danger" style="flex: 1; padding: 8px;" onclick="declineRequest(${r.id})">Decline</button>
+                  </div>
                 </div>
-                <button class="btn btn-primary" style="background: var(--accent-green); width: auto; padding: 8px 15px;" onclick="approve(${r.id}, ${r.kid_id}, ${r.total_points}, '${r.log_date}')">Approve & Bank</button>
-              </div>
-            `;
+              `;
+            } else {
+               // Standard Chore Request
+               var ptsLabel = r.total_points >= 0 ? '+' + r.total_points : r.total_points;
+               var ptsColor = r.total_points >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+               return `
+                <div class="card" style="margin-bottom: 10px; background: white; border-left-color: ${ptsColor}; flex-direction: column; align-items: stretch; gap: 10px;">
+                  <div>
+                    <strong>${kidName}</strong> (<small>${logDateFmt}</small>)<br> 
+                    Requesting: <strong style="color: ${ptsColor}">${ptsLabel} pts</strong>
+                  </div>
+                  <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-primary" style="background: var(--accent-green); flex: 1; padding: 8px;" onclick="approve(${r.id}, ${r.kid_id}, ${r.total_points}, '${r.log_date}')">Approve & Bank</button>
+                    <button class="btn btn-danger" style="flex: 1; padding: 8px;" onclick="declineRequest(${r.id})">Decline</button>
+                  </div>
+                </div>
+              `;
+            }
           }).join('')}
         </div>
       `;
@@ -529,20 +449,26 @@
             ${kids.map(k => `<option value="${k.id}">${k.name}</option>`).join("")}
           </select>
           <input id="adjustPoints" type="number" placeholder="Points (e.g. 20 or -15)">
-          <button class="btn" style="background:#f59e0b; color:white; margin-top:10px;" onclick="adjustPoints()">Apply Adjustment</button>
+          <button class="btn" style="background:var(--accent-gold); color:white; margin-top:10px;" onclick="adjustPoints()">Apply Adjustment</button>
         </div>
 
         <div>
           <h3>Manage Existing Actions</h3>
-          ${chores.length === 0 ? `<p>No chores setup yet.</p>` : ''}
-          ${chores.map(chore => {
-            var kid = kids.find(k => k.id === chore.kid_id);
+          
+          <div class="kid-subtabs">
+            ${kids.map(k => `
+              <button class="${parentManageTab === k.id ? 'active' : ''}" onclick="setParentManageTab(${k.id})">${k.name}</button>
+            `).join('')}
+          </div>
+
+          ${chores.filter(c => c.kid_id === parentManageTab).length === 0 ? `<p>No chores setup yet for this child.</p>` : ''}
+          ${chores.filter(c => c.kid_id === parentManageTab).map(chore => {
             var ptsLabel = chore.points >= 0 ? `+${chore.points}` : `${chore.points}`;
             var colorClass = chore.points >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
             return `
               <div class="card" style="padding:10px 15px; border-left-color: ${colorClass};">
                 <div>
-                  <span><strong>${kid ? kid.name : "System"}</strong>: ${chore.name}</span><br>
+                  <span>${chore.name}</span><br>
                   <span style="color:${colorClass}; font-weight:bold; font-size:0.9rem;">${ptsLabel} pts</span>
                 </div>
                 <button class="btn btn-danger" style="width:auto; padding:8px 12px; font-size:0.9rem;" onclick="deleteChore(${chore.id})">Delete</button>
@@ -561,20 +487,30 @@
   // ==========================================
   function checkParentPin() {
     if(document.getElementById("loginPin").value === PARENT_PIN) {
-      parentUnlocked = true;
-      render();
-    } else {
-      alert("Incorrect PIN");
-    }
+      parentUnlocked = true; render();
+    } else alert("Incorrect PIN");
   }
 
   async function approve(rid, kidId, pts, originalDate) {
-    // Save to task_logs using the date the child selected
     await supabaseClient.from("task_logs").insert({ kid_id: kidId, points: pts, log_date: originalDate });
     await supabaseClient.from("pending_requests").update({ status: 'banked' }).eq('id', rid);
-    
     alert("Points successfully banked!");
     await loadData();
+  }
+
+  async function approveRedeem(rid, kidId, pts, originalDate) {
+    var amount = pts / 100; // 500 pts = $5
+    await supabaseClient.from("redemptions").insert({ kid_id: kidId, amount: amount, points_spent: pts, redeem_date: originalDate });
+    await supabaseClient.from("pending_requests").update({ status: 'banked' }).eq('id', rid);
+    alert("Apple Cash redemption approved!");
+    await loadData();
+  }
+
+  async function declineRequest(rid) {
+    if(confirm("Are you sure you want to decline this request?")) {
+      await supabaseClient.from("pending_requests").update({ status: 'declined' }).eq('id', rid);
+      await loadData();
+    }
   }
 
   async function addKid() {
@@ -598,9 +534,7 @@
       if (parts.length >= 2) {
         const name = parts[0].trim();
         const pts = parseInt(parts[1].trim(), 10);
-        if (!isNaN(pts)) {
-          inserts.push({ kid_id: kidId, name: name, points: pts });
-        }
+        if (!isNaN(pts)) inserts.push({ kid_id: kidId, name: name, points: pts });
       }
     }
     
@@ -608,9 +542,7 @@
       await supabaseClient.from("chores").insert(inserts);
       alert("Actions added successfully!");
       await loadData();
-    } else {
-      alert("Could not parse actions. Ensure format is 'Name, Points'");
-    }
+    } else alert("Could not parse actions. Ensure format is 'Name, Points'");
   }
 
   async function adjustPoints() {
