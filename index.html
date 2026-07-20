@@ -418,7 +418,23 @@ async function approveRequest(reqId, kidId, choreIds, totalPoints, date) {
   // Loop through pendingReqs and create buttons to approve them
 */
   
-
+function toggle(id) {
+  var p = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
+  
+  // Add or remove the ID from the array
+  if (p.includes(id)) {
+    p = p.filter(i => i !== id);
+  } else {
+    p.push(id);
+  }
+  
+  // Save to storage
+  localStorage.setItem(`pend_${selectedKidId}`, JSON.stringify(p));
+  
+  // CRITICAL: Call render() to update the UI
+  render(); 
+}
+  
 function togglePending(choreId) {
   var p = getPending();
   if (p.includes(choreId)) {
