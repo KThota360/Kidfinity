@@ -345,11 +345,11 @@
       display: inline-block;
       background: #f1f5f9;
       color: #334155;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 0.8rem;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 0.825rem;
       font-weight: 600;
-      margin: 2px;
+      margin: 3px 3px 0 0;
       border: 1px solid #cbd5e1;
     }
 
@@ -639,17 +639,18 @@
     var selectedChores = p.map(id => chores.find(item => item.id == id)).filter(Boolean);
     var total = selectedChores.reduce((sum, c) => sum + c.points, 0);
 
-    // Collect names of enabled items
-    var details = selectedChores.map(c => c.name);
-
-    await supabaseClient.from("pending_requests").insert({ 
+    const { error } = await supabaseClient.from("pending_requests").insert({ 
       kid_id: selectedKidId, 
       chore_ids: p, 
       total_points: total, 
       log_date: selectedTaskDate, 
-      status: 'pending',
-      task_details: details
+      status: 'pending'
     });
+
+    if (error) {
+      console.error(error);
+      return showAlert("❌ Failed to send request: " + error.message, "error");
+    }
 
     localStorage.removeItem(`pend_${selectedKidId}`);
     showAlert("🚀 Request successfully sent to Parents!", "success"); 
@@ -660,9 +661,15 @@
     if(!confirm("Are you sure you want to request $5 for 500 points?")) return;
     
     var today = new Date().toISOString().split('T')[0];
-    await supabaseClient.from("pending_requests").insert({ 
-      kid_id: kidId, chore_ids: [0], total_points: 500, log_date: today, status: 'pending_redeem', task_details: ["$5 Apple Cash Redemption"]
+    const { error } = await supabaseClient.from("pending_requests").insert({ 
+      kid_id: kidId, chore_ids: [], total_points: 500, log_date: today, status: 'pending_redeem'
     });
+
+    if (error) {
+      console.error(error);
+      return showAlert("❌ Failed to send request: " + error.message, "error");
+    }
+
     showAlert("🎁 Apple Cash redemption request sent to your parents!", "success");
     await loadData();
   }
@@ -699,15 +706,14 @@
             var kidName = kid ? kid.name : "Unknown Kid";
             var logDateFmt = new Date(r.log_date).toLocaleDateString();
             
-            // Build task list pills
+            // Build task list pills by matching chore_ids with chores table
             var taskItemsHtml = '';
-            if (r.task_details && Array.isArray(r.task_details) && r.task_details.length > 0) {
-              taskItemsHtml = `<div style="margin: 6px 0 8px 0;">${r.task_details.map(t => `<span class="task-pill">${t}</span>`).join('')}</div>`;
-            } else if (r.chore_ids && r.chore_ids.length > 0) {
+            if (r.chore_ids && Array.isArray(r.chore_ids) && r.chore_ids.length > 0) {
               var names = r.chore_ids.map(cid => {
                 var c = chores.find(item => item.id == cid);
                 return c ? c.name : null;
               }).filter(Boolean);
+
               if (names.length > 0) {
                 taskItemsHtml = `<div style="margin: 6px 0 8px 0;">${names.map(t => `<span class="task-pill">${t}</span>`).join('')}</div>`;
               }
