@@ -410,12 +410,14 @@
           <button class="btn btn-primary" style="margin-top:5px; width:100%;" onclick="addBulkChores()">Save All Actions</button>
         </div>
 
+        <!-- MANUAL ADJUSTMENT WITH MANDATORY NOTE -->
         <div class="score-banner" style="text-align: left;">
           <h3 style="margin-top:0; font-size:1.05rem;">Manual Adjustment</h3>
           <select id="adjustKid">
             ${kids.map(k => `<option value="${k.id}">${k.name}</option>`).join("")}
           </select>
           <input id="adjustPoints" type="number" placeholder="Points (e.g. 20 or -15)">
+          <textarea id="adjustNote" rows="2" placeholder="Reason / Note (Required)..."></textarea>
           <button class="btn" style="background:var(--accent-gold); color:white; margin-top:5px; width:100%;" onclick="adjustPoints()">Apply Adjustment</button>
         </div>
 
@@ -554,6 +556,7 @@
 
   function setKidView(mode) { kidViewMode = mode; render(); }
 
+  // --- 1-WEEK HISTORY & REWARDS VIEW ---
   function renderKidHistory(kidId) {
     var kidLogs = logs.filter(l => l.kid_id === kidId);
     var kidReds = redemptions.filter(r => r.kid_id === kidId);
@@ -580,14 +583,57 @@
     }
     html += `</div>`;
 
-    if (kidReds.length > 0) {
-      html += `<div class="section-title">🍎 REDEMPTION HISTORY</div>`;
-      html += kidReds.map(r => {
-        var dateStr = new Date(r.redeem_date).toLocaleDateString();
+    // Filter events for the last 7 days
+    var sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    // Combine task logs & redemptions into a single history stream
+    var activityList = [];
+
+    kidLogs.forEach(l => {
+      var logDate = new Date(l.log_date || l.created_at);
+      if (logDate >= sevenDaysAgo) {
+        activityList.push({
+          type: 'log',
+          title: l.notes || (l.points >= 0 ? 'Completed Chores' : 'Manual Point Deduction'),
+          points: l.points,
+          date: logDate
+        });
+      }
+    });
+
+    kidReds.forEach(r => {
+      var redeemDate = new Date(r.redeem_date || r.created_at);
+      if (redeemDate >= sevenDaysAgo) {
+        activityList.push({
+          type: 'redemption',
+          title: `$${r.amount} Apple Cash Redemption`,
+          points: -r.points_spent,
+          date: redeemDate
+        });
+      }
+    });
+
+    // Sort by most recent
+    activityList.sort((a, b) => b.date - a.date);
+
+    html += `<div class="section-title">📅 7-DAY ACTIVITY HISTORY</div>`;
+
+    if (activityList.length === 0) {
+      html += `<p style="font-size:0.85rem; color:var(--text-muted); text-align:center; padding:12px;">No activity logged over the past 7 days.</p>`;
+    } else {
+      html += activityList.map(item => {
+        var dateStr = item.date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+        var ptsClass = item.points >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+        var ptsSign = item.points >= 0 ? `+${item.points}` : `${item.points}`;
+        
         return `
-        <div class="card" style="border-left-color: var(--accent-gold);">
-          <div><strong style="font-size:1rem;">$${r.amount} Apple Cash</strong><br><small style="color:var(--text-muted)">${dateStr}</small></div>
-          <strong style="color:var(--accent-red); font-size:1rem;">-${r.points_spent} pts</strong>
+        <div class="card" style="border-left-color: ${ptsClass};">
+          <div>
+            <strong style="font-size:0.95rem;">${item.title}</strong><br>
+            <small style="color:var(--text-muted);">${dateStr}</small>
+          </div>
+          <strong style="color:${ptsClass}; font-size:1rem;">${ptsSign} pts</strong>
         </div>`;
       }).join('');
     }
@@ -704,14 +750,26 @@
     }
   }
 
+  // --- ADJUST POINTS WITH MANDATORY NOTE VALIDATION ---
   async function adjustPoints() {
     const kidId = document.getElementById("adjustKid").value;
     const pts = parseInt(document.getElementById("adjustPoints").value, 10);
-    if (!kidId || isNaN(pts)) return showAlert("⚠️ Invalid kid or points", "error");
+    const note = document.getElementById("adjustNote").value.trim();
+
+    if (!kidId || isNaN(pts)) return showAlert("⚠️ Invalid kid or points amount", "error");
+    if (!note) return showAlert("⚠️ A note/comment is required for manual adjustments!", "error");
     
     var today = new Date().toISOString().split('T')[0];
-    await supabaseClient.from("task_logs").insert({ kid_id: kidId, points: pts, log_date: today });
-    showAlert("✅ Adjustment applied!", "success");
+    const { error } = await supabaseClient.from("task_logs").insert({ 
+      kid_id: kidId, 
+      points: pts, 
+      notes: note,
+      log_date: today 
+    });
+
+    if (error) return showAlert("❌ Adjustment failed: " + error.message, "error");
+
+    showAlert("✅ Manual adjustment applied!", "success");
     await loadData();
   }
 
