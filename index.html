@@ -337,6 +337,8 @@
             var logDateFmt = new Date(r.log_date).toLocaleDateString();
             
             var taskItemsHtml = '';
+            var namesString = ''; // This will hold the combined string of chore names
+            
             if (r.chore_ids && Array.isArray(r.chore_ids) && r.chore_ids.length > 0) {
               var names = r.chore_ids.map(cid => {
                 var c = chores.find(item => item.id == cid);
@@ -345,6 +347,8 @@
 
               if (names.length > 0) {
                 taskItemsHtml = `<div style="margin: 6px 0 8px 0;">${names.map(t => `<span class="task-pill">${t}</span>`).join('')}</div>`;
+                // Safely format the names into a single string for the database
+                namesString = names.join(', ').replace(/'/g, "\\'").replace(/"/g, "&quot;");
               }
             }
 
@@ -372,7 +376,8 @@
                     ${taskItemsHtml}
                   </div>
                   <div style="display: flex; gap: 10px;">
-                    <button class="btn btn-primary" style="background: var(--accent-green); flex: 1; padding: 8px;" onclick="approve(${r.id}, ${r.kid_id}, ${r.total_points}, '${r.log_date}')">Approve & Bank</button>
+                    <!-- ADDED namesString HERE to pass chore names to the approve function -->
+                    <button class="btn btn-primary" style="background: var(--accent-green); flex: 1; padding: 8px;" onclick="approve(${r.id}, ${r.kid_id}, ${r.total_points}, '${r.log_date}', '${namesString}')">Approve & Bank</button>
                     <button class="btn btn-danger" style="flex: 1; padding: 8px;" onclick="declineRequest(${r.id})">Decline</button>
                   </div>
                 </div>
@@ -595,6 +600,7 @@
       if (logDate >= sevenDaysAgo) {
         activityList.push({
           type: 'log',
+          // ALREADY CORRECT: Displays the note if it exists, otherwise falls back to defaults
           title: l.notes || (l.points >= 0 ? 'Completed Chores' : 'Manual Point Deduction'),
           points: l.points,
           date: logDate
@@ -692,8 +698,21 @@
     await loadData();
   }
 
-  async function approve(rid, kidId, pts, originalDate) {
-    await supabaseClient.from("task_logs").insert({ kid_id: kidId, points: pts, log_date: originalDate });
+  // ADDED choreNames support to the approve function
+  async function approve(rid, kidId, pts, originalDate, choreNames = "") {
+    const payload = { kid_id: kidId, points: pts, log_date: originalDate };
+    
+    // If we have chore names from the pending request, add them to the notes column
+    if (choreNames && choreNames.trim() !== "") {
+        payload.notes = choreNames;
+    }
+    
+    const { error } = await supabaseClient.from("task_logs").insert(payload);
+    
+    if (error) {
+        return showAlert("❌ Failed to approve: " + error.message, "error");
+    }
+
     await supabaseClient.from("pending_requests").update({ status: 'banked' }).eq('id', rid);
     showAlert("🎉 Points successfully banked!", "success");
     await loadData();
@@ -763,7 +782,7 @@
     const { error } = await supabaseClient.from("task_logs").insert({ 
       kid_id: kidId, 
       points: pts, 
-      notes: note,
+      notes: note, // ALREADY CORRECT: Saving the manual note to the database
       log_date: today 
     });
 
