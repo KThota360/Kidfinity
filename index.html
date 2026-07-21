@@ -340,6 +340,19 @@
       background-color: #ffffff;
     }
 
+    /* Task Details Pill Badge */
+    .task-pill {
+      display: inline-block;
+      background: #f1f5f9;
+      color: #334155;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin: 2px;
+      border: 1px solid #cbd5e1;
+    }
+
     /* Toggle Switch */
     .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
     .switch input { opacity: 0; width: 0; height: 0; }
@@ -388,7 +401,7 @@
   let parentUnlocked = false;
   let kidViewMode = 'today'; 
   let parentManageTab = null;
-  let editingChoreId = null; // Track which action is currently being edited inline
+  let editingChoreId = null; 
   
   const PARENT_PIN = "3579";
   const kidColors = ["#ec4899", "#8b5cf6", "#14b8a6", "#f59e0b"];
@@ -472,7 +485,7 @@
   function updateTaskDate(val) { selectedTaskDate = val; }
   function setParentManageTab(id) { 
     parentManageTab = id; 
-    editingChoreId = null; // Clear active inline edit when changing child tabs
+    editingChoreId = null; 
     render(); 
   }
 
@@ -623,13 +636,19 @@
     var p = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
     if (p.length === 0) return showAlert("⚠️ Please select at least one task or penalty before sending!", "error");
     
-    var total = p.reduce((sum, id) => {
-      var c = chores.find(item => item.id == id);
-      return sum + (c ? c.points : 0);
-    }, 0);
+    var selectedChores = p.map(id => chores.find(item => item.id == id)).filter(Boolean);
+    var total = selectedChores.reduce((sum, c) => sum + c.points, 0);
+
+    // Collect names of enabled items
+    var details = selectedChores.map(c => c.name);
 
     await supabaseClient.from("pending_requests").insert({ 
-      kid_id: selectedKidId, chore_ids: p, total_points: total, log_date: selectedTaskDate, status: 'pending'
+      kid_id: selectedKidId, 
+      chore_ids: p, 
+      total_points: total, 
+      log_date: selectedTaskDate, 
+      status: 'pending',
+      task_details: details
     });
 
     localStorage.removeItem(`pend_${selectedKidId}`);
@@ -642,7 +661,7 @@
     
     var today = new Date().toISOString().split('T')[0];
     await supabaseClient.from("pending_requests").insert({ 
-      kid_id: kidId, chore_ids: [0], total_points: 500, log_date: today, status: 'pending_redeem'
+      kid_id: kidId, chore_ids: [0], total_points: 500, log_date: today, status: 'pending_redeem', task_details: ["$5 Apple Cash Redemption"]
     });
     showAlert("🎁 Apple Cash redemption request sent to your parents!", "success");
     await loadData();
@@ -680,6 +699,20 @@
             var kidName = kid ? kid.name : "Unknown Kid";
             var logDateFmt = new Date(r.log_date).toLocaleDateString();
             
+            // Build task list pills
+            var taskItemsHtml = '';
+            if (r.task_details && Array.isArray(r.task_details) && r.task_details.length > 0) {
+              taskItemsHtml = `<div style="margin: 6px 0 8px 0;">${r.task_details.map(t => `<span class="task-pill">${t}</span>`).join('')}</div>`;
+            } else if (r.chore_ids && r.chore_ids.length > 0) {
+              var names = r.chore_ids.map(cid => {
+                var c = chores.find(item => item.id == cid);
+                return c ? c.name : null;
+              }).filter(Boolean);
+              if (names.length > 0) {
+                taskItemsHtml = `<div style="margin: 6px 0 8px 0;">${names.map(t => `<span class="task-pill">${t}</span>`).join('')}</div>`;
+              }
+            }
+
             if (r.status === 'pending_redeem') {
                return `
                 <div class="card" style="margin-bottom: 10px; background: white; border-left-color: var(--accent-gold); flex-direction: column; align-items: stretch; gap: 10px;">
@@ -701,6 +734,7 @@
                   <div>
                     <strong style="font-size:1rem;">${kidName}</strong> (<small style="color:var(--text-muted)">${logDateFmt}</small>)<br> 
                     Requesting: <strong style="color: ${ptsColor}">${ptsLabel} pts</strong>
+                    ${taskItemsHtml}
                   </div>
                   <div style="display: flex; gap: 10px;">
                     <button class="btn btn-primary" style="background: var(--accent-green); flex: 1; padding: 8px;" onclick="approve(${r.id}, ${r.kid_id}, ${r.total_points}, '${r.log_date}')">Approve & Bank</button>
