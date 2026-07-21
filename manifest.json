@@ -3,6 +3,7 @@
   "short_name": "Kidfinity",
   "description": "Family Chore & Reward Tracker",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#f8fafc",
   "theme_color": "#2563eb",
@@ -10,12 +11,14 @@
     {
       "src": "https://cdn-icons-png.flaticon.com/512/5402/5402751.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "https://cdn-icons-png.flaticon.com/512/5402/5402751.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
