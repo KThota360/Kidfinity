@@ -863,11 +863,17 @@
     showAlert("💵 Apple Cash redemption approved!", "success");
     await loadData();
   }
-
   async function declineRequest(rid) {
-    if(confirm("Are you sure you want to decline this request?")) {
-      await supabaseClient.from("pending_requests").update({ status: 'declined' }).eq('id', rid);
-      showAlert("Request declined", "info");
+    // Directly update status without showing the browser confirm/alert popups
+    const { error } = await supabaseClient
+      .from("pending_requests")
+      .update({ status: 'declined' })
+      .eq('id', rid);
+
+    if (error) {
+      showAlert("❌ Failed to decline request: " + error.message, "error");
+    } else {
+      showAlert("🚫 Request declined successfully", "info");
       await loadData();
     }
   }
