@@ -180,7 +180,7 @@
 
 <div id="app-container">
   <div class="header">
-    <a href="https://kthota360.github.io/Kidfinity/"><h1>🏰 Kidfinity</h1></a>
+    <h1>🏰 Kidfinity</h1>
     <div class="tabs" id="tabs-container"></div>
   </div>
   <div id="alert-box"></div>
@@ -202,8 +202,32 @@
   let editingChoreId = null; 
   
   const kidColors = ["#ec4899", "#8b5cf6", "#14b8a6", "#f59e0b"];
-  let selectedTaskDate = new Date().toISOString().split('T')[0];
+  let selectedTaskDate = getLocalTodayISO();
   let alertTimer = null;
+
+  // --- HELPER FUNCTIONS FOR DATE & TIMEZONE ---
+  function getLocalTodayISO() {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  function parseLocalDate(dateStr) {
+    if (!dateStr) return new Date();
+    if (typeof dateStr === 'string' && dateStr.length === 10 && dateStr.includes('-')) {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+    return new Date(dateStr);
+  }
+
+  function formatDate(dateVal) {
+    if (!dateVal) return '';
+    const dateObj = parseLocalDate(dateVal);
+    return dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' });
+  }
 
   function showAlert(msg, type = 'info') {
     const alertBox = document.getElementById("alert-box");
@@ -223,12 +247,12 @@
         parentUnlocked = true;
       }
 
-      // Fetch database content
+      // Fetch database content ordered by ID descending for newest first
       const [k, c, l, r] = await Promise.all([
         supabaseClient.from("kids").select("*").order("id"),
         supabaseClient.from("chores").select("*").order("id"),
-        supabaseClient.from("task_logs").select("*").order("log_date", { ascending: false }),
-        supabaseClient.from("redemptions").select("*").order("redeem_date", { ascending: false })
+        supabaseClient.from("task_logs").select("*").order("id", { ascending: false }),
+        supabaseClient.from("redemptions").select("*").order("id", { ascending: false })
       ]);
 
       kids = k.data || [];
@@ -260,7 +284,7 @@
   function selectTab(id) {
     selectedKidId = id;
     kidViewMode = 'today'; 
-    selectedTaskDate = new Date().toISOString().split('T')[0]; 
+    selectedTaskDate = getLocalTodayISO(); 
     renderTabs();
     render();
   }
@@ -319,7 +343,7 @@
           ${pending.map(r => {
             var kid = kids.find(k => k.id === r.kid_id);
             var kidName = kid ? kid.name : "Unknown Kid";
-            var logDateFmt = new Date(r.log_date).toLocaleDateString();
+            var logDateFmt = formatDate(r.log_date);
             
             var taskItemsHtml = '';
             var namesString = '';
@@ -575,34 +599,45 @@
     // Filter events for the last 7 days
     var sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
 
     var activityList = [];
 
     kidLogs.forEach(l => {
-      var logDate = new Date(l.log_date || l.created_at);
-      if (logDate >= sevenDaysAgo) {
+      var itemDate = l.created_at ? new Date(l.created_at) : parseLocalDate(l.log_date);
+      if (itemDate >= sevenDaysAgo) {
         activityList.push({
+          id: l.id,
           type: 'log',
           title: l.notes || (l.points >= 0 ? 'Completed Chores' : 'Manual Point Deduction'),
           points: l.points,
-          date: logDate
+          displayDate: formatDate(l.log_date || l.created_at),
+          timestamp: itemDate.getTime()
         });
       }
     });
 
     kidReds.forEach(r => {
-      var redeemDate = new Date(r.redeem_date || r.created_at);
-      if (redeemDate >= sevenDaysAgo) {
+      var itemDate = r.created_at ? new Date(r.created_at) : parseLocalDate(r.redeem_date);
+      if (itemDate >= sevenDaysAgo) {
         activityList.push({
+          id: r.id,
           type: 'redemption',
           title: `$${r.amount} Apple Cash Redemption`,
           points: -r.points_spent,
-          date: redeemDate
+          displayDate: formatDate(r.redeem_date || r.created_at),
+          timestamp: itemDate.getTime()
         });
       }
     });
 
-    activityList.sort((a, b) => b.date - a.date);
+    // Sort newest-first: by precise timestamp first, then by database ID
+    activityList.sort((a, b) => {
+      if (b.timestamp !== a.timestamp) {
+        return b.timestamp - a.timestamp;
+      }
+      return (b.id || 0) - (a.id || 0);
+    });
 
     html += `<div class="section-title">📅 7-DAY ACTIVITY HISTORY</div>`;
 
@@ -610,7 +645,6 @@
       html += `<p style="font-size:0.85rem; color:var(--text-muted); text-align:center; padding:12px;">No activity logged over the past 7 days.</p>`;
     } else {
       html += activityList.map(item => {
-        var dateStr = item.date.toLocaleDateString([], { month: 'short', day: 'numeric' });
         var ptsClass = item.points >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
         var ptsSign = item.points >= 0 ? `+${item.points}` : `${item.points}`;
         
@@ -618,7 +652,7 @@
         <div class="card" style="border-left-color: ${ptsClass};">
           <div>
             <strong style="font-size:0.95rem;">${item.title}</strong><br>
-            <small style="color:var(--text-muted);">${dateStr}</small>
+            <small style="color:var(--text-muted);">${item.displayDate}</small>
           </div>
           <strong style="color:${ptsClass}; font-size:1rem;">${ptsSign} pts</strong>
         </div>`;
@@ -669,7 +703,7 @@
 
   async function requestRedeem(kidId) {
     if(!confirm("Are you sure you want to request $5 for 500 points?")) return;
-    var today = new Date().toISOString().split('T')[0];
+    var today = getLocalTodayISO();
     const { error } = await supabaseClient.from("pending_requests").insert({ 
       kid_id: kidId, chore_ids: [], total_points: 500, log_date: today, status: 'pending_redeem'
     });
@@ -757,7 +791,7 @@
     if (!kidId || isNaN(pts)) return showAlert("⚠️ Invalid kid or points amount", "error");
     if (!note) return showAlert("⚠️ A note/comment is required for manual adjustments!", "error");
     
-    var today = new Date().toISOString().split('T')[0];
+    var today = getLocalTodayISO();
     const { error } = await supabaseClient.from("task_logs").insert({ 
       kid_id: kidId, 
       points: pts, 
