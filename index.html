@@ -10,7 +10,6 @@
   <title>Kidfinity Chore Tracker</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   
-  
   <style>
     :root {
       --bg: #f8fafc;
@@ -40,7 +39,6 @@
       min-height: 100vh;
       box-sizing: border-box;
     }
-
     #app-container {
       background: var(--card-bg);
       width: 100%;
@@ -53,7 +51,6 @@
       border: 1px solid rgba(226, 232, 240, 0.8);
       margin: auto;
     }
-
     .header {
       text-align: center;
       padding: 24px 20px 16px 20px;
@@ -71,14 +68,12 @@
       -webkit-text-fill-color: transparent;
       display: inline-block;
     }
-
     .tabs {
       display: flex;
       justify-content: center;
       gap: 8px;
       flex-wrap: wrap;
     }
-
     .tab-btn {
       padding: 8px 16px;
       border-radius: 20px;
@@ -90,19 +85,16 @@
       color: var(--text-muted);
       transition: all 0.2s ease;
     }
-
     .tab-btn.active {
       background: #eff6ff;
       color: var(--accent-blue);
       border-color: #bfdbfe;
     }
-
     .tab-btn.parent-tab {
       background: var(--parent-dark);
       color: white;
       border-color: var(--parent-dark);
     }
-
     #alert-box {
       display: none;
       padding: 12px 16px;
@@ -112,13 +104,10 @@
       font-size: 0.9rem;
       text-align: center;
     }
-
     #alert-box.success { background-color: #d1fae5; color: #065f46; border: 1px solid #a7f3d0; }
     #alert-box.error { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
     #alert-box.info { background-color: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
-
     #content { padding: 20px; flex: 1; }
-
     .score-banner {
       background: #ffffff;
       border: 2px solid var(--border);
@@ -127,18 +116,14 @@
       margin-bottom: 20px;
       text-align: center;
     }
-
     .stats-row { display: flex; justify-content: space-around; margin-top: 12px; gap: 8px; }
     .stat-box { text-align: center; background: #f8fafc; padding: 10px 12px; border-radius: 14px; flex: 1; border: 1px solid var(--border); }
     .stat-value { font-size: 1.35rem; font-weight: 800; }
     .stat-label { font-size: 0.725rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-top: 2px; }
-
     .kid-subtabs { display: flex; margin-bottom: 18px; background: #f1f5f9; padding: 4px; border-radius: 14px; }
     .kid-subtabs button { flex: 1; background: none; border: none; padding: 10px; font-weight: 700; font-size: 0.9rem; color: var(--text-muted); cursor: pointer; border-radius: 10px; }
     .kid-subtabs button.active { background: #ffffff; color: var(--accent-blue); }
-
     .section-title { font-size: 0.8rem; font-weight: 800; color: var(--text-muted); margin: 22px 0 12px 0; letter-spacing: 1px; text-transform: uppercase; }
-
     .card {
       background: white;
       border: 1px solid var(--border);
@@ -151,27 +136,21 @@
       border-left: 5px solid var(--accent-green);
     }
     .card.penalty-card { border-left-color: var(--accent-red); }
-
     .chore-info { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 0.95rem; flex: 1; }
-
     .pts-badge {
       font-size: 0.8rem; font-weight: 800; padding: 3px 8px; border-radius: 20px;
       background: #ecfdf5; color: var(--accent-green); border: 1px solid #a7f3d0;
     }
     .pts-badge.penalty { background: #fef2f2; color: var(--accent-red); border-color: #fca5a5; }
-
     .btn { padding: 12px 18px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 0.95rem; }
     .btn-primary { background: var(--accent-blue); color: white; }
     .btn-secondary { background: #e2e8f0; color: var(--text); }
     .btn-danger { background: var(--accent-red); color: white; }
-
     input, select, textarea {
       width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 12px;
       margin-bottom: 10px; box-sizing: border-box; font-family: inherit; font-size: 0.95rem; background-color: #f8fafc;
     }
-
     .task-pill { display: inline-block; background: #f1f5f9; color: #334155; padding: 4px 8px; border-radius: 8px; font-size: 0.825rem; font-weight: 600; margin: 3px 3px 0 0; border: 1px solid #cbd5e1; }
-
     .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .25s; border-radius: 34px; }
@@ -182,7 +161,6 @@
   </style>
 </head>
 <body>
-
 <div id="app-container">
   <div class="header">
     <a href="https://kthota360.github.io/Kidfinity/"><h1>🏰 Kidfinity</h1></a>
@@ -191,25 +169,24 @@
   <div id="alert-box"></div>
   <div id="content">Loading database...</div>
 </div>
-
 <script>
   const SUPABASE_URL = "https://iviohybtosmtvzousqqq.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2aW9oeWJ0b3NtdHZ6b3VzcXFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5NDYxOTAsImV4cCI6MjA5ODUyMjE5MH0.0LV25LS-6Yv3EF6_Td5uv-o4Jgm7qNstDSs3RHFRWeo";
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
   const PARENT_PIN = "20579";
-
   let kids = [], chores = [], logs = [], redemptions = [];
   let selectedKidId = 'parents';
   let parentUnlocked = false;
   let kidViewMode = 'today'; 
   let parentManageTab = null;
   let editingChoreId = null; 
+  let redeemThreshold = 500; // Default dynamic setting for Apple Cash
+  let editingPendingId = null; // Tracks which pending request is currently being edited
   
   const kidColors = ["#ec4899", "#8b5cf6", "#14b8a6", "#f59e0b"];
   let selectedTaskDate = getLocalTodayISO();
   let alertTimer = null;
-
+  
   // --- HELPER FUNCTIONS FOR DATE & TIMEZONE ---
   function getLocalTodayISO() {
     const d = new Date();
@@ -218,7 +195,6 @@
     const day = String(d.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
   }
-
   function parseLocalDate(dateStr) {
     if (!dateStr) return new Date();
     if (typeof dateStr === 'string' && dateStr.length === 10 && dateStr.includes('-')) {
@@ -227,13 +203,11 @@
     }
     return new Date(dateStr);
   }
-
   function formatDate(dateVal) {
     if (!dateVal) return '';
     const dateObj = parseLocalDate(dateVal);
     return dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' });
   }
-
   function showAlert(msg, type = 'info') {
     const alertBox = document.getElementById("alert-box");
     if (!alertBox) return;
@@ -243,15 +217,16 @@
     clearTimeout(alertTimer);
     alertTimer = setTimeout(() => { alertBox.style.display = "none"; }, 4000);
   }
-
   window.onload = loadData;
-
   async function loadData() {
     try {
       if (sessionStorage.getItem("parentUnlocked") === "true") {
         parentUnlocked = true;
       }
-
+      
+      // Load configured redeem threshold
+      redeemThreshold = parseInt(localStorage.getItem("redeem_threshold") || "500", 10);
+      
       // Fetch database content ordered by ID descending for newest first
       const [k, c, l, r] = await Promise.all([
         supabaseClient.from("kids").select("*").order("id"),
@@ -259,19 +234,16 @@
         supabaseClient.from("task_logs").select("*").order("id", { ascending: false }),
         supabaseClient.from("redemptions").select("*").order("id", { ascending: false })
       ]);
-
       kids = k.data || [];
       chores = c.data || [];
       logs = l.data || [];
       redemptions = r.data || [];
-
       if (selectedKidId === 'parents' && !parentUnlocked && kids.length > 0) {
         selectedKidId = kids[0].id;
       }
       if (!parentManageTab && kids.length > 0) {
         parentManageTab = kids[0].id;
       }
-
       renderTabs();
       render();
     } catch (error) {
@@ -279,13 +251,11 @@
       console.error(error);
     }
   }
-
   function renderTabs() {
     let html = kids.map(k => `<button class="tab-btn ${selectedKidId === k.id ? 'active' : ''}" onclick="selectTab(${k.id})">🌟 ${k.name}</button>`).join('');
     html += `<button class="tab-btn parent-tab" onclick="selectTab('parents')">⚙️ Parents</button>`;
     document.getElementById("tabs-container").innerHTML = html;
   }
-
   function selectTab(id) {
     selectedKidId = id;
     kidViewMode = 'today'; 
@@ -293,12 +263,10 @@
     renderTabs();
     render();
   }
-
   function render() {
     if (selectedKidId === 'parents') renderParents();
     else renderKid();
   }
-
   // --- PIN AUTHENTICATION FUNCTIONS ---
   function checkPin() {
     const pinInput = document.getElementById("pinInput");
@@ -311,14 +279,12 @@
       showAlert("❌ Incorrect PIN. Please try again.", "error");
     }
   }
-
   function lockParent() {
     parentUnlocked = false;
     sessionStorage.removeItem("parentUnlocked");
     showAlert("🔒 Parent Portal locked", "info");
     render();
   }
-
   // --- PARENT PORTAL RENDER ---
   async function renderParents() {
     if (!parentUnlocked) {
@@ -334,12 +300,10 @@
       `;
       return;
     }
-
     const { data: pending } = await supabaseClient
       .from("pending_requests")
       .select("*")
       .in("status", ["pending", "pending_redeem"]);
-
     let pendingHtml = '';
     if (pending && pending.length > 0) {
       pendingHtml = `
@@ -358,21 +322,18 @@
                 var c = chores.find(item => item.id == cid);
                 return c ? c.name : null;
               }).filter(Boolean);
-
               if (names.length > 0) {
                 taskItemsHtml = `<div style="margin: 6px 0 8px 0;">${names.map(t => `<span class="task-pill">${t}</span>`).join('')}</div>`;
                 namesString = names.join(', ');
               }
             }
-
             var encodedNames = encodeURIComponent(namesString);
-
             if (r.status === 'pending_redeem') {
                return `
                 <div class="card" style="margin-bottom: 10px; background: white; border-left-color: var(--accent-gold); flex-direction: column; align-items: stretch; gap: 10px;">
                   <div>
                     <strong style="font-size:1rem;">${kidName}</strong> (<small style="color:var(--text-muted)">${logDateFmt}</small>)<br> 
-                    Requests to <strong style="color:var(--accent-gold)">REDEEM ${r.total_points} pts</strong> for <strong>$${r.total_points/100} Apple Cash</strong>!
+                    Requests to <strong style="color:var(--accent-gold)">REDEEM ${r.total_points} pts</strong> for <strong>$${(r.total_points/100).toFixed(2)} Apple Cash</strong>!
                   </div>
                   <div style="display: flex; gap: 10px;">
                     <button class="btn btn-primary" style="background: var(--accent-gold); flex: 1; padding: 8px;" onclick="approveRedeem(${r.id}, ${r.kid_id}, ${r.total_points}, '${r.log_date}')">Approve Redeem</button>
@@ -381,6 +342,29 @@
                 </div>
               `;
             } else {
+               // Render Inline Editing State if this row is selected for editing
+               if (editingPendingId === r.id) {
+                 return `
+                  <div class="card" style="margin-bottom: 10px; background: white; border-left-color: var(--accent-gold); flex-direction: column; align-items: stretch; gap: 10px; padding: 14px;">
+                    <div>
+                      <strong style="font-size:1.05rem; color: var(--accent-gold);">✏️ Edit Pending Request</strong> for <strong>${kidName}</strong>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                      <label style="font-size:0.85rem; font-weight:700; color:var(--text-muted); width: 60px;">Points:</label>
+                      <input id="editPendingPts_${r.id}" type="number" value="${r.total_points}" style="margin: 0; flex: 1; padding: 8px 12px;">
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 6px;">
+                      <label style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">Chores / Description:</label>
+                      <textarea id="editPendingNotes_${r.id}" rows="2" style="margin: 0; width: 100%; padding: 8px 12px;" placeholder="Describe chores...">${namesString}</textarea>
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 5px;">
+                      <button class="btn btn-primary" style="background: var(--accent-green); flex: 1.5; padding: 8px; font-size: 0.85rem;" onclick="approveEdited(${r.id}, ${r.kid_id}, '${r.log_date}')">💾 Approve & Bank</button>
+                      <button class="btn btn-secondary" style="flex: 1; padding: 8px; font-size: 0.85rem;" onclick="cancelPendingEdit()">❌ Cancel</button>
+                    </div>
+                  </div>
+                 `;
+               }
+               
                var ptsLabel = r.total_points >= 0 ? '+' + r.total_points : r.total_points;
                var ptsColor = r.total_points >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
                return `
@@ -390,9 +374,10 @@
                     Requesting: <strong style="color: ${ptsColor}">${ptsLabel} pts</strong>
                     ${taskItemsHtml}
                   </div>
-                  <div style="display: flex; gap: 10px;">
-                    <button class="btn btn-primary" style="background: var(--accent-green); flex: 1; padding: 8px;" onclick="approve(${r.id}, ${r.kid_id}, ${r.total_points}, '${r.log_date}', '${encodedNames}')">Approve & Bank</button>
-                    <button class="btn btn-danger" style="flex: 1; padding: 8px;" onclick="declineRequest(${r.id})">Decline</button>
+                  <div style="display: flex; gap: 6px;">
+                    <button class="btn btn-primary" style="background: var(--accent-green); flex: 1.5; padding: 8px; font-size: 0.85rem;" onclick="approve(${r.id}, ${r.kid_id}, ${r.total_points}, '${r.log_date}', '${encodedNames}')">Approve & Bank</button>
+                    <button class="btn btn-secondary" style="flex: 1; padding: 8px; font-size: 0.85rem;" onclick="startPendingEdit(${r.id})">✏️ Edit</button>
+                    <button class="btn btn-danger" style="flex: 1; padding: 8px; font-size: 0.85rem;" onclick="declineRequest(${r.id})">Decline</button>
                   </div>
                 </div>
               `;
@@ -401,22 +386,32 @@
         </div>
       `;
     }
-
     let html = `
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
         <h2 style="margin:0; font-size:1.3rem;">⚙️ Setup Portal</h2>
         <button class="btn btn-secondary" style="padding:6px 12px; font-size:0.8rem;" onclick="lockParent()">🔒 Lock Portal</button>
       </div>
-
       <div style="display:flex; flex-direction:column; gap:16px;">
         ${pendingHtml}
+        
+        <!-- DYNAMIC APPLE CASH REDEMPTION SETTING -->
+        <div class="score-banner" style="text-align: left;">
+          <h3 style="margin-top:0; font-size:1.05rem;">Redemption Threshold Settings</h3>
+          <label style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">Points needed for Apple Cash Redemption:</label>
+          <div style="display:flex; gap:10px; margin-top:5px; align-items:center;">
+            <input id="redeemThresholdInput" type="number" value="${redeemThreshold}" style="margin-bottom:0; flex:1;" placeholder="e.g., 500">
+            <button class="btn btn-primary" style="padding:10px 16px; margin:0;" onclick="saveRedeemThreshold()">💾 Save</button>
+          </div>
+          <small style="color:var(--text-muted); display:block; margin-top:6px; font-weight:600;">
+            Current Exchange Rate: 100 pts = $1.00 (Current threshold: ${redeemThreshold} pts = $${(redeemThreshold / 100).toFixed(2)})
+          </small>
+        </div>
 
         <div class="score-banner" style="text-align: left;">
           <h3 style="margin-top:0; font-size:1.05rem;">Add Kid</h3>
           <input id="kidName" placeholder="e.g., Aadya">
           <button class="btn btn-primary" style="margin-top:5px; width:100%;" onclick="addKid()">Add Kid</button>
         </div>
-
         <div class="score-banner" style="text-align: left;">
           <h3 style="margin-top:0; font-size:1.05rem;">Add Chores / Penalties</h3>
           <label style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">Assign to:</label>
@@ -427,7 +422,6 @@
           <textarea id="choreList" rows="4" placeholder="🚴 Exercise/Cycling, 10&#10;🧹 Clean Bathroom, 10&#10;🚫 Talking Back, -10"></textarea>
           <button class="btn btn-primary" style="margin-top:5px; width:100%;" onclick="addBulkChores()">Save All Actions</button>
         </div>
-
         <!-- MANUAL ADJUSTMENT WITH MANDATORY NOTE -->
         <div class="score-banner" style="text-align: left;">
           <h3 style="margin-top:0; font-size:1.05rem;">Manual Adjustment</h3>
@@ -438,7 +432,6 @@
           <textarea id="adjustNote" rows="2" placeholder="Reason / Note (Required)..."></textarea>
           <button class="btn" style="background:var(--accent-gold); color:white; margin-top:5px; width:100%;" onclick="adjustPoints()">Apply Adjustment</button>
         </div>
-
         <div>
           <h3 style="font-size:1.1rem; margin-bottom:12px;">Manage Existing Actions</h3>
           <div class="kid-subtabs">
@@ -446,13 +439,11 @@
               <button class="${parentManageTab === k.id ? 'active' : ''}" onclick="setParentManageTab(${k.id})">${k.name}</button>
             `).join('')}
           </div>
-
           ${chores.filter(c => c.kid_id === parentManageTab).length === 0 ? `<p style="text-align:center; color:var(--text-muted); padding:10px;">No chores setup yet for this child.</p>` : ''}
           ${chores.filter(c => c.kid_id === parentManageTab).map(chore => {
             var ptsLabel = chore.points >= 0 ? `+${chore.points}` : `${chore.points}`;
             var isPenalty = chore.points < 0;
             var isEditing = (editingChoreId === chore.id);
-
             if (isEditing) {
               return `
                 <div class="card ${isPenalty ? 'penalty-card' : ''}" style="padding:10px 12px;">
@@ -484,18 +475,14 @@
         </div>
       </div>
     `;
-
     document.getElementById("content").innerHTML = html;
   }
-
   // --- KID VIEW FUNCTIONS ---
   function updateTaskDate(val) { selectedTaskDate = val; }
   function setParentManageTab(id) { parentManageTab = id; editingChoreId = null; render(); }
-
   function renderKid() {
     var kid = kids.find(k => k.id === selectedKidId);
     if (!kid) return;
-
     var kidIndex = kids.findIndex(k => k.id === kid.id);
     var color = kidColors[Math.max(0, kidIndex) % kidColors.length];
     
@@ -507,7 +494,6 @@
     var pend = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
     var regularChores = chores.filter(c => c.kid_id == kid.id && c.points >= 0);
     var penalties = chores.filter(c => c.kid_id == kid.id && c.points < 0);
-
     var html = `
       <div class="score-banner" style="border-color: ${color}; background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);">
         <h2 style="margin:0 0 10px 0; color: ${color}; font-size:1.6rem; font-weight:800;">${kid.name}</h2>
@@ -532,7 +518,6 @@
         <button class="${kidViewMode === 'history' ? 'active' : ''}" onclick="setKidView('history')">📜 History & Rewards</button>
       </div>
     `;
-
     if (kidViewMode === 'today') {
       html += `
         <div style="display:flex; gap:10px; margin-top:15px; margin-bottom:15px; align-items:center;">
@@ -541,7 +526,6 @@
           <button class="btn btn-primary" style="flex:1.5; padding:11px; background:#10b981;" onclick="send()">🚀 Send</button>
         </div>
       `;
-
       html += `<div class="section-title">✨ DAILY CHORES</div>`;
       if(regularChores.length === 0) html += `<p style="font-size:0.9rem; color:#666; text-align:center; padding:10px;">No chores assigned yet.</p>`;
       
@@ -568,21 +552,16 @@
     } else {
       html += renderKidHistory(kid.id);
     }
-
     document.getElementById("content").innerHTML = html;
   }
-
   function setKidView(mode) { kidViewMode = mode; render(); }
-
   // --- 1-WEEK HISTORY & REWARDS VIEW ---
   function renderKidHistory(kidId) {
     var kidLogs = logs.filter(l => l.kid_id === kidId);
     var kidReds = redemptions.filter(r => r.kid_id === kidId);
-
     var totalEarned = kidLogs.reduce((sum, l) => sum + l.points, 0);
     var totalSpent = kidReds.reduce((sum, r) => sum + r.points_spent, 0);
     var available = totalEarned - totalSpent;
-
     var html = `
       <div class="score-banner" style="background:#f8fafc; border-color:var(--border);">
         <h3 style="margin:0 0 5px 0; color:var(--text); font-weight:700;">Available Balance</h3>
@@ -592,22 +571,21 @@
         </p>
       </div>
     `;
-
+    
     html += `<div style="text-align: center; margin: 20px 0;">`;
-    if (available >= 500) {
-      html += `<button class="btn btn-primary" style="background: var(--accent-gold); color: white; padding: 14px 20px; font-size: 1.05rem; width:100%; box-shadow:0 4px 10px rgba(245, 158, 11, 0.25);" onclick="requestRedeem(${kidId})">🎁 Request $5 Apple Cash (500 pts)</button>`;
+    const dynamicCashText = (redeemThreshold / 100).toFixed(2).replace('.00', '');
+    if (available >= redeemThreshold) {
+      html += `<button class="btn btn-primary" style="background: var(--accent-gold); color: white; padding: 14px 20px; font-size: 1.05rem; width:100%; box-shadow:0 4px 10px rgba(245, 158, 11, 0.25);" onclick="requestRedeem(${kidId})">🎁 Request $${dynamicCashText} Apple Cash (${redeemThreshold} pts)</button>`;
     } else {
-      html += `<div style="background:#fffbeb; padding:12px; border-radius:12px; border:1px solid #fef3c7; color:#b45309; font-weight:700; font-size:0.9rem;">Earn ${500 - available} more points to redeem $5 Apple Cash!</div>`;
+      html += `<div style="background:#fffbeb; padding:12px; border-radius:12px; border:1px solid #fef3c7; color:#b45309; font-weight:700; font-size:0.9rem;">Earn ${redeemThreshold - available} more points to redeem $${dynamicCashText} Apple Cash!</div>`;
     }
     html += `</div>`;
-
+    
     // Filter events for the last 7 days
     var sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     sevenDaysAgo.setHours(0, 0, 0, 0);
-
     var activityList = [];
-
     kidLogs.forEach(l => {
       var itemDate = l.created_at ? new Date(l.created_at) : parseLocalDate(l.log_date);
       if (itemDate >= sevenDaysAgo) {
@@ -621,7 +599,6 @@
         });
       }
     });
-
     kidReds.forEach(r => {
       var itemDate = r.created_at ? new Date(r.created_at) : parseLocalDate(r.redeem_date);
       if (itemDate >= sevenDaysAgo) {
@@ -635,7 +612,6 @@
         });
       }
     });
-
     // Sort newest-first: by precise timestamp first, then by database ID
     activityList.sort((a, b) => {
       if (b.timestamp !== a.timestamp) {
@@ -643,9 +619,7 @@
       }
       return (b.id || 0) - (a.id || 0);
     });
-
     html += `<div class="section-title">📅 7-DAY ACTIVITY HISTORY</div>`;
-
     if (activityList.length === 0) {
       html += `<p style="font-size:0.85rem; color:var(--text-muted); text-align:center; padding:12px;">No activity logged over the past 7 days.</p>`;
     } else {
@@ -666,7 +640,6 @@
     
     return html;
   }
-
   // --- ACTIONS ---
   function toggle(id) {
     var p = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
@@ -675,19 +648,16 @@
     localStorage.setItem(`pend_${selectedKidId}`, JSON.stringify(p));
     render(); 
   }
-
   function resetToggles() {
     localStorage.removeItem(`pend_${selectedKidId}`);
     render();
   }
-
   async function send() {
     var p = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
     if (p.length === 0) return showAlert("⚠️ Please select at least one task or penalty before sending!", "error");
     
     var selectedChores = p.map(id => chores.find(item => item.id == id)).filter(Boolean);
     var total = selectedChores.reduce((sum, c) => sum + c.points, 0);
-
     const { error } = await supabaseClient.from("pending_requests").insert({ 
       kid_id: selectedKidId, 
       chore_ids: p, 
@@ -695,29 +665,25 @@
       log_date: selectedTaskDate, 
       status: 'pending'
     });
-
     if (error) {
       console.error(error);
       return showAlert("❌ Failed to send request: " + error.message, "error");
     }
-
     localStorage.removeItem(`pend_${selectedKidId}`);
     showAlert("🚀 Request successfully sent to Parents!", "success"); 
     await loadData();
   }
-
   async function requestRedeem(kidId) {
-    if(!confirm("Are you sure you want to request $5 for 500 points?")) return;
+    const cashValue = (redeemThreshold / 100).toFixed(2).replace('.00', '');
+    if(!confirm(`Are you sure you want to request $${cashValue} for ${redeemThreshold} points?`)) return;
     var today = getLocalTodayISO();
     const { error } = await supabaseClient.from("pending_requests").insert({ 
-      kid_id: kidId, chore_ids: [], total_points: 500, log_date: today, status: 'pending_redeem'
+      kid_id: kidId, chore_ids: [], total_points: redeemThreshold, log_date: today, status: 'pending_redeem'
     });
-
     if (error) return showAlert("❌ Failed to send request: " + error.message, "error");
     showAlert("🎁 Apple Cash redemption request sent to your parents!", "success");
     await loadData();
   }
-
   async function approve(rid, kidId, pts, originalDate, encodedChoreNames = "") {
     var choreNames = decodeURIComponent(encodedChoreNames);
     const payload = { kid_id: kidId, points: pts, log_date: originalDate };
@@ -731,12 +697,10 @@
     if (error) {
         return showAlert("❌ Failed to approve: " + error.message, "error");
     }
-
     await supabaseClient.from("pending_requests").update({ status: 'banked' }).eq('id', rid);
     showAlert("🎉 Points successfully banked!", "success");
     await loadData();
   }
-
   async function approveRedeem(rid, kidId, pts, originalDate) {
     var amount = pts / 100;
     await supabaseClient.from("redemptions").insert({ kid_id: kidId, amount: amount, points_spent: pts, redeem_date: originalDate });
@@ -744,7 +708,6 @@
     showAlert("💵 Apple Cash redemption approved!", "success");
     await loadData();
   }
-
   async function declineRequest(rid) {
     const { error } = await supabaseClient.from("pending_requests").update({ status: 'declined' }).eq('id', rid);
     if (error) showAlert("❌ Failed to decline: " + error.message, "error");
@@ -753,7 +716,6 @@
       await loadData();
     }
   }
-
   async function addKid() {
     const name = document.getElementById("kidName").value.trim();
     if (!name) return showAlert("⚠️ Please enter a name", "error");
@@ -761,7 +723,6 @@
     showAlert(`✨ Added ${name}!`, "success");
     await loadData();
   }
-
   async function addBulkChores() {
     const kidId = document.getElementById("choreKid").value;
     const list = document.getElementById("choreList").value;
@@ -787,12 +748,10 @@
       showAlert("⚠️ Could not parse actions. Format: 'Name, Points'", "error");
     }
   }
-
   async function adjustPoints() {
     const kidId = document.getElementById("adjustKid").value;
     const pts = parseInt(document.getElementById("adjustPoints").value, 10);
     const note = document.getElementById("adjustNote").value.trim();
-
     if (!kidId || isNaN(pts)) return showAlert("⚠️ Invalid kid or points amount", "error");
     if (!note) return showAlert("⚠️ A note/comment is required for manual adjustments!", "error");
     
@@ -803,37 +762,91 @@
       notes: note,
       log_date: today 
     });
-
     if (error) return showAlert("❌ Adjustment failed: " + error.message, "error");
-
     showAlert("✅ Manual adjustment applied!", "success");
     await loadData();
   }
-
   function startInlineEdit(id) { editingChoreId = id; render(); }
   function cancelInlineEdit() { editingChoreId = null; render(); }
-
   async function saveInlineEdit(id) {
     const nameInput = document.getElementById(`editName_${id}`);
     const ptsInput = document.getElementById(`editPts_${id}`);
     if (!nameInput || !ptsInput) return;
-
     const newName = nameInput.value.trim();
     const newPts = parseInt(ptsInput.value, 10);
     if (!newName || isNaN(newPts)) return showAlert("⚠️ Invalid values", "error");
-
     await supabaseClient.from("chores").update({ name: newName, points: newPts }).eq("id", id);
     editingChoreId = null;
     showAlert("✏️ Action updated successfully!", "success");
     await loadData();
   }
-
   async function deleteChore(id) {
     if(confirm("Are you sure you want to delete this action?")) {
       await supabaseClient.from("chores").delete().eq("id", id);
       showAlert("Action deleted", "info");
       await loadData();
     }
+  }
+  
+  // --- REDEMPTION THRESHOLD SAVING ---
+  function saveRedeemThreshold() {
+    const input = document.getElementById("redeemThresholdInput");
+    if (!input) return;
+    const val = parseInt(input.value, 10);
+    if (isNaN(val) || val <= 0) {
+      return showAlert("⚠️ Please enter a valid positive number for redemption points threshold", "error");
+    }
+    redeemThreshold = val;
+    localStorage.setItem("redeem_threshold", val.toString());
+    showAlert("⚙️ Redemption threshold updated successfully!", "success");
+    render();
+  }
+
+  // --- PENDING REQUEST EDITING FUNCTIONS ---
+  function startPendingEdit(id) {
+    editingPendingId = id;
+    render();
+  }
+  function cancelPendingEdit() {
+    editingPendingId = null;
+    render();
+  }
+  async function approveEdited(rid, kidId, originalDate) {
+    const ptsInput = document.getElementById(`editPendingPts_${rid}`);
+    const notesInput = document.getElementById(`editPendingNotes_${rid}`);
+    if (!ptsInput || !notesInput) return;
+    
+    const editedPts = parseInt(ptsInput.value, 10);
+    const editedNotes = notesInput.value.trim();
+    
+    if (isNaN(editedPts)) {
+      return showAlert("⚠️ Please enter a valid number of points", "error");
+    }
+    
+    const payload = { kid_id: kidId, points: editedPts, log_date: originalDate };
+    if (editedNotes !== "") {
+      payload.notes = editedNotes;
+    }
+    
+    // 1. Insert into task_logs
+    const { error: insertError } = await supabaseClient.from("task_logs").insert(payload);
+    if (insertError) {
+      return showAlert("❌ Failed to bank edited request: " + insertError.message, "error");
+    }
+    
+    // 2. Mark pending request as banked and save edited point value in DB for historical accuracy
+    const { error: updateError } = await supabaseClient
+      .from("pending_requests")
+      .update({ status: 'banked', total_points: editedPts })
+      .eq('id', rid);
+      
+    if (updateError) {
+      console.error("Warning: could not update pending request status on DB: " + updateError.message);
+    }
+    
+    editingPendingId = null;
+    showAlert("🎉 Edited points successfully banked!", "success");
+    await loadData();
   }
 </script>
 </body>
