@@ -395,12 +395,50 @@
     else renderKid();
   }
 
-  // --- STREAK CALCULATION ENGINE ---
+  // --- STREAK CALCULATION ENGINE (Updated: Requires at least 3 daily chores completed) ---
   function getActiveStreak(kidId) {
-    const kidLogs = logs.filter(l => l.kid_id === kidId && l.points > 0);
+    // Find the date of the most recent Streak Reset (whenever +5 Streak Milestone Bonus is banked)
+    const streakBonusLogs = logs.filter(l => l.kid_id === kidId && l.notes && l.notes.includes("Streak Milestone Bonus"));
+    let resetDateStr = "";
+    if (streakBonusLogs.length > 0) {
+      const sortedResets = streakBonusLogs.map(l => l.log_date).sort((a, b) => b.localeCompare(a));
+      resetDateStr = sortedResets[0]; // Last reset event
+    }
+
+    // Filter valid active logging dates (after latest reset, points > 0, and at least 3 daily chores logged)
+    const kidLogs = logs.filter(l => {
+      if (l.kid_id !== kidId || l.points <= 0) return false;
+      if (resetDateStr && l.log_date <= resetDateStr) return false; // Ignore logs from before/on the streak reset date
+      if (!l.notes) return false;
+
+      const choreNamesLogged = l.notes.split(',').map(n => n.trim()).filter(Boolean);
+      let dailyChoreCount = 0;
+      
+      choreNamesLogged.forEach(name => {
+        const match = chores.find(c => c.kid_id === kidId && c.name === name);
+        // Check if this matches a daily chore
+        if (match && match.points >= 0 && (match.frequency === 'daily' || !match.frequency)) {
+          dailyChoreCount++;
+        }
+      });
+
+      // Strict Streak check: Kid must log at least 3 daily chores on that day
+      if (dailyChoreCount >= 3) return true;
+
+      // Robust fallback count for renamed or modified chores (excluding bonuses & penalties)
+      const nonPenaltyItems = choreNamesLogged.filter(name => {
+        const isStreakBonus = name.includes("Streak Milestone Bonus") || name.includes("Streak Bonus");
+        const match = chores.find(c => c.kid_id === kidId && c.name === name);
+        const isPenalty = match && match.points < 0;
+        return !isStreakBonus && !isPenalty;
+      });
+
+      return nonPenaltyItems.length >= 3;
+    });
+
     if (kidLogs.length === 0) return 0;
 
-    // Isolate unique log dates and sort descending
+    // Get unique active dates in descending chronological order
     const loggedDates = Array.from(new Set(kidLogs.map(l => l.log_date))).sort((a, b) => b.localeCompare(a));
     if (loggedDates.length === 0) return 0;
 
@@ -409,7 +447,7 @@
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = yesterday.toISOString().split('T')[0];
 
-    // Check if streak is active (logged either today or yesterday)
+    // Determine the starting point of the consecutive streak (must have logged today or yesterday)
     let startStr = "";
     if (loggedDates.includes(todayStr)) {
       startStr = todayStr;
@@ -422,15 +460,23 @@
     let streakCount = 0;
     let checkDate = parseLocalDate(startStr);
 
+    // Track consecutive days backwards until broken or until we hit the reset log
     while (true) {
       const checkStr = checkDate.toISOString().split('T')[0];
+      
+      // Stop counting if we reach the date of the last reset
+      if (resetDateStr && checkStr <= resetDateStr) {
+        break;
+      }
+
       if (loggedDates.includes(checkStr)) {
         streakCount++;
-        checkDate.setDate(checkDate.getDate() - 1); // Step backwards
+        checkDate.setDate(checkDate.getDate() - 1); // step backward
       } else {
         break;
       }
     }
+
     return streakCount;
   }
 
@@ -903,10 +949,17 @@
       `;
 
       // STREAK BONUS ALERT
-      if (currentStreak === 4) {
+      const checkedDailyChoreCount = pend.map(id => chores.find(item => item.id == id)).filter(c => c && c.points >= 0 && (c.frequency === 'daily' || !c.frequency)).length;
+      if (currentStreak === 4 && checkedDailyChoreCount >= 3) {
+        html += `
+          <div style="background:#ecfdf5; border:1px solid #a7f3d0; color:#065f46; font-weight:700; padding:12px; border-radius:12px; font-size:0.875rem; text-align:center; margin-bottom:15px;">
+            🎉 Awesome! Submit today's 3 chores to claim your <strong>+5 Points Streak Bonus</strong>! (Streak will reset to 0 afterward)
+          </div>
+        `;
+      } else if (currentStreak === 4) {
         html += `
           <div style="background:#ecfdf5; border:1px solid #a7f3d0; color:#065f46; font-weight:700; padding:10px; border-radius:12px; font-size:0.85rem; text-align:center; margin-bottom:15px;">
-            🎉 Log chores today to complete your 5-Day Streak and claim a +5 Points bonus!
+            🔥 Log at least 3 daily chores today to claim your 5-Day Streak and unlock your <strong>+5 points bonus</strong>!
           </div>
         `;
       }
@@ -945,6 +998,16 @@
           </div>
         `).join('');
       }
+
+      // STREAK EXPLANATORY NOTE UNDER DAILY CHORES
+      html += `
+        <div style="margin-top: 25px; padding: 12px 16px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 14px; font-size: 0.825rem; color: #1e3a8a; font-weight: 600; text-align: center; display: flex; flex-direction: column; gap: 4px;">
+          <div>🔥 STREAK MILESTONE BONUS RULE</div>
+          <div style="font-weight: 500; font-size: 0.775rem; color: #1e40af; line-height: 1.4;">
+            Complete and send at least <strong>3 daily chores</strong> today to grow your streak! Once you achieve a <strong>5-day active streak</strong>, you'll earn an extra <strong>+5 points bonus</strong>, and your streak resets back to 0!
+          </div>
+        </div>
+      `;
 
     // WEEKLY CHORES TAB
     } else if (kidViewMode === 'weekly') {
@@ -1119,9 +1182,11 @@
     // Build log notes detail
     let logNotes = selectedChores.map(c => c.name).join(", ");
 
-    // Check for streak milestone bonus
+    // Check for streak milestone bonus (Requires a 4-day streak and logging at least 3 daily chores in this action)
     const currentStreak = getActiveStreak(selectedKidId);
-    if (currentStreak === 4) {
+    const dailyChoresCountInSubmission = selectedChores.filter(c => c.points >= 0 && (c.frequency === 'daily' || !c.frequency)).length;
+
+    if (currentStreak === 4 && dailyChoresCountInSubmission >= 3) {
       total += 5; // Add +5 points streak bonus
       logNotes += " (+5 Streak Milestone Bonus! 🔥)";
       showAlert("🔥 5-Day Streak Milestone Unlocked! +5 points bonus added!", "success");
