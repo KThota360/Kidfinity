@@ -8,7 +8,7 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <title>Kidfinity Chore Tracker</title>
-  
+
   <!-- External Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -28,7 +28,7 @@
       --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
       --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
     }
-    
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background-color: var(--bg);
@@ -117,7 +117,7 @@
     #alert-box.error { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
     #alert-box.info { background-color: #e0f2fe; color: #075985; border: 1px solid #bae6fd; }
     #content { padding: 20px; flex: 1; }
-    
+
     .score-banner {
       background: #ffffff;
       border: 2px solid var(--border);
@@ -130,7 +130,7 @@
     .stat-box { text-align: center; background: #f8fafc; padding: 10px 12px; border-radius: 14px; flex: 1; border: 1px solid var(--border); }
     .stat-value { font-size: 1.35rem; font-weight: 800; }
     .stat-label { font-size: 0.725rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-top: 2px; }
-    
+
     .xp-bar-container {
       margin-top: 14px;
       background: #e2e8f0;
@@ -145,12 +145,60 @@
       width: 0%;
       transition: width 0.4s ease;
     }
-    
+
+    .level-guide-accordion {
+      background: #f1f5f9;
+      border-radius: 14px;
+      margin-top: 10px;
+      padding: 12px;
+      text-align: left;
+      font-size: 0.85rem;
+      border: 1px solid var(--border);
+    }
+    .level-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      border-bottom: 1px dashed #cbd5e1;
+    }
+    .level-row:last-child {
+      border-bottom: none;
+    }
+
+    .streak-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      margin: 10px 0;
+      background: #fffbeb;
+      border: 1px solid #fef3c7;
+      border-radius: 14px;
+      padding: 8px;
+    }
+    .streak-badge {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: #b45309;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .streak-dot {
+      font-size: 1.1rem;
+      opacity: 0.25;
+      transition: opacity 0.3s;
+    }
+    .streak-dot.active {
+      opacity: 1;
+      filter: drop-shadow(0 0 2px rgba(245, 158, 11, 0.5));
+    }
+
     .kid-subtabs { display: flex; margin-bottom: 18px; background: #f1f5f9; padding: 4px; border-radius: 14px; }
     .kid-subtabs button { flex: 1; background: none; border: none; padding: 10px; font-weight: 700; font-size: 0.9rem; color: var(--text-muted); cursor: pointer; border-radius: 10px; }
     .kid-subtabs button.active { background: #ffffff; color: var(--accent-blue); }
     .section-title { font-size: 0.8rem; font-weight: 800; color: var(--text-muted); margin: 22px 0 12px 0; letter-spacing: 1px; text-transform: uppercase; }
-    
+
     .card {
       background: white;
       border: 1px solid var(--border);
@@ -169,7 +217,7 @@
       background: #ecfdf5; color: var(--accent-green); border: 1px solid #a7f3d0;
     }
     .pts-badge.penalty { background: #fef2f2; color: var(--accent-red); border-color: #fca5a5; }
-    
+
     .btn { padding: 12px 18px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 0.95rem; transition: background 0.15s ease; }
     .btn-primary { background: var(--accent-blue); color: white; }
     .btn-primary:hover { opacity: 0.9; }
@@ -177,13 +225,13 @@
     .btn-secondary:hover { background: #cbd5e1; }
     .btn-danger { background: var(--accent-red); color: white; }
     .btn-danger:hover { opacity: 0.9; }
-    
+
     input, select, textarea {
       width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 12px;
       margin-bottom: 10px; box-sizing: border-box; font-family: inherit; font-size: 0.95rem; background-color: #f8fafc;
     }
     .task-pill { display: inline-block; background: #f1f5f9; color: #334155; padding: 4px 8px; border-radius: 8px; font-size: 0.825rem; font-weight: 600; margin: 3px 3px 0 0; border: 1px solid #cbd5e1; }
-    
+
     .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .25s; border-radius: 34px; }
@@ -196,7 +244,7 @@
 <body>
 <div id="app-container">
   <div class="header">
-    <a href="#"><h1>🏰 Kidfinity</h1></a>
+    <a href="https://kthota360.github.io/Kidfinity/"><h1>🏰 Kidfinity</h1></a>
     <div class="tabs" id="tabs-container"></div>
   </div>
   <div id="alert-box"></div>
@@ -209,7 +257,7 @@
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2aW9oeWJ0b3NtdHZ6b3VzcXFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5NDYxOTAsImV4cCI6MjA5ODUyMjE5MH0.0LV25LS-6Yv3EF6_Td5uv-o4Jgm7qNstDSs3RHFRWeo";
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const PARENT_PIN = "20579";
-  
+
   // App variables
   let kids = [], chores = [], logs = [], redemptions = [];
   let selectedKidId = 'parents';
@@ -217,8 +265,11 @@
   let kidViewMode = 'today'; 
   let parentManageTab = null;
   let editingChoreId = null; 
-  let editingPendingId = null; // Stores ID of the pending log currently being edited by parent
-  
+  let editingPendingId = null; 
+  let editingKidProfileId = null; // Track which kid is being renamed/re-emojied
+
+  let showLevelGuide = false; // Toggle kid-facing level directory
+
   const kidColors = ["#ec4899", "#8b5cf6", "#14b8a6", "#f59e0b"];
   let selectedTaskDate = getLocalTodayISO();
   let alertTimer = null;
@@ -259,7 +310,7 @@
     alertBox.innerHTML = msg;
     alertBox.style.display = "block";
     clearTimeout(alertTimer);
-    alertTimer = setTimeout(() => { alertBox.style.display = "none"; }, 4000);
+    alertTimer = setTimeout(() => { alertBox.style.display = "none"; }, 5000);
   }
 
   window.onload = loadData;
@@ -270,7 +321,7 @@
       if (sessionStorage.getItem("parentUnlocked") === "true") {
         parentUnlocked = true;
       }
-      
+
       // Step 1: Fetch Kids
       const { data: kData, error: kErr } = await supabaseClient.from("kids").select("*").order("id");
       if (kErr) throw new Error("Could not load kids. Check 'kids' table: " + kErr.message);
@@ -298,7 +349,7 @@
       if (!parentManageTab && kids.length > 0) {
         parentManageTab = kids[0].id;
       }
-      
+
       renderTabs();
       render();
     } catch (error) {
@@ -306,7 +357,10 @@
         <div style="color:var(--accent-red); padding:20px; text-align:center; background:#fef2f2; border:1px solid #fee2e2; border-radius:12px;">
           <h3 style="margin-top:0;">⚠️ Database Connection Issue</h3>
           <p style="font-size:0.95rem; margin-bottom:10px;">${error.message}</p>
-          <p style="font-size:0.85rem; color:var(--text-muted);">Please check your Supabase API credentials, table configurations, or network connection.</p>
+          <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.4;">
+            <strong>To fix the pending_requests error, make sure you ran the SQL command:</strong><br>
+            <code>ALTER TABLE pending_requests ADD COLUMN notes TEXT;</code>
+          </p>
           <button class="btn btn-secondary" onclick="loadData()" style="margin-top:10px; font-size:0.85rem; padding:6px 12px;">🔄 Try Again</button>
         </div>
       `;
@@ -320,7 +374,7 @@
       const isActive = selectedKidId === k.id;
       return `<button class="tab-btn ${isActive ? 'active' : ''}" onclick="selectTab(${k.id})">${avatar} ${k.name}</button>`;
     }).join('');
-    
+
     html += `<button class="tab-btn parent-tab" onclick="selectTab('parents')">⚙️ Parents</button>`;
     document.getElementById("tabs-container").innerHTML = html;
   }
@@ -330,6 +384,7 @@
     kidViewMode = 'today'; 
     selectedTaskDate = getLocalTodayISO(); 
     editingPendingId = null;
+    showLevelGuide = false;
     renderTabs();
     render();
   }
@@ -337,6 +392,45 @@
   function render() {
     if (selectedKidId === 'parents') renderParents();
     else renderKid();
+  }
+
+  // --- STREAK CALCULATION ENGINE ---
+  function getActiveStreak(kidId) {
+    const kidLogs = logs.filter(l => l.kid_id === kidId && l.points > 0);
+    if (kidLogs.length === 0) return 0;
+
+    // Isolate unique log dates and sort descending
+    const loggedDates = Array.from(new Set(kidLogs.map(l => l.log_date))).sort((a, b) => b.localeCompare(a));
+    if (loggedDates.length === 0) return 0;
+
+    const todayStr = getLocalTodayISO();
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+    // Check if streak is active (logged either today or yesterday)
+    let startStr = "";
+    if (loggedDates.includes(todayStr)) {
+      startStr = todayStr;
+    } else if (loggedDates.includes(yesterdayStr)) {
+      startStr = yesterdayStr;
+    } else {
+      return 0; // Streak broken
+    }
+
+    let streakCount = 0;
+    let checkDate = parseLocalDate(startStr);
+
+    while (true) {
+      const checkStr = checkDate.toISOString().split('T')[0];
+      if (loggedDates.includes(checkStr)) {
+        streakCount++;
+        checkDate.setDate(checkDate.getDate() - 1); // Step backwards
+      } else {
+        break;
+      }
+    }
+    return streakCount;
   }
 
   // --- PIN PORTAL AUTHENTICATION ---
@@ -363,14 +457,14 @@
   function saveThresholdSettings() {
     const threshVal = document.getElementById("settingsThreshold").value;
     const rateVal = document.getElementById("settingsRate").value;
-    
+
     const parsedThresh = parseInt(threshVal, 10);
     const parsedRate = parseInt(rateVal, 10);
-    
+
     if (isNaN(parsedThresh) || parsedThresh <= 0 || isNaN(parsedRate) || parsedRate <= 0) {
       return showAlert("⚠️ Please enter valid positive values for custom settings!", "error");
     }
-    
+
     localStorage.setItem("redeem_threshold", parsedThresh);
     localStorage.setItem("exchange_rate", parsedRate);
     showAlert("⚙️ Settings updated successfully!", "success");
@@ -381,7 +475,7 @@
   function generatePendingCardsHtml(pendingRequests) {
     if (!pendingRequests || pendingRequests.length === 0) return '';
     const exchangeRate = getExchangeRate();
-    
+
     return pendingRequests.map(r => {
       const kid = kids.find(k => k.id === r.kid_id);
       const kidName = kid ? kid.name : "Unknown Kid";
@@ -431,7 +525,7 @@
             <div>
               <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:4px;">Chore Notes / Details:</label>
               <input id="editPendingNotes_${r.id}" value="${r.notes || namesString}" style="margin-bottom:8px;">
-              
+
               <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:4px;">Points Total:</label>
               <input id="editPendingPoints_${r.id}" type="number" value="${r.total_points}" style="width:120px; margin-bottom:4px;">
             </div>
@@ -445,14 +539,14 @@
         const ptsLabel = r.total_points >= 0 ? '+' + r.total_points : r.total_points;
         const ptsColor = r.total_points >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
         const displayNotes = r.notes || namesString;
-        
+
         return `
           <div class="card" style="margin-bottom: 10px; background: white; border-left-color: ${ptsColor}; flex-direction: column; align-items: stretch; gap: 10px;">
             <div>
               <strong style="font-size:1rem;">${kidName}</strong> (<small style="color:var(--text-muted)">${logDateFmt}</small>)<br> 
               Requesting: <strong style="color: ${ptsColor}">${ptsLabel} pts</strong>
               ${taskItemsHtml}
-              ${r.notes ? `<div style="font-size:0.85rem; color:var(--text-muted); margin-top:4px;">📝 <i>"${r.notes}"</i></div>` : ''}
+              ${displayNotes ? `<div style="font-size:0.85rem; color:var(--text-muted); margin-top:4px;">📝 <i>"${displayNotes}"</i></div>` : ''}
             </div>
             <div style="display: flex; gap: 8px;">
               <button class="btn btn-primary" style="background: var(--accent-green); flex: 1.5; padding: 8px;" onclick="approve(${r.id}, ${r.kid_id}, ${r.total_points}, '${r.log_date}', '${encodedNames}', '${encodeURIComponent(displayNotes)}')">Approve & Bank</button>
@@ -505,6 +599,45 @@
       <button class="${parentManageTab === k.id ? 'active' : ''}" onclick="setParentManageTab(${k.id})">${k.name}</button>
     `).join('');
 
+    // RENDER PROFILE EDITOR FOR THE KIDS
+    let kidsProfilesListHtml = kids.map(k => {
+      const isEditingProfile = (editingKidProfileId === k.id);
+      if (isEditingProfile) {
+        return `
+          <div class="card" style="border-left-color: var(--accent-blue); padding:10px 12px; background:#f8fafc; gap:10px; flex-direction:column; align-items:stretch;">
+            <div style="font-weight:700; font-size:0.85rem; color:var(--accent-blue);">✏️ Editing ${k.name}'s Profile</div>
+            <div style="display:flex; gap:8px;">
+              <input id="editKidName_${k.id}" value="${k.name}" style="margin:0; flex:2;" placeholder="Name">
+              <select id="editKidAvatar_${k.id}" style="margin:0; flex:1;">
+                <option value="🌟" ${k.avatar === '🌟' ? 'selected' : ''}>🌟 Star</option>
+                <option value="🚀" ${k.avatar === '🚀' ? 'selected' : ''}>🚀 Rocket</option>
+                <option value="🦄" ${k.avatar === '🦄' ? 'selected' : ''}>🦄 Unicorn</option>
+                <option value="🦖" ${k.avatar === '🦖' ? 'selected' : ''}>🦖 Dino</option>
+                <option value="🦊" ${k.avatar === '🦊' ? 'selected' : ''}>🦊 Fox</option>
+                <option value="🦁" ${k.avatar === '🦁' ? 'selected' : ''}>🦁 Lion</option>
+                <option value="👾" ${k.avatar === '👾' ? 'selected' : ''}>👾 Gamer</option>
+                <option value="🌸" ${k.avatar === '🌸' ? 'selected' : ''}>🌸 Flower</option>
+              </select>
+            </div>
+            <div style="display:flex; gap:6px; justify-content:flex-end;">
+              <button class="btn btn-primary" style="padding:6px 12px; font-size:0.8rem; background:var(--accent-green);" onclick="saveKidProfile(${k.id})">💾 Save</button>
+              <button class="btn btn-secondary" style="padding:6px 12px; font-size:0.8rem;" onclick="cancelKidProfileEdit()">❌ Cancel</button>
+            </div>
+          </div>
+        `;
+      } else {
+        return `
+          <div class="card" style="border-left-color: var(--accent-blue); padding:10px 15px;">
+            <div style="display:flex; align-items:center; gap:8px; font-weight:700;">
+              <span style="font-size:1.3rem;">${k.avatar || '🌟'}</span>
+              <span>${k.name}</span>
+            </div>
+            <button class="btn btn-secondary" style="padding:6px 12px; font-size:0.8rem;" onclick="startKidProfileEdit(${k.id})">✏️ Edit Profile</button>
+          </div>
+        `;
+      }
+    }).join('');
+
     let choreManagerCardsHtml = '';
     const activeManageChores = chores.filter(c => c.kid_id === parentManageTab);
     if (activeManageChores.length === 0) {
@@ -514,25 +647,36 @@
         const ptsLabel = chore.points >= 0 ? `+${chore.points}` : `${chore.points}`;
         const isPenalty = chore.points < 0;
         const isEditing = (editingChoreId === chore.id);
+        const freqLabel = (chore.frequency || 'daily').toUpperCase();
 
         if (isEditing) {
           return `
-            <div class="card ${isPenalty ? 'penalty-card' : ''}" style="padding:10px 12px;">
-              <div style="display:flex; gap:8px; align-items:center; width:100%; margin-right:8px;">
+            <div class="card ${isPenalty ? 'penalty-card' : ''}" style="padding:10px 12px; flex-direction:column; align-items:stretch; gap:10px;">
+              <div style="display:flex; gap:8px; align-items:center;">
                 <input id="editName_${chore.id}" value="${chore.name.replace(/"/g, '&quot;')}" style="flex:2; margin:0;" placeholder="Task Name">
                 <input id="editPts_${chore.id}" type="number" value="${chore.points}" style="flex:1; max-width:80px; margin:0;" placeholder="Pts">
               </div>
-              <div style="display:flex; gap:6px;">
-                <button class="btn btn-primary" style="padding:6px 10px; font-size:0.85rem; background:var(--accent-green);" onclick="saveInlineEdit(${chore.id})">💾 Save</button>
-                <button class="btn btn-secondary" style="padding:6px 10px; font-size:0.85rem;" onclick="cancelInlineEdit()">❌ Cancel</button>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted);">Frequency:</label>
+                <select id="editFreq_${chore.id}" style="margin:0; width:120px;">
+                  <option value="daily" ${chore.frequency === 'daily' ? 'selected' : ''}>Daily</option>
+                  <option value="weekly" ${chore.frequency === 'weekly' ? 'selected' : ''}>Weekly</option>
+                </select>
+                <div style="flex:1; display:flex; gap:6px; justify-content:flex-end;">
+                  <button class="btn btn-primary" style="padding:6px 10px; font-size:0.85rem; background:var(--accent-green);" onclick="saveInlineEdit(${chore.id})">💾 Save</button>
+                  <button class="btn btn-secondary" style="padding:6px 10px; font-size:0.85rem;" onclick="cancelInlineEdit()">❌ Cancel</button>
+                </div>
               </div>
             </div>
           `;
         } else {
           return `
             <div class="card ${isPenalty ? 'penalty-card' : ''}" style="padding:10px 15px;">
-              <div class="chore-info">
-                <span>${chore.name}</span>
+              <div class="chore-info" style="gap:12px;">
+                <div style="display:flex; flex-direction:column;">
+                  <span>${chore.name}</span>
+                  <span style="font-size:0.7rem; color:var(--text-muted); font-weight:800; margin-top:2px;">🔄 ${freqLabel}</span>
+                </div>
                 <span class="pts-badge ${isPenalty ? 'penalty' : ''}">${ptsLabel} pts</span>
               </div>
               <div style="display:flex; gap:6px;">
@@ -551,26 +695,33 @@
         <h2 style="margin:0; font-size:1.3rem;">⚙️ Setup Portal</h2>
         <button class="btn btn-secondary" style="padding:6px 12px; font-size:0.8rem;" onclick="lockParent()">🔒 Lock Portal</button>
       </div>
-      
+
       <div style="display:flex; flex-direction:column; gap:16px;">
         ${pendingWrapperHtml}
 
         <!-- WALLET & REDEMPTION SYSTEM SETTINGS -->
         <div class="score-banner" style="text-align: left; border-color: var(--accent-gold);">
           <h3 style="margin-top:0; font-size:1.05rem; color: var(--accent-gold);">🎨 Reward & Exchange Rates</h3>
-          
+
           <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:4px;">Cash-out Points Threshold:</label>
           <input id="settingsThreshold" type="number" value="${currentThreshold}" style="margin-bottom:10px;" placeholder="e.g., 500">
-          
+
           <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:4px;">Exchange Rate (How many Points = $1.00):</label>
           <input id="settingsRate" type="number" value="${currentExchangeRate}" style="margin-bottom:12px;" placeholder="e.g., 100">
-          
+
           <button class="btn btn-primary" style="width:100%; background: var(--accent-gold);" onclick="saveThresholdSettings()">💾 Save Financial Rates</button>
         </div>
 
-        <!-- KIDS MANAGEMENT -->
+        <!-- KIDS DIRECTORY & PROFILES EDITOR -->
         <div class="score-banner" style="text-align: left;">
-          <h3 style="margin-top:0; font-size:1.05rem;">Manage Kids</h3>
+          <h3 style="margin-top:0; font-size:1.05rem; margin-bottom:10px;">Profiles & Avatars</h3>
+          <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:15px;">
+            ${kidsProfilesListHtml}
+          </div>
+
+          <hr style="border:0; border-top:1px solid var(--border); margin:15px 0;">
+
+          <h3 style="margin-top:0; font-size:1.025rem;">Add New Kid</h3>
           <div style="display:flex; flex-direction:column; gap:8px;">
             <input id="kidName" placeholder="e.g., Aadya">
             <select id="kidAvatarSelect" style="margin-bottom:8px;">
@@ -587,13 +738,20 @@
           </div>
         </div>
 
-        <!-- ADD CHORES / PENALTIES -->
+        <!-- ADD CHORES / PENALTIES (Upgraded with Frequency) -->
         <div class="score-banner" style="text-align: left;">
           <h3 style="margin-top:0; font-size:1.05rem;">Add Chores / Penalties</h3>
           <label style="font-size:0.85rem; font-weight:700; color:var(--text-muted);">Assign to:</label>
           <select id="choreKid">
             ${kidsSetupOptionsHtml}
           </select>
+          
+          <label style="font-size:0.85rem; font-weight:700; color:var(--text-muted); display:block; margin-top:6px;">Chore Reset Schedule:</label>
+          <select id="choreFrequency" style="margin-bottom:10px;">
+            <option value="daily">Daily Chores</option>
+            <option value="weekly">Weekly Chores</option>
+          </select>
+
           <label style="font-size:0.85rem; font-weight:700; color:var(--text-muted); display:block; margin-top:6px;">Format: <i>Emoji Name, Points</i> (One per line)</label>
           <textarea id="choreList" rows="4" placeholder="🚴 Exercise/Cycling, 10&#10;🧹 Clean Bathroom, 10&#10;🚫 Talking Back, -10"></textarea>
           <button class="btn btn-primary" style="margin-top:5px; width:100%;" onclick="addBulkChores()">Save All Actions</button>
@@ -620,7 +778,7 @@
         </div>
       </div>
     `;
-    
+
     document.getElementById("content").innerHTML = html;
   }
 
@@ -628,20 +786,24 @@
   function updateTaskDate(val) { selectedTaskDate = val; }
   function setParentManageTab(id) { parentManageTab = id; editingChoreId = null; render(); }
   function setKidView(mode) { kidViewMode = mode; render(); }
+  function toggleLevelGuide() { showLevelGuide = !showLevelGuide; render(); }
 
   function renderKid() {
     const kid = kids.find(k => k.id === selectedKidId);
     if (!kid) return;
     const kidIndex = kids.findIndex(k => k.id === kid.id);
     const color = kidColors[Math.max(0, kidIndex) % kidColors.length];
-    
+
     // Financial metrics
     const exchangeRate = getExchangeRate();
     const pts = logs.filter(l => l.kid_id === kid.id).reduce((sum, l) => sum + l.points, 0);
     const totalRedeemed = redemptions.filter(r => r.kid_id === kid.id).reduce((sum, r) => sum + r.points_spent, 0);
     const totalCashOut = redemptions.filter(r => r.kid_id === kid.id).reduce((sum, r) => sum + r.amount, 0);
     const available = pts - totalRedeemed;
-    
+
+    // Active Streak metrics
+    const currentStreak = getActiveStreak(kid.id);
+
     // Level System (XP)
     const ptsPerLevel = 150;
     const currentLevel = Math.max(1, Math.floor(pts / ptsPerLevel) + 1);
@@ -649,8 +811,25 @@
     const xpPercent = Math.min(100, Math.round((remainderXP / ptsPerLevel) * 100));
 
     const pend = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
-    const regularChores = chores.filter(c => c.kid_id == kid.id && c.points >= 0);
+
+    // Filter segregated tasks
+    const dailyChores = chores.filter(c => c.kid_id == kid.id && c.points >= 0 && (c.frequency === 'daily' || !c.frequency));
+    const weeklyChores = chores.filter(c => c.kid_id == kid.id && c.points >= 0 && c.frequency === 'weekly');
     const penalties = chores.filter(c => c.kid_id == kid.id && c.points < 0);
+
+    let levelGuideHtml = '';
+    if (showLevelGuide) {
+      levelGuideHtml = `
+        <div class="level-guide-accordion">
+          <div style="font-weight:800; margin-bottom:8px; color:var(--accent-blue); text-align:center;">🏆 KIDFINITY LEVEL DIRECTORY</div>
+          <div class="level-row"><span>Level 1: Chores Cadet</span> <span>0 - 149 XP</span></div>
+          <div class="level-row"><span>Level 2: Task Tracker</span> <span>150 - 299 XP</span></div>
+          <div class="level-row"><span>Level 3: Chore Champion</span> <span>300 - 449 XP</span></div>
+          <div class="level-row"><span>Level 4: Responsibility Ranger</span> <span>450 - 599 XP</span></div>
+          <div class="level-row" style="border:none; font-weight:bold; color:var(--accent-gold);"><span>Level 5+: Kidfinity Legend</span> <span>600+ XP</span></div>
+        </div>
+      `;
+    }
 
     let html = `
       <div class="score-banner" style="border-color: ${color}; background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);">
@@ -658,17 +837,34 @@
           <span style="font-size:2rem;">${kid.avatar || '🌟'}</span>
           <h2 style="margin:0; color: ${color}; font-size:1.6rem; font-weight:800;">${kid.name}</h2>
         </div>
-        
-        <div style="font-weight:700; color:var(--text-muted); font-size:0.9rem;">
-          Level ${currentLevel} Hero
+
+        <div style="display:flex; align-items:center; justify-content:center; gap:8px; font-weight:700; color:var(--text-muted); font-size:0.9rem;">
+          <span>Level ${currentLevel} Hero</span>
+          <button onclick="toggleLevelGuide()" style="background:none; border:none; color:var(--accent-blue); font-weight:bold; cursor:pointer; font-size:0.85rem; padding:0; text-decoration:underline;">❓ Level Guide</button>
         </div>
-        
+
+        ${levelGuideHtml}
+
         <div class="xp-bar-container">
           <div class="xp-bar-fill" style="width: ${xpPercent}%;"></div>
         </div>
         <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-top:4px;">
           <span>${remainderXP} XP</span>
           <span>${ptsPerLevel - remainderXP} XP TO LEVEL UP!</span>
+        </div>
+
+        <!-- ACTIVE STREAK METER -->
+        <div class="streak-container">
+          <div class="streak-badge">
+            🔥 ${currentStreak}-Day Streak
+          </div>
+          <div style="display:flex; gap:3px; margin-left:10px;">
+            <span class="streak-dot ${currentStreak >= 1 ? 'active' : ''}">🔥</span>
+            <span class="streak-dot ${currentStreak >= 2 ? 'active' : ''}">🔥</span>
+            <span class="streak-dot ${currentStreak >= 3 ? 'active' : ''}">🔥</span>
+            <span class="streak-dot ${currentStreak >= 4 ? 'active' : ''}">🔥</span>
+            <span class="streak-dot ${currentStreak >= 5 ? 'active' : ''}">⭐</span>
+          </div>
         </div>
 
         <div class="stats-row">
@@ -686,7 +882,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="kid-subtabs">
         <button class="${kidViewMode === 'today' ? 'active' : ''}" onclick="setKidView('today')">📋 Daily Chores</button>
         <button class="${kidViewMode === 'history' ? 'active' : ''}" onclick="setKidView('history')">📜 History & Rewards</button>
@@ -702,11 +898,21 @@
         </div>
       `;
 
-      html += `<div class="section-title">✨ DAILY CHORES</div>`;
-      if(regularChores.length === 0) {
-        html += `<p style="font-size:0.9rem; color:#666; text-align:center; padding:10px;">No chores assigned yet.</p>`;
+      // STREAK BONUS ALERT
+      if (currentStreak === 4) {
+        html += `
+          <div style="background:#ecfdf5; border:1px solid #a7f3d0; color:#065f46; font-weight:700; padding:10px; border-radius:12px; font-size:0.85rem; text-align:center; margin-bottom:15px;">
+            🎉 Log chores today to complete your 5-Day Streak and claim a +5 Points bonus!
+          </div>
+        `;
+      }
+
+      // SECTION 1: DAILY CHORES
+      html += `<div class="section-title">☀️ DAILY CHORES</div>`;
+      if(dailyChores.length === 0) {
+        html += `<p style="font-size:0.9rem; color:#666; text-align:center; padding:10px;">No daily chores assigned yet.</p>`;
       } else {
-        html += regularChores.map(c => `
+        html += dailyChores.map(c => `
           <div class="card">
             <div class="chore-info">
               <span>${c.name}</span>
@@ -719,7 +925,27 @@
           </div>
         `).join('');
       }
-        
+
+      // SECTION 2: WEEKLY CHORES
+      html += `<div class="section-title">📅 WEEKLY CHORES</div>`;
+      if(weeklyChores.length === 0) {
+        html += `<p style="font-size:0.9rem; color:#666; text-align:center; padding:10px;">No weekly chores assigned yet.</p>`;
+      } else {
+        html += weeklyChores.map(c => `
+          <div class="card" style="border-left-color: var(--accent-blue);">
+            <div class="chore-info">
+              <span>${c.name}</span>
+              <span class="pts-badge" style="color:var(--accent-blue); border-color:#bfdbfe; background:#eff6ff;">+${c.points} pts</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="toggle(${c.id})">
+              <span class="slider" style="background-color:#cbd5e1;"></span>
+            </label>
+          </div>
+        `).join('');
+      }
+
+      // SECTION 3: PENALTIES
       if (penalties.length > 0) {
         html += `<div class="section-title" style="color:var(--accent-red);">⚠️ PENALTIES & BEHAVIOR</div>`;
         html += penalties.map(c => `
@@ -738,7 +964,7 @@
     } else {
       html += renderKidHistory(kid.id);
     }
-    
+
     document.getElementById("content").innerHTML = html;
   }
 
@@ -751,7 +977,7 @@
     return activityList.map(item => {
       const ptsClass = item.points >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
       const ptsSign = item.points >= 0 ? `+${item.points}` : `${item.points}`;
-      
+
       return `
         <div class="card" style="border-left-color: ${ptsClass};">
           <div>
@@ -771,7 +997,7 @@
     const totalEarned = kidLogs.reduce((sum, l) => sum + l.points, 0);
     const totalSpent = kidReds.reduce((sum, r) => sum + r.points_spent, 0);
     const available = totalEarned - totalSpent;
-    
+
     // Dynamic settings
     const redeemThreshold = getRedeemThreshold();
     const exchangeRate = getExchangeRate();
@@ -797,7 +1023,7 @@
     } else {
       const needed = redeemThreshold - available;
       const progressPercent = Math.min(100, Math.round((available / redeemThreshold) * 100));
-      
+
       html += `
         <div style="background:#fffbeb; padding:14px; border-radius:12px; border:1px solid #fef3c7; color:#b45309; font-weight:700; font-size:0.9rem;">
           <div style="margin-bottom:8px;">Earn ${needed} more points to redeem $${calculatedCashValue} Apple Cash!</div>
@@ -848,7 +1074,7 @@
 
     html += `<div class="section-title">📅 7-DAY ACTIVITY HISTORY</div>`;
     html += generateActivityHistoryHtml(activityList);
-    
+
     return html;
   }
 
@@ -872,31 +1098,56 @@
   async function send() {
     const p = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
     if (p.length === 0) return showAlert("⚠️ Please select at least one task or penalty before sending!", "error");
-    
+
     const selectedChores = p.map(id => chores.find(item => item.id == id)).filter(Boolean);
-    const total = selectedChores.reduce((sum, c) => sum + c.points, 0);
-    
-    // Save readable list
-    const logNotes = selectedChores.map(c => c.name).join(", ");
+    let total = selectedChores.reduce((sum, c) => sum + c.points, 0);
 
-    const { error } = await supabaseClient.from("pending_requests").insert({ 
-      kid_id: selectedKidId, 
-      chore_ids: p, 
-      total_points: total, 
-      log_date: selectedTaskDate, 
-      notes: logNotes,
-      status: 'pending'
-    });
+    // Build log notes detail
+    let logNotes = selectedChores.map(c => c.name).join(", ");
 
-    if (error) {
-      console.error(error);
-      return showAlert("❌ Failed to send request: " + error.message, "error");
+    // Check for streak milestone bonus
+    const currentStreak = getActiveStreak(selectedKidId);
+    if (currentStreak === 4) {
+      total += 5; // Add +5 points streak bonus
+      logNotes += " (+5 Streak Milestone Bonus! 🔥)";
+      showAlert("🔥 5-Day Streak Milestone Unlocked! +5 points bonus added!", "success");
     }
-    
+
+    // Try/Catch fallback in case notes column migration hasn't been run yet
+    try {
+      const { error } = await supabaseClient.from("pending_requests").insert({ 
+        kid_id: selectedKidId, 
+        chore_ids: p, 
+        total_points: total, 
+        log_date: selectedTaskDate, 
+        notes: logNotes,
+        status: 'pending'
+      });
+
+      if (error) {
+        if (error.message.includes("notes")) {
+          // Graceful fallback inserting without notes
+          const { error: fbError } = await supabaseClient.from("pending_requests").insert({ 
+            kid_id: selectedKidId, 
+            chore_ids: p, 
+            total_points: total, 
+            log_date: selectedTaskDate, 
+            status: 'pending'
+          });
+          if (fbError) throw fbError;
+          showAlert("🚀 Request sent (Notes omitted: Run SQL script to see detailed chore lists)", "info");
+        } else {
+          throw error;
+        }
+      } else {
+        showAlert("🚀 Request successfully sent to Parents!", "success"); 
+      }
+    } catch(err) {
+      console.error(err);
+      return showAlert("❌ Failed to send request: " + err.message, "error");
+    }
+
     localStorage.removeItem(`pend_${selectedKidId}`);
-    showAlert("🚀 Request successfully sent to Parents!", "success"); 
-    
-    // Confetti effect
     confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
     await loadData();
   }
@@ -922,6 +1173,35 @@
     await loadData();
   }
 
+  // --- KID PROFILE EDIT ACTIONS ---
+  function startKidProfileEdit(id) {
+    editingKidProfileId = id;
+    render();
+  }
+
+  function cancelKidProfileEdit() {
+    editingKidProfileId = null;
+    render();
+  }
+
+  async function saveKidProfile(id) {
+    const nameInput = document.getElementById(`editKidName_${id}`);
+    const avatarInput = document.getElementById(`editKidAvatar_${id}`);
+    if (!nameInput || !avatarInput) return;
+
+    const newName = nameInput.value.trim();
+    const newAvatar = avatarInput.value;
+
+    if (!newName) return showAlert("⚠️ Kid name cannot be empty", "error");
+
+    const { error } = await supabaseClient.from("kids").update({ name: newName, avatar: newAvatar }).eq("id", id);
+    if (error) return showAlert("❌ Failed to update profile: " + error.message, "error");
+
+    editingKidProfileId = null;
+    showAlert("✨ Kid profile updated successfully!", "success");
+    await loadData();
+  }
+
   // --- PARENT APPROVAL EDITORS ---
   function startPendingEdit(id) {
     editingPendingId = id;
@@ -936,31 +1216,29 @@
   async function savePendingEdit(rid, kidId, originalDate) {
     const editNotesInput = document.getElementById(`editPendingNotes_${rid}`);
     const editPtsInput = document.getElementById(`editPendingPoints_${rid}`);
-    
+
     if (!editNotesInput || !editPtsInput) return;
-    
+
     const newNotes = editNotesInput.value.trim();
     const newPts = parseInt(editPtsInput.value, 10);
-    
+
     if (isNaN(newPts)) return showAlert("⚠️ Points must be a valid number", "error");
 
-    // Approve edited items
     const payload = { 
       kid_id: kidId, 
       points: newPts, 
       log_date: originalDate, 
       notes: newNotes || "Edited Chores Log" 
     };
-    
+
     const { error: logError } = await supabaseClient.from("task_logs").insert(payload);
     if (logError) return showAlert("❌ Failed to log approved chores: " + logError.message, "error");
 
-    // Close request
     await supabaseClient.from("pending_requests").update({ status: 'banked' }).eq('id', rid);
-    
+
     editingPendingId = null;
     showAlert("🎉 Custom points approved and banked successfully!", "success");
-    
+
     confetti({ particleCount: 50, spread: 60, colors: ['#10b981', '#3b82f6'] });
     await loadData();
   }
@@ -969,20 +1247,20 @@
     let choreNames = decodeURIComponent(encodedChoreNames);
     let rawNotes = decodeURIComponent(defaultNotes);
     const payload = { kid_id: kidId, points: pts, log_date: originalDate };
-    
+
     if (rawNotes && rawNotes.trim() !== "") {
       payload.notes = rawNotes;
     } else if (choreNames && choreNames.trim() !== "") {
       payload.notes = choreNames;
     }
-    
+
     const { error } = await supabaseClient.from("task_logs").insert(payload);
     if (error) {
       return showAlert("❌ Failed to approve: " + error.message, "error");
     }
     await supabaseClient.from("pending_requests").update({ status: 'banked' }).eq('id', rid);
     showAlert("🎉 Points successfully banked!", "success");
-    
+
     confetti({ particleCount: 60, spread: 80 });
     await loadData();
   }
@@ -1000,7 +1278,7 @@
 
     await supabaseClient.from("pending_requests").update({ status: 'banked' }).eq('id', rid);
     showAlert(`💵 Approved: $${amount.toFixed(2)} Apple Cash has been redeemed!`, "success");
-    
+
     confetti({ particleCount: 80, spread: 90, colors: ['#f59e0b', '#10b981'] });
     await loadData();
   }
@@ -1019,24 +1297,25 @@
     const name = document.getElementById("kidName").value.trim();
     const avatar = document.getElementById("kidAvatarSelect").value;
     if (!name) return showAlert("⚠️ Please enter a name", "error");
-    
-    // Add columns dynamically handled. We try custom avatar first, catch if DB column missing
+
     const { error } = await supabaseClient.from("kids").insert({ name: name, avatar: avatar });
     if (error) {
-      // Graceful fallback if user hasn't added column yet
+      // Fallback
       const { error: fallbackError } = await supabaseClient.from("kids").insert({ name: name });
       if (fallbackError) return showAlert("❌ Failed to add kid: " + fallbackError.message, "error");
     }
-    
+
     showAlert(`✨ Added ${name}!`, "success");
+    document.getElementById("kidName").value = '';
     await loadData();
   }
 
   async function addBulkChores() {
     const kidId = document.getElementById("choreKid").value;
+    const frequency = document.getElementById("choreFrequency").value;
     const list = document.getElementById("choreList").value;
     if (!kidId || !list.trim()) return showAlert("⚠️ Missing kid or chores list", "error");
-    
+
     const lines = list.split('\n');
     const inserts = [];
     for (let line of lines) {
@@ -1045,13 +1324,22 @@
       if (parts.length >= 2) {
         const name = parts[0].trim();
         const pts = parseInt(parts[1].trim(), 10);
-        if (!isNaN(pts)) inserts.push({ kid_id: kidId, name: name, points: pts });
+        if (!isNaN(pts)) inserts.push({ kid_id: kidId, name: name, points: pts, frequency: frequency });
       }
     }
-    
+
     if (inserts.length > 0) {
-      await supabaseClient.from("chores").insert(inserts);
-      showAlert("✅ Actions added successfully!", "success");
+      const { error } = await supabaseClient.from("chores").insert(inserts);
+      if (error) {
+        // Fallback without frequency
+        const fallbackInserts = inserts.map(i => ({ kid_id: i.kid_id, name: i.name, points: i.points }));
+        const { error: fbErr } = await supabaseClient.from("chores").insert(fallbackInserts);
+        if (fbErr) return showAlert("❌ Failed to save chores: " + fbErr.message, "error");
+        showAlert("✅ Chores saved! (Frequency defaulted: Run SQL script to separate daily/weekly)", "info");
+      } else {
+        showAlert("✅ Actions added successfully!", "success");
+      }
+      document.getElementById("choreList").value = '';
       await loadData();
     } else {
       showAlert("⚠️ Could not parse actions. Format: 'Name, Points'", "error");
@@ -1064,7 +1352,7 @@
     const note = document.getElementById("adjustNote").value.trim();
     if (!kidId || isNaN(pts)) return showAlert("⚠️ Invalid kid or points amount", "error");
     if (!note) return showAlert("⚠️ A note/comment is required for manual adjustments!", "error");
-    
+
     const today = getLocalTodayISO();
     const { error } = await supabaseClient.from("task_logs").insert({ 
       kid_id: kidId, 
@@ -1074,22 +1362,33 @@
     });
     if (error) return showAlert("❌ Adjustment failed: " + error.message, "error");
     showAlert("✅ Manual adjustment applied!", "success");
+    document.getElementById("adjustPoints").value = '';
+    document.getElementById("adjustNote").value = '';
     await loadData();
   }
 
   // --- INLINE ACTION EDITOR ---
   function startInlineEdit(id) { editingChoreId = id; render(); }
   function cancelInlineEdit() { editingChoreId = null; render(); }
-  
+
   async function saveInlineEdit(id) {
     const nameInput = document.getElementById(`editName_${id}`);
     const ptsInput = document.getElementById(`editPts_${id}`);
+    const freqInput = document.getElementById(`editFreq_${id}`);
     if (!nameInput || !ptsInput) return;
+
     const newName = nameInput.value.trim();
     const newPts = parseInt(ptsInput.value, 10);
+    const newFreq = freqInput ? freqInput.value : 'daily';
+
     if (!newName || isNaN(newPts)) return showAlert("⚠️ Invalid values", "error");
+
+    const { error } = await supabaseClient.from("chores").update({ name: newName, points: newPts, frequency: newFreq }).eq("id", id);
+    if (error) {
+      // Fallback
+      await supabaseClient.from("chores").update({ name: newName, points: newPts }).eq("id", id);
+    }
     
-    await supabaseClient.from("chores").update({ name: newName, points: newPts }).eq("id", id);
     editingChoreId = null;
     showAlert("✏️ Action updated successfully!", "success");
     await loadData();
