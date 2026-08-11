@@ -262,7 +262,7 @@
   let kids = [], chores = [], logs = [], redemptions = [];
   let selectedKidId = 'parents';
   let parentUnlocked = false;
-  let kidViewMode = 'today'; 
+  let kidViewMode = 'daily'; // Defaulting to 'daily' chores segregation tab
   let parentManageTab = null;
   let editingChoreId = null; 
   let editingPendingId = null; 
@@ -358,8 +358,9 @@
           <h3 style="margin-top:0;">⚠️ Database Connection Issue</h3>
           <p style="font-size:0.95rem; margin-bottom:10px;">${error.message}</p>
           <p style="font-size:0.85rem; color:var(--text-muted); line-height:1.4;">
-            <strong>To fix the pending_requests error, make sure you ran the SQL command:</strong><br>
-            <code>ALTER TABLE pending_requests ADD COLUMN notes TEXT;</code>
+            <strong>To fix database synchronization, verify your Supabase tables have notes and frequency column setups:</strong><br>
+            <code>ALTER TABLE pending_requests ADD COLUMN IF NOT EXISTS notes TEXT;</code><br>
+            <code>ALTER TABLE chores ADD COLUMN IF NOT EXISTS frequency TEXT DEFAULT 'daily';</code>
           </p>
           <button class="btn btn-secondary" onclick="loadData()" style="margin-top:10px; font-size:0.85rem; padding:6px 12px;">🔄 Try Again</button>
         </div>
@@ -381,7 +382,7 @@
 
   function selectTab(id) {
     selectedKidId = id;
-    kidViewMode = 'today'; 
+    kidViewMode = 'daily'; // Default to Daily Chores tab on tab switch
     selectedTaskDate = getLocalTodayISO(); 
     editingPendingId = null;
     showLevelGuide = false;
@@ -446,13 +447,6 @@
     }
   }
 
-  function lockParent() {
-    parentUnlocked = false;
-    sessionStorage.removeItem("parentUnlocked");
-    showAlert("🔒 Parent Portal locked", "info");
-    render();
-  }
-
   // --- CONFIGURATION SAVE CHANNELS ---
   function saveThresholdSettings() {
     const threshVal = document.getElementById("settingsThreshold").value;
@@ -468,6 +462,13 @@
     localStorage.setItem("redeem_threshold", parsedThresh);
     localStorage.setItem("exchange_rate", parsedRate);
     showAlert("⚙️ Settings updated successfully!", "success");
+    render();
+  }
+
+  function lockParent() {
+    parentUnlocked = false;
+    sessionStorage.removeItem("parentUnlocked");
+    showAlert("🔒 Parent Portal locked", "info");
     render();
   }
 
@@ -745,7 +746,7 @@
           <select id="choreKid">
             ${kidsSetupOptionsHtml}
           </select>
-          
+
           <label style="font-size:0.85rem; font-weight:700; color:var(--text-muted); display:block; margin-top:6px;">Chore Reset Schedule:</label>
           <select id="choreFrequency" style="margin-bottom:10px;">
             <option value="daily">Daily Chores</option>
@@ -883,18 +884,21 @@
         </div>
       </div>
 
+      <!-- THREE SEGREGATED SUBTABS FOR DYNAMIC FILTERING -->
       <div class="kid-subtabs">
-        <button class="${kidViewMode === 'today' ? 'active' : ''}" onclick="setKidView('today')">📋 Daily Chores</button>
+        <button class="${kidViewMode === 'daily' ? 'active' : ''}" onclick="setKidView('daily')">☀️ Daily Chores</button>
+        <button class="${kidViewMode === 'weekly' ? 'active' : ''}" onclick="setKidView('weekly')">📅 Weekly Chores</button>
         <button class="${kidViewMode === 'history' ? 'active' : ''}" onclick="setKidView('history')">📜 History & Rewards</button>
       </div>
     `;
 
-    if (kidViewMode === 'today') {
+    // DAILY CHORES TAB
+    if (kidViewMode === 'daily') {
       html += `
         <div style="display:flex; gap:10px; margin-top:15px; margin-bottom:15px; align-items:center;">
           <input type="date" id="taskDate" value="${selectedTaskDate}" onchange="updateTaskDate(this.value)" style="flex:2; margin:0; padding:10px 12px; font-weight:600;">
           <button class="btn btn-danger" style="flex:1; padding:11px;" onclick="resetToggles()">🔄 Reset</button>
-          <button class="btn btn-primary" style="flex:1.5; padding:11px; background:#10b981;" onclick="send()">🚀 Send</button>
+          <button class="btn btn-primary" style="flex:1.5; padding:11px; background:#10b981;" onclick="send()">🚀 Send (${pend.length})</button>
         </div>
       `;
 
@@ -907,7 +911,6 @@
         `;
       }
 
-      // SECTION 1: DAILY CHORES
       html += `<div class="section-title">☀️ DAILY CHORES</div>`;
       if(dailyChores.length === 0) {
         html += `<p style="font-size:0.9rem; color:#666; text-align:center; padding:10px;">No daily chores assigned yet.</p>`;
@@ -926,7 +929,33 @@
         `).join('');
       }
 
-      // SECTION 2: WEEKLY CHORES
+      // PENALTIES SECTIONS AT THE BOTTOM OF THE DAILY BOARD
+      if (penalties.length > 0) {
+        html += `<div class="section-title" style="color:var(--accent-red);">⚠️ PENALTIES & BEHAVIOR</div>`;
+        html += penalties.map(c => `
+          <div class="card penalty-card">
+            <div class="chore-info">
+              <span>${c.name}</span>
+              <span class="pts-badge penalty">${c.points} pts</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="toggle(${c.id})">
+              <span class="slider penalty"></span>
+            </label>
+          </div>
+        `).join('');
+      }
+
+    // WEEKLY CHORES TAB
+    } else if (kidViewMode === 'weekly') {
+      html += `
+        <div style="display:flex; gap:10px; margin-top:15px; margin-bottom:15px; align-items:center;">
+          <input type="date" id="taskDate" value="${selectedTaskDate}" onchange="updateTaskDate(this.value)" style="flex:2; margin:0; padding:10px 12px; font-weight:600;">
+          <button class="btn btn-danger" style="flex:1; padding:11px;" onclick="resetToggles()">🔄 Reset</button>
+          <button class="btn btn-primary" style="flex:1.5; padding:11px; background:#3b82f6;" onclick="send()">🚀 Send (${pend.length})</button>
+        </div>
+      `;
+
       html += `<div class="section-title">📅 WEEKLY CHORES</div>`;
       if(weeklyChores.length === 0) {
         html += `<p style="font-size:0.9rem; color:#666; text-align:center; padding:10px;">No weekly chores assigned yet.</p>`;
@@ -945,22 +974,7 @@
         `).join('');
       }
 
-      // SECTION 3: PENALTIES
-      if (penalties.length > 0) {
-        html += `<div class="section-title" style="color:var(--accent-red);">⚠️ PENALTIES & BEHAVIOR</div>`;
-        html += penalties.map(c => `
-          <div class="card penalty-card">
-            <div class="chore-info">
-              <span>${c.name}</span>
-              <span class="pts-badge penalty">${c.points} pts</span>
-            </div>
-            <label class="switch">
-              <input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="toggle(${c.id})">
-              <span class="slider penalty"></span>
-            </label>
-          </div>
-        `).join('');
-      }
+    // HISTORY AND REDEMPTIONS TAB
     } else {
       html += renderKidHistory(kid.id);
     }
@@ -1388,7 +1402,7 @@
       // Fallback
       await supabaseClient.from("chores").update({ name: newName, points: newPts }).eq("id", id);
     }
-    
+
     editingChoreId = null;
     showAlert("✏️ Action updated successfully!", "success");
     await loadData();
