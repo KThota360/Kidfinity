@@ -920,7 +920,7 @@
     const remainderXP = pts % ptsPerLevel;
     const xpPercent = Math.min(100, Math.round((remainderXP / ptsPerLevel) * 100));
 
-    const pend = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
+    const pend = JSON.parse(localStorage.getItem("pend_" + selectedKidId) || "[]");
 
     const dailyChores = chores.filter(c => c.kid_id == kid.id && c.points >= 0 && (c.frequency === 'daily' || !c.frequency));
     const weeklyChores = chores.filter(c => c.kid_id == kid.id && c.points >= 0 && c.frequency === 'weekly');
@@ -1210,23 +1210,23 @@
 
   // --- INTERACTIVE ACTIONS ---
   function toggle(id) {
-    let p = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
+    let p = JSON.parse(localStorage.getItem("pend_" + selectedKidId) || "[]");
     if (p.includes(id)) {
       p = p.filter(i => i !== id);
     } else {
       p.push(id);
     }
-    localStorage.setItem(`pend_${selectedKidId}`, JSON.stringify(p));
+    localStorage.setItem("pend_" + selectedKidId, JSON.stringify(p));
     render();
   }
 
   function resetToggles() {
-    localStorage.removeItem(`pend_${selectedKidId}`);
+    localStorage.removeItem("pend_" + selectedKidId);
     render();
   }
 
   async function send() {
-    const p = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
+    const p = JSON.parse(localStorage.getItem("pend_" + selectedKidId) || "[]");
     if (p.length === 0) return showAlert("⚠️ Please select at least one task or penalty before sending!", "error");
 
     const selectedChores = p.map(id => chores.find(item => item.id == id)).filter(Boolean);
@@ -1275,7 +1275,7 @@
       return showAlert("❌ Failed to send request: " + err.message, "error");
     }
 
-    localStorage.removeItem(`pend_${selectedKidId}`);
+    localStorage.removeItem("pend_" + selectedKidId);
     confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
     await loadData();
   }
