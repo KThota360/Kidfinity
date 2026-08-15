@@ -274,12 +274,15 @@
   let selectedTaskDate = getLocalTodayISO();
   let alertTimer = null;
 
-  // Global settings synced dynamically with localStorage
+  // Global settings synchronized dynamically with Database & local cache fallbacks
+  let redeemThreshold = 500;
+  let exchangeRate = 100;
+
   function getRedeemThreshold() {
-    return parseInt(localStorage.getItem("redeem_threshold") || "500", 10);
+    return redeemThreshold;
   }
   function getExchangeRate() {
-    return parseInt(localStorage.getItem("exchange_rate") || "100", 10);
+    return exchangeRate;
   }
 
   // --- HELPER FUNCTIONS FOR DATE & TIMEZONE ---
@@ -322,22 +325,41 @@
         parentUnlocked = true;
       }
 
-      // Step 1: Fetch Kids
+      // Step 1: Fetch Global Settings from Supabase app_settings table
+      try {
+        const { data: sData, error: sErr } = await supabaseClient.from("app_settings").select("*");
+        if (!sErr && sData) {
+          const tRow = sData.find(r => r.key === 'redeem_threshold');
+          const rRow = sData.find(r => r.key === 'exchange_rate');
+          if (tRow) redeemThreshold = parseInt(tRow.value, 10);
+          if (rRow) exchangeRate = parseInt(rRow.value, 10);
+        } else {
+          // Use localStorage fallback if table hasn't been migrated/populated
+          redeemThreshold = parseInt(localStorage.getItem("redeem_threshold") || "500", 10);
+          exchangeRate = parseInt(localStorage.getItem("exchange_rate") || "100", 10);
+        }
+      } catch (e) {
+        // Safe Catch and fallback
+        redeemThreshold = parseInt(localStorage.getItem("redeem_threshold") || "500", 10);
+        exchangeRate = parseInt(localStorage.getItem("exchange_rate") || "100", 10);
+      }
+
+      // Step 2: Fetch Kids
       const { data: kData, error: kErr } = await supabaseClient.from("kids").select("*").order("id");
       if (kErr) throw new Error("Could not load kids. Check 'kids' table: " + kErr.message);
       kids = kData || [];
 
-      // Step 2: Fetch Chores
+      // Step 3: Fetch Chores
       const { data: cData, error: cErr } = await supabaseClient.from("chores").select("*").order("id");
       if (cErr) throw new Error("Could not load chores. Check 'chores' table: " + cErr.message);
       chores = cData || [];
 
-      // Step 3: Fetch Task Logs
+      // Step 4: Fetch Task Logs
       const { data: lData, error: lErr } = await supabaseClient.from("task_logs").select("*").order("id", { ascending: false });
       if (lErr) throw new Error("Could not load task logs. Check 'task_logs' table: " + lErr.message);
       logs = lData || [];
 
-      // Step 4: Fetch Redemptions
+      // Step 5: Fetch Redemptions
       const { data: rData, error: rErr } = await supabaseClient.from("redemptions").select("*").order("id", { ascending: false });
       if (rErr) throw new Error("Could not load redemptions. Check 'redemptions' table: " + rErr.message);
       redemptions = rData || [];
@@ -395,7 +417,7 @@
     else renderKid();
   }
 
-  // --- STREAK CALCULATION ENGINE (Updated: Requires at least 3 daily chores completed) ---
+  // --- STREAK CALCULATION ENGINE ---
   function getActiveStreak(kidId) {
     // Find the date of the most recent Streak Reset (whenever +5 Streak Milestone Bonus is banked)
     const streakBonusLogs = logs.filter(l => l.kid_id === kidId && l.notes && l.notes.includes("Streak Milestone Bonus"));
@@ -413,7 +435,7 @@
 
       const choreNamesLogged = l.notes.split(',').map(n => n.trim()).filter(Boolean);
       let dailyChoreCount = 0;
-      
+
       choreNamesLogged.forEach(name => {
         const match = chores.find(c => c.kid_id === kidId && c.name === name);
         // Check if this matches a daily chore
@@ -425,7 +447,7 @@
       // Strict Streak check: Kid must log at least 3 daily chores on that day
       if (dailyChoreCount >= 3) return true;
 
-      // Robust fallback count for renamed or modified chores (excluding bonuses & penalties)
+      // Robust fallback count for renamed or modified chores
       const nonPenaltyItems = choreNamesLogged.filter(name => {
         const isStreakBonus = name.includes("Streak Milestone Bonus") || name.includes("Streak Bonus");
         const match = chores.find(c => c.kid_id === kidId && c.name === name);
@@ -463,7 +485,7 @@
     // Track consecutive days backwards until broken or until we hit the reset log
     while (true) {
       const checkStr = checkDate.toISOString().split('T')[0];
-      
+
       // Stop counting if we reach the date of the last reset
       if (resetDateStr && checkStr <= resetDateStr) {
         break;
@@ -493,8 +515,8 @@
     }
   }
 
-  // --- CONFIGURATION SAVE CHANNELS ---
-  function saveThresholdSettings() {
+  // --- CONFIGURATION SAVE CHANNELS (Now fully synchronized with Database) ---
+  async function saveThresholdSettings() {
     const threshVal = document.getElementById("settingsThreshold").value;
     const rateVal = document.getElementById("settingsRate").value;
 
@@ -505,9 +527,30 @@
       return showAlert("⚠️ Please enter valid positive values for custom settings!", "error");
     }
 
+    // Update global variables instantly
+    redeemThreshold = parsedThresh;
+    exchangeRate = parsedRate;
+
+    // Cache locally as an active offline backup
     localStorage.setItem("redeem_threshold", parsedThresh);
     localStorage.setItem("exchange_rate", parsedRate);
-    showAlert("⚙️ Settings updated successfully!", "success");
+
+    // Synchronize globally with the Database
+    try {
+      const { error: err1 } = await supabaseClient.from("app_settings").upsert({ key: "redeem_threshold", value: String(parsedThresh) });
+      const { error: err2 } = await supabaseClient.from("app_settings").upsert({ key: "exchange_rate", value: String(parsedRate) });
+      
+      if (err1 || err2) {
+        console.warn("Database sync missed settings, using offline cache.", err1 || err2);
+        showAlert("⚙️ Settings saved locally (Run Supabase SQL script to sync across devices!)", "info");
+      } else {
+        showAlert("⚙️ Global settings saved and synchronized across all devices!", "success");
+      }
+    } catch (e) {
+      console.error(e);
+      showAlert("⚙️ Settings saved locally (Run Supabase SQL script to sync across devices!)", "info");
+    }
+
     render();
   }
 
@@ -518,10 +561,10 @@
     render();
   }
 
-  // --- SEPARATE CARD BUILDERS TO PREVENT NESTING STRING ERROR ---
+  // --- SEPARATE CARD BUILDERS ---
   function generatePendingCardsHtml(pendingRequests) {
     if (!pendingRequests || pendingRequests.length === 0) return '';
-    const exchangeRate = getExchangeRate();
+    const currentExchangeRate = getExchangeRate();
 
     return pendingRequests.map(r => {
       const kid = kids.find(k => k.id === r.kid_id);
@@ -546,7 +589,7 @@
 
       // Option A: Redemptions
       if (r.status === 'pending_redeem') {
-        const calculatedCash = (r.total_points / exchangeRate).toFixed(2);
+        const calculatedCash = (r.total_points / currentExchangeRate).toFixed(2);
         return `
           <div class="card" style="margin-bottom: 10px; background: white; border-left-color: var(--accent-gold); flex-direction: column; align-items: stretch; gap: 10px;">
             <div>
@@ -623,7 +666,7 @@
     }
 
     // Load pending
-    const { data: pending, error: pErr } = await supabaseClient
+    const { data: pending } = await supabaseClient
       .from("pending_requests")
       .select("*")
       .in("status", ["pending", "pending_redeem"]);
@@ -748,7 +791,7 @@
 
         <!-- WALLET & REDEMPTION SYSTEM SETTINGS -->
         <div class="score-banner" style="text-align: left; border-color: var(--accent-gold);">
-          <h3 style="margin-top:0; font-size:1.05rem; color: var(--accent-gold);">🎨 Reward & Exchange Rates</h3>
+          <h3 style="margin-top:0; font-size:1.05rem; color: var(--accent-gold);">🎨 Reward & Exchange Rates (Cross-Device Synced)</h3>
 
           <label style="font-size:0.8rem; font-weight:700; color:var(--text-muted); display:block; margin-bottom:4px;">Cash-out Points Threshold:</label>
           <input id="settingsThreshold" type="number" value="${currentThreshold}" style="margin-bottom:10px;" placeholder="e.g., 500">
@@ -842,7 +885,7 @@
     const color = kidColors[Math.max(0, kidIndex) % kidColors.length];
 
     // Financial metrics
-    const exchangeRate = getExchangeRate();
+    const currentExchangeRate = getExchangeRate();
     const pts = logs.filter(l => l.kid_id === kid.id).reduce((sum, l) => sum + l.points, 0);
     const totalRedeemed = redemptions.filter(r => r.kid_id === kid.id).reduce((sum, r) => sum + r.points_spent, 0);
     const totalCashOut = redemptions.filter(r => r.kid_id === kid.id).reduce((sum, r) => sum + r.amount, 0);
@@ -1077,8 +1120,8 @@
 
     // Dynamic settings
     const redeemThreshold = getRedeemThreshold();
-    const exchangeRate = getExchangeRate();
-    const calculatedCashValue = (redeemThreshold / exchangeRate).toFixed(2);
+    const currentExchangeRate = getExchangeRate();
+    const calculatedCashValue = (redeemThreshold / currentExchangeRate).toFixed(2);
 
     let html = `
       <div class="score-banner" style="background:#f8fafc; border-color:var(--border);">
@@ -1233,8 +1276,8 @@
 
   async function requestRedeem(kidId) {
     const redeemThreshold = getRedeemThreshold();
-    const exchangeRate = getExchangeRate();
-    const calculatedCashValue = (redeemThreshold / exchangeRate).toFixed(2);
+    const currentExchangeRate = getExchangeRate();
+    const calculatedCashValue = (redeemThreshold / currentExchangeRate).toFixed(2);
 
     if(!confirm(`Are you sure you want to request $${calculatedCashValue} for ${redeemThreshold} points?`)) return;
     const today = getLocalTodayISO();
@@ -1345,8 +1388,8 @@
   }
 
   async function approveRedeem(rid, kidId, pts, originalDate) {
-    const exchangeRate = getExchangeRate();
-    const amount = pts / exchangeRate;
+    const currentExchangeRate = getExchangeRate();
+    const amount = pts / currentExchangeRate;
 
     await supabaseClient.from("redemptions").insert({ 
       kid_id: kidId, 
