@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+
+
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -9,9 +11,15 @@
   <meta http-equiv="Expires" content="0" />
   <title>Kidfinity Chore Tracker</title>
 
+
   <!-- External Libraries -->
+
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
 
   <style>
     :root {
@@ -260,6 +268,8 @@
     input:checked + .slider.penalty { background-color: var(--accent-red); }
     input:checked + .slider:before { transform: translateX(22px); }
   </style>
+
+
 </head>
 <body>
 <div id="app-container">
@@ -270,6 +280,7 @@
   <div id="alert-box"></div>
   <div id="content">Loading database...</div>
 </div>
+
 
 <script>
   // --- DATABASE SETUP ---
@@ -698,7 +709,7 @@
           <p style="color:var(--text-muted); margin-bottom:20px;">Enter PIN to access parent settings.</p>
           <div style="max-width:280px; margin:0 auto; display:flex; flex-direction:column; gap:12px;">
             <input type="password" id="pinInput" placeholder="Enter PIN" style="text-align:center; font-size:1.2rem; letter-spacing:4px;" onkeyup="if(event.key==='Enter') checkPin()">
-            
+
             <label style="display:flex; align-items:center; justify-content:center; gap:8px; font-size:0.85rem; color:var(--text-muted); cursor:pointer; margin-bottom:10px;">
               <input type="checkbox" id="rememberMe" style="width:auto; margin:0;"> Remember me on this device
             </label>
@@ -723,7 +734,7 @@
       `;
     }
 
-    let kidsSetupOptionsHtml = kids.map(k => `<option value="${k.id}">${k.name}</option>\`).join("");
+    let kidsSetupOptionsHtml = kids.map(k => `<option value="${k.id}">${k.name}</option>`).join("");
     let kidsManageTabsHtml = kids.map(k => `
       <button class="${parentManageTab === k.id ? 'active' : ''}" onclick="setParentManageTab(${k.id})">${k.name}</button>
     `).join('');
@@ -883,685 +894,716 @@
 
           <label style="font-size:0.85rem; font-weight:700; color:var(--text-muted); display:block; margin-top:6px;">Format: <i>Emoji Name, Points</i> (One per line)</label>
           <textarea id="choreList" rows="4" placeholder="🚴 Exercise/Cycling, 10&#10;🧹 Clean Bathroom, 10&#10;🚫 Talking Back, -10"></textarea>
-          <button class="btn btn-primary" style="margin-top:5px; width:100%;" onclick="addBulkChores()">Save All Actions</button>
-        </div>
 
-        <!-- MANUAL ADJUSTMENT -->
-        <div class="score-banner" style="text-align: left;">
-          <h3 style="margin-top:0; font-size:1.05rem;">Manual Adjustment</h3>
-          <select id="adjustKid">
-            ${kidsSetupOptionsHtml}
-          </select>
-          <input id="adjustPoints" type="number" placeholder="Points (e.g. 20 or -15)">
-          <textarea id="adjustNote" rows="2" placeholder="Reason / Note (Required)..."></textarea>
-          <button class="btn" style="background:var(--accent-gold); color:white; margin-top:5px; width:100%;" onclick="adjustPoints()">Apply Adjustment</button>
-        </div>
 
-        <!-- ACTION MANAGEMENT -->
-        <div>
-          <h3 style="font-size:1.1rem; margin-bottom:12px;">Manage Existing Actions</h3>
-          <div class="kid-subtabs">
-            ${kidsManageTabsHtml}
-          </div>
-          ${choreManagerCardsHtml}
-        </div>
-      </div>
-    `;
+      <button class="btn btn-primary" style="margin-top:5px; width:100%;" onclick="addBulkChores()">Save All Actions</button>
+    </div>
 
-    document.getElementById("content").innerHTML = html;
-  }
+    <!-- MANUAL ADJUSTMENT -->
+    <div class="score-banner" style="text-align: left;">
+      <h3 style="margin-top:0; font-size:1.05rem;">Manual Adjustment</h3>
+      <select id="adjustKid">
+        ${kidsSetupOptionsHtml}
+      </select>
+      <input id="adjustPoints" type="number" placeholder="Points (e.g. 20 or -15)">
+      <textarea id="adjustNote" rows="2" placeholder="Reason / Note (Required)..."></textarea>
+      <button class="btn" style="background:var(--accent-gold); color:white; margin-top:5px; width:100%;" onclick="adjustPoints()">Apply Adjustment</button>
+    </div>
 
-  // --- KID VIEW RENDERS ---
-  function updateTaskDate(val) { selectedTaskDate = val; }
-  function setParentManageTab(id) { parentManageTab = id; editingChoreId = null; render(); }
-  function setKidView(mode) { kidViewMode = mode; render(); }
-  function toggleLevelGuide() { showLevelGuide = !showLevelGuide; render(); }
-
-  function renderKid() {
-    const kid = kids.find(k => k.id === selectedKidId);
-    if (!kid) return;
-    const kidIndex = kids.findIndex(k => k.id === kid.id);
-    const color = kidColors[Math.max(0, kidIndex) % kidColors.length];
-
-    // Financial metrics
-    const currentExchangeRate = getExchangeRate();
-    const pts = logs.filter(l => l.kid_id === kid.id).reduce((sum, l) => sum + l.points, 0);
-    const totalRedeemed = redemptions.filter(r => r.kid_id === kid.id).reduce((sum, r) => sum + r.points_spent, 0);
-    const totalCashOut = redemptions.filter(r => r.kid_id === kid.id).reduce((sum, r) => sum + r.amount, 0);
-    const available = pts - totalRedeemed;
-
-    // Active Streak metrics
-    const currentStreak = getActiveStreak(kid.id);
-
-    // Level System (XP)
-    const ptsPerLevel = 150;
-    const currentLevel = Math.max(1, Math.floor(pts / ptsPerLevel) + 1);
-    const remainderXP = pts % ptsPerLevel;
-    const xpPercent = Math.min(100, Math.round((remainderXP / ptsPerLevel) * 100));
-
-    const pend = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
-
-    // Filter segregated tasks
-    const dailyChores = chores.filter(c => c.kid_id == kid.id && c.points >= 0 && (c.frequency === 'daily' || !c.frequency));
-    const weeklyChores = chores.filter(c => c.kid_id == kid.id && c.points >= 0 && c.frequency === 'weekly');
-    const penalties = chores.filter(c => c.kid_id == kid.id && c.points < 0);
-
-    let levelGuideHtml = '';
-    if (showLevelGuide) {
-      levelGuideHtml = `
-        <div class="level-guide-accordion">
-          <div style="font-weight:800; margin-bottom:8px; color:var(--accent-blue); text-align:center;">🏆 KIDFINITY LEVEL DIRECTORY</div>
-          <div class="level-row"><span>Level 1: Chores Cadet</span> <span>0 - 149 XP</span></div>
-          <div class="level-row"><span>Level 2: Task Tracker</span> <span>150 - 299 XP</span></div>
-          <div class="level-row"><span>Level 3: Chore Champion</span> <span>300 - 449 XP</span></div>
-          <div class="level-row"><span>Level 4: Responsibility Ranger</span> <span>450 - 599 XP</span></div>
-          <div class="level-row" style="border:none; font-weight:bold; color:var(--accent-gold);"><span>Level 5+: Kidfinity Legend</span> <span>600+ XP</span></div>
-        </div>
-      `;
-    }
-
-    let html = `
-      <div class="score-banner" style="border-color: ${color}; background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);">
-        <div style="display:flex; justify-content:center; align-items:center; gap:10px; margin-bottom:4px;">
-          <span style="font-size:2rem;">${kid.avatar || '🌟'}</span>
-          <h2 style="margin:0; color: ${color}; font-size:1.6rem; font-weight:800;">${kid.name}</h2>
-        </div>
-
-        <div style="display:flex; align-items:center; justify-content:center; gap:8px; font-weight:700; color:var(--text-muted); font-size:0.9rem;">
-          <span>Level ${currentLevel} Hero</span>
-          <button onclick="toggleLevelGuide()" style="background:none; border:none; color:var(--accent-blue); font-weight:bold; cursor:pointer; font-size:0.85rem; padding:0; text-decoration:underline;">❓ Level Guide</button>
-        </div>
-
-        ${levelGuideHtml}
-
-        <div class="xp-bar-container">
-          <div class="xp-bar-fill" style="width: ${xpPercent}%;"></div>
-        </div>
-        <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-top:4px;">
-          <span>${remainderXP} XP</span>
-          <span>${ptsPerLevel - remainderXP} XP TO LEVEL UP!</span>
-        </div>
-
-        <!-- ACTIVE STREAK METER -->
-        <div class="streak-container">
-          <div class="streak-badge">
-            🔥 ${currentStreak}-Day Streak
-          </div>
-          <div style="display:flex; gap:3px; margin-left:10px;">
-            <span class="streak-dot ${currentStreak >= 1 ? 'active' : ''}">🔥</span>
-            <span class="streak-dot ${currentStreak >= 2 ? 'active' : ''}">🔥</span>
-            <span class="streak-dot ${currentStreak >= 3 ? 'active' : ''}">🔥</span>
-            <span class="streak-dot ${currentStreak >= 4 ? 'active' : ''}">🔥</span>
-            <span class="streak-dot ${currentStreak >= 5 ? 'active' : ''}">⭐</span>
-          </div>
-        </div>
-
-        <div class="stats-row">
-          <div class="stat-box">
-            <div class="stat-value" style="color: var(--accent-green)">💰 ${available}</div>
-            <div class="stat-label">Available</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-value" style="color: ${color}">🏆 ${pts}</div>
-            <div class="stat-label">Total Earned</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-value" style="color: var(--accent-blue)">💵 $${totalCashOut.toFixed(2)}</div>
-            <div class="stat-label">Cash Out</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- THREE SEGREGATED SUBTABS FOR DYNAMIC FILTERING -->
+    <!-- ACTION MANAGEMENT -->
+    <div>
+      <h3 style="font-size:1.1rem; margin-bottom:12px;">Manage Existing Actions</h3>
       <div class="kid-subtabs">
-        <button class="${kidViewMode === 'daily' ? 'active' : ''}" onclick="setKidView('daily')">☀️ Daily Chores</button>
-        <button class="${kidViewMode === 'weekly' ? 'active' : ''}" onclick="setKidView('weekly')">📅 Weekly Chores</button>
-        <button class="${kidViewMode === 'history' ? 'active' : ''}" onclick="setKidView('history')">📜 History & Rewards</button>
+        ${kidsManageTabsHtml}
+      </div>
+      ${choreManagerCardsHtml}
+    </div>
+  </div>
+`;
+
+document.getElementById("content").innerHTML = html;
+
+
+}
+
+// --- KID VIEW RENDERS ---
+function updateTaskDate(val) { selectedTaskDate = val; }
+function setParentManageTab(id) { parentManageTab = id; editingChoreId = null; render(); }
+function setKidView(mode) { kidViewMode = mode; render(); }
+function toggleLevelGuide() { showLevelGuide = !showLevelGuide; render(); }
+
+function renderKid() {
+const kid = kids.find(k => k.id === selectedKidId);
+if (!kid) return;
+const kidIndex = kids.findIndex(k => k.id === kid.id);
+const color = kidColors[Math.max(0, kidIndex) % kidColors.length];
+
+// Financial metrics
+const currentExchangeRate = getExchangeRate();
+const pts = logs.filter(l => l.kid_id === kid.id).reduce((sum, l) => sum + l.points, 0);
+const totalRedeemed = redemptions.filter(r => r.kid_id === kid.id).reduce((sum, r) => sum + r.points_spent, 0);
+const totalCashOut = redemptions.filter(r => r.kid_id === kid.id).reduce((sum, r) => sum + r.amount, 0);
+const available = pts - totalRedeemed;
+
+// Active Streak metrics
+const currentStreak = getActiveStreak(kid.id);
+
+// Level System (XP)
+const ptsPerLevel = 150;
+const currentLevel = Math.max(1, Math.floor(pts / ptsPerLevel) + 1);
+const remainderXP = pts % ptsPerLevel;
+const xpPercent = Math.min(100, Math.round((remainderXP / ptsPerLevel) * 100));
+
+const pend = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
+
+// Filter segregated tasks
+const dailyChores = chores.filter(c => c.kid_id == kid.id && c.points >= 0 && (c.frequency === 'daily' || !c.frequency));
+const weeklyChores = chores.filter(c => c.kid_id == kid.id && c.points >= 0 && c.frequency === 'weekly');
+const penalties = chores.filter(c => c.kid_id == kid.id && c.points < 0);
+
+let levelGuideHtml = '';
+if (showLevelGuide) {
+  levelGuideHtml = `
+    <div class="level-guide-accordion">
+      <div style="font-weight:800; margin-bottom:8px; color:var(--accent-blue); text-align:center;">🏆 KIDFINITY LEVEL DIRECTORY</div>
+      <div class="level-row"><span>Level 1: Chores Cadet</span> <span>0 - 149 XP</span></div>
+      <div class="level-row"><span>Level 2: Task Tracker</span> <span>150 - 299 XP</span></div>
+      <div class="level-row"><span>Level 3: Chore Champion</span> <span>300 - 449 XP</span></div>
+      <div class="level-row"><span>Level 4: Responsibility Ranger</span> <span>450 - 599 XP</span></div>
+      <div class="level-row" style="border:none; font-weight:bold; color:var(--accent-gold);"><span>Level 5+: Kidfinity Legend</span> <span>600+ XP</span></div>
+    </div>
+  `;
+}
+
+let html = `
+  <div class="score-banner" style="border-color: ${color}; background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);">
+    <div style="display:flex; justify-content:center; align-items:center; gap:10px; margin-bottom:4px;">
+      <span style="font-size:2rem;">${kid.avatar || '🌟'}</span>
+      <h2 style="margin:0; color: ${color}; font-size:1.6rem; font-weight:800;">${kid.name}</h2>
+    </div>
+
+    <div style="display:flex; align-items:center; justify-content:center; gap:8px; font-weight:700; color:var(--text-muted); font-size:0.9rem;">
+      <span>Level ${currentLevel} Hero</span>
+      <button onclick="toggleLevelGuide()" style="background:none; border:none; color:var(--accent-blue); font-weight:bold; cursor:pointer; font-size:0.85rem; padding:0; text-decoration:underline;">❓ Level Guide</button>
+    </div>
+
+    ${levelGuideHtml}
+
+    <div class="xp-bar-container">
+      <div class="xp-bar-fill" style="width: ${xpPercent}%;"></div>
+    </div>
+    <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted); font-weight:700; margin-top:4px;">
+      <span>${remainderXP} XP</span>
+      <span>${ptsPerLevel - remainderXP} XP TO LEVEL UP!</span>
+    </div>
+
+    <!-- ACTIVE STREAK METER -->
+    <div class="streak-container">
+      <div class="streak-badge">
+        🔥 ${currentStreak}-Day Streak
+      </div>
+      <div style="display:flex; gap:3px; margin-left:10px;">
+        <span class="streak-dot ${currentStreak >= 1 ? 'active' : ''}">🔥</span>
+        <span class="streak-dot ${currentStreak >= 2 ? 'active' : ''}">🔥</span>
+        <span class="streak-dot ${currentStreak >= 3 ? 'active' : ''}">🔥</span>
+        <span class="streak-dot ${currentStreak >= 4 ? 'active' : ''}">🔥</span>
+        <span class="streak-dot ${currentStreak >= 5 ? 'active' : ''}">⭐</span>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-value" style="color: var(--accent-green)">💰 ${available}</div>
+        <div class="stat-label">Available</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" style="color: ${color}">🏆 ${pts}</div>
+        <div class="stat-label">Total Earned</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" style="color: var(--accent-blue)">💵 $${totalCashOut.toFixed(2)}</div>
+        <div class="stat-label">Cash Out</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- THREE SEGREGATED SUBTABS FOR DYNAMIC FILTERING -->
+  <div class="kid-subtabs">
+    <button class="${kidViewMode === 'daily' ? 'active' : ''}" onclick="setKidView('daily')">☀️ Daily Chores</button>
+    <button class="${kidViewMode === 'weekly' ? 'active' : ''}" onclick="setKidView('weekly')">📅 Weekly Chores</button>
+    <button class="${kidViewMode === 'history' ? 'active' : ''}" onclick="setKidView('history')">📜 History & Rewards</button>
+  </div>
+`;
+
+// DAILY CHORES TAB
+if (kidViewMode === 'daily') {
+  html += `
+    <div style="display:flex; gap:10px; margin-top:15px; margin-bottom:15px; align-items:center;">
+      <input type="date" id="taskDate" value="${selectedTaskDate}" onchange="updateTaskDate(this.value)" style="flex:2; margin:0; padding:10px 12px; font-weight:600;">
+      <button class="btn btn-danger" style="flex:1; padding:11px;" onclick="resetToggles()">🔄 Reset</button>
+      <button class="btn btn-primary" style="flex:1.5; padding:11px; background:#10b981;" onclick="send()">🚀 Send (${pend.length})</button>
+    </div>
+  `;
+
+  // STREAK BONUS ALERT
+  const checkedDailyChoreCount = pend.map(id => chores.find(item => item.id == id)).filter(c => c && c.points >= 0 && (c.frequency === 'daily' || !c.frequency)).length;
+  if (currentStreak === 4 && checkedDailyChoreCount >= 3) {
+    html += `
+      <div style="background:#ecfdf5; border:1px solid #a7f3d0; color:#065f46; font-weight:700; padding:12px; border-radius:12px; font-size:0.875rem; text-align:center; margin-bottom:15px;">
+        🎉 Awesome! Submit today's 3 chores to claim your <strong>+5 Points Streak Bonus</strong>! (Streak will reset to 0 afterward)
       </div>
     `;
-
-    // DAILY CHORES TAB
-    if (kidViewMode === 'daily') {
-      html += `
-        <div style="display:flex; gap:10px; margin-top:15px; margin-bottom:15px; align-items:center;">
-          <input type="date" id="taskDate" value="${selectedTaskDate}" onchange="updateTaskDate(this.value)" style="flex:2; margin:0; padding:10px 12px; font-weight:600;">
-          <button class="btn btn-danger" style="flex:1; padding:11px;" onclick="resetToggles()">🔄 Reset</button>
-          <button class="btn btn-primary" style="flex:1.5; padding:11px; background:#10b981;" onclick="send()">🚀 Send (${pend.length})</button>
-        </div>
-      `;
-
-      // STREAK BONUS ALERT
-      const checkedDailyChoreCount = pend.map(id => chores.find(item => item.id == id)).filter(c => c && c.points >= 0 && (c.frequency === 'daily' || !c.frequency)).length;
-      if (currentStreak === 4 && checkedDailyChoreCount >= 3) {
-        html += `
-          <div style="background:#ecfdf5; border:1px solid #a7f3d0; color:#065f46; font-weight:700; padding:12px; border-radius:12px; font-size:0.875rem; text-align:center; margin-bottom:15px;">
-            🎉 Awesome! Submit today's 3 chores to claim your <strong>+5 Points Streak Bonus</strong>! (Streak will reset to 0 afterward)
-          </div>
-        `;
-      } else if (currentStreak === 4) {
-        html += `
-          <div style="background:#ecfdf5; border:1px solid #a7f3d0; color:#065f46; font-weight:700; padding:10px; border-radius:12px; font-size:0.85rem; text-align:center; margin-bottom:15px;">
-            🔥 Log at least 3 daily chores today to claim your 5-Day Streak and unlock your <strong>+5 points bonus</strong>!
-          </div>
-        `;
-      }
-
-      html += `<div class="section-title">☀️ DAILY CHORES</div>`;
-      if(dailyChores.length === 0) {
-        html += `<p style="font-size:0.9rem; color:#666; text-align:center; padding:10px;">No daily chores assigned yet.</p>`;
-      } else {
-        html += dailyChores.map(c => `
-          <div class="card">
-            <div class="chore-info">
-              <span>${c.name}</span>
-              <span class="pts-badge">+${c.points} pts</span>
-            </div>
-            <label class="switch">
-              <input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="toggle(${c.id})">
-              <span class="slider"></span>
-            </label>
-          </div>
-        `).join('');
-      }
-
-      // PENALTIES SECTIONS AT THE BOTTOM OF THE DAILY BOARD
-      if (penalties.length > 0) {
-        html += `<div class="section-title" style="color:var(--accent-red);">⚠️ PENALTIES & BEHAVIOR</div>`;
-        html += penalties.map(c => `
-          <div class="card penalty-card">
-            <div class="chore-info">
-              <span>${c.name}</span>
-              <span class="pts-badge penalty">${c.points} pts</span>
-            </div>
-            <label class="switch">
-              <input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="toggle(${c.id})">
-              <span class="slider penalty"></span>
-            </label>
-          </div>
-        `).join('');
-      }
-
-      // STREAK EXPLANATORY NOTE UNDER DAILY CHORES
-      html += `
-        <div style="margin-top: 25px; padding: 12px 16px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 14px; font-size: 0.825rem; color: #1e3a8a; font-weight: 600; text-align: center; display: flex; flex-direction: column; gap: 4px;">
-          <div>🔥 STREAK MILESTONE BONUS RULE</div>
-          <div style="font-weight: 500; font-size: 0.775rem; color: #1e40af; line-height: 1.4;">
-            Complete and send at least <strong>3 daily chores</strong> today to grow your streak! Once you achieve a <strong>5-day active streak</strong>, you'll earn an extra <strong>+5 points bonus</strong>, and your streak resets back to 0!
-          </div>
-        </div>
-      `;
-
-    // WEEKLY CHORES TAB
-    } else if (kidViewMode === 'weekly') {
-      html += `
-        <div style="display:flex; gap:10px; margin-top:15px; margin-bottom:15px; align-items:center;">
-          <input type="date" id="taskDate" value="${selectedTaskDate}" onchange="updateTaskDate(this.value)" style="flex:2; margin:0; padding:10px 12px; font-weight:600;">
-          <button class="btn btn-danger" style="flex:1; padding:11px;" onclick="resetToggles()">🔄 Reset</button>
-          <button class="btn btn-primary" style="flex:1.5; padding:11px; background:#3b82f6;" onclick="send()">🚀 Send (${pend.length})</button>
-        </div>
-      `;
-
-      html += `<div class="section-title">📅 WEEKLY CHORES</div>`;
-      if(weeklyChores.length === 0) {
-        html += `<p style="font-size:0.9rem; color:#666; text-align:center; padding:10px;">No weekly chores assigned yet.</p>`;
-      } else {
-        html += weeklyChores.map(c => `
-          <div class="card" style="border-left-color: var(--accent-blue);">
-            <div class="chore-info">
-              <span>${c.name}</span>
-              <span class="pts-badge" style="color:var(--accent-blue); border-color:#bfdbfe; background:#eff6ff;">+${c.points} pts</span>
-            </div>
-            <label class="switch">
-              <input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="toggle(${c.id})">
-              <span class="slider" style="background-color:#cbd5e1;"></span>
-            </label>
-          </div>
-        `).join('');
-      }
-
-    // HISTORY AND REDEMPTIONS TAB
-    } else {
-      html += renderKidHistory(kid.id);
-    }
-
-    document.getElementById("content").innerHTML = html;
-  }
-
-  // --- SEPARATE BUILDER FOR LEDGER CARD LISTS ---
-  function generateActivityHistoryHtml(activityList) {
-    if (!activityList || activityList.length === 0) {
-      return `<p style="font-size:0.85rem; color:var(--text-muted); text-align:center; padding:12px;">No activity logged over the past 7 days.</p>`;
-    }
-
-    return activityList.map(item => {
-      const ptsClass = item.points >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
-      const ptsSign = item.points >= 0 ? `+${item.points}` : `${item.points}`;
-
-      return `
-        <div class="card" style="border-left-color: ${ptsClass};">
-          <div>
-            <strong style="font-size:0.95rem;">${item.title}</strong><br>
-            <small style="color:var(--text-muted);">${item.displayDate}</small>
-          </div>
-          <strong style="color:${ptsClass}; font-size:1rem;">${ptsSign} pts</strong>
-        </div>
-      `;
-    }).join('');
-  }
-
-  // --- 1-WEEK HISTORY & REWARDS VIEW ---
-  function renderKidHistory(kidId) {
-    const kidLogs = logs.filter(l => l.kid_id === kidId);
-    const kidReds = redemptions.filter(r => r.kid_id === kidId);
-    const totalEarned = kidLogs.reduce((sum, l) => sum + l.points, 0);
-    const totalSpent = kidReds.reduce((sum, r) => sum + r.points_spent, 0);
-    const available = totalEarned - totalSpent;
-
-    // Dynamic settings
-    const redeemThreshold = getRedeemThreshold();
-    const currentExchangeRate = getExchangeRate();
-    const calculatedCashValue = (redeemThreshold / currentExchangeRate).toFixed(2);
-
-    let html = `
-      <div class="score-banner" style="background:#f8fafc; border-color:var(--border);">
-        <h3 style="margin:0 0 5px 0; color:var(--text); font-weight:700;">Available Balance</h3>
-        <div style="font-size:2.2rem; font-weight:800; color:var(--accent-blue);">${available} pts</div>
-        <p style="font-size:0.85rem; color:var(--text-muted); margin:6px 0 0 0; font-weight:600;">
-          Total Earned: ${totalEarned} | Redeemed: ${totalSpent}
-        </p>
+  } else if (currentStreak === 4) {
+    html += `
+      <div style="background:#ecfdf5; border:1px solid #a7f3d0; color:#065f46; font-weight:700; padding:10px; border-radius:12px; font-size:0.85rem; text-align:center; margin-bottom:15px;">
+        🔥 Log at least 3 daily chores today to claim your 5-Day Streak and unlock your <strong>+5 points bonus</strong>!
       </div>
     `;
+  }
 
-    html += `<div style="text-align: center; margin: 20px 0;">`;
-    if (available >= redeemThreshold) {
-      html += `
-        <button class="btn btn-primary" style="background: var(--accent-gold); color: white; padding: 14px 20px; font-size: 1.05rem; width:100%; box-shadow:0 4px 10px rgba(245, 158, 11, 0.25);" onclick="requestRedeem(${kidId})">
-          🎁 Request $${calculatedCashValue} Apple Cash (${redeemThreshold} pts)
-        </button>
-      `;
-    } else {
-      const needed = redeemThreshold - available;
-      const progressPercent = Math.min(100, Math.round((available / redeemThreshold) * 100));
-
-      html += `
-        <div style="background:#fffbeb; padding:14px; border-radius:12px; border:1px solid #fef3c7; color:#b45309; font-weight:700; font-size:0.9rem;">
-          <div style="margin-bottom:8px;">Earn ${needed} more points to redeem $${calculatedCashValue} Apple Cash!</div>
-          <div style="background:#fef3c7; border-radius:10px; height:8px; overflow:hidden; width:100%;">
-            <div style="background:var(--accent-gold); width:${progressPercent}%; height:100%;"></div>
-          </div>
+  html += `<div class="section-title">☀️ DAILY CHORES</div>`;
+  if(dailyChores.length === 0) {
+    html += `<p style="font-size:0.9rem; color:#666; text-align:center; padding:10px;">No daily chores assigned yet.</p>`;
+  } else {
+    html += dailyChores.map(c => `
+      <div class="card">
+        <div class="chore-info">
+          <span>${c.name}</span>
+          <span class="pts-badge">+${c.points} pts</span>
         </div>
-      `;
-    }
-    html += `</div>`;
+        <label class="switch">
+          <input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="toggle(${c.id})">
+          <span class="slider"></span>
+        </label>
+      </div>
+    `).join('');
+  }
 
-    // Filter events for the last 7 days
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    sevenDaysAgo.setHours(0, 0, 0, 0);
-    const activityList = [];
+  // PENALTIES SECTIONS AT THE BOTTOM OF THE DAILY BOARD
+  if (penalties.length > 0) {
+    html += `<div class="section-title" style="color:var(--accent-red);">⚠️ PENALTIES & BEHAVIOR</div>`;
+    html += penalties.map(c => `
+      <div class="card penalty-card">
+        <div class="chore-info">
+          <span>${c.name}</span>
+          <span class="pts-badge penalty">${c.points} pts</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="toggle(${c.id})">
+          <span class="slider penalty"></span>
+        </label>
+      </div>
+    `).join('');
+  }
 
-    kidLogs.forEach(l => {
-      const itemDate = l.created_at ? new Date(l.created_at) : parseLocalDate(l.log_date);
-      if (itemDate >= sevenDaysAgo) {
-        activityList.push({
-          id: l.id,
-          type: 'log',
-          title: l.notes || (l.points >= 0 ? 'Completed Chores' : 'Manual Point Deduction'),
-          points: l.points,
-          displayDate: formatDate(l.log_date || l.created_at),
-          timestamp: itemDate.getTime()
-        });
-      }
+  // STREAK EXPLANATORY NOTE UNDER DAILY CHORES
+  html += `
+    <div style="margin-top: 25px; padding: 12px 16px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 14px; font-size: 0.825rem; color: #1e3a8a; font-weight: 600; text-align: center; display: flex; flex-direction: column; gap: 4px;">
+      <div>🔥 STREAK MILESTONE BONUS RULE</div>
+      <div style="font-weight: 500; font-size: 0.775rem; color: #1e40af; line-height: 1.4;">
+        Complete and send at least <strong>3 daily chores</strong> today to grow your streak! Once you achieve a <strong>5-day active streak</strong>, you'll earn an extra <strong>+5 points bonus</strong>, and your streak resets back to 0!
+      </div>
+    </div>
+  `;
+
+// WEEKLY CHORES TAB
+} else if (kidViewMode === 'weekly') {
+  html += `
+    <div style="display:flex; gap:10px; margin-top:15px; margin-bottom:15px; align-items:center;">
+      <input type="date" id="taskDate" value="${selectedTaskDate}" onchange="updateTaskDate(this.value)" style="flex:2; margin:0; padding:10px 12px; font-weight:600;">
+      <button class="btn btn-danger" style="flex:1; padding:11px;" onclick="resetToggles()">🔄 Reset</button>
+      <button class="btn btn-primary" style="flex:1.5; padding:11px; background:#3b82f6;" onclick="send()">🚀 Send (${pend.length})</button>
+    </div>
+  `;
+
+  html += `<div class="section-title">📅 WEEKLY CHORES</div>`;
+  if(weeklyChores.length === 0) {
+    html += `<p style="font-size:0.9rem; color:#666; text-align:center; padding:10px;">No weekly chores assigned yet.</p>`;
+  } else {
+    html += weeklyChores.map(c => `
+      <div class="card" style="border-left-color: var(--accent-blue);">
+        <div class="chore-info">
+          <span>${c.name}</span>
+          <span class="pts-badge" style="color:var(--accent-blue); border-color:#bfdbfe; background:#eff6ff;">+${c.points} pts</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" ${pend.includes(c.id)?'checked':''} onchange="toggle(${c.id})">
+          <span class="slider" style="background-color:#cbd5e1;"></span>
+        </label>
+      </div>
+    `).join('');
+  }
+
+// HISTORY AND REDEMPTIONS TAB
+} else {
+  html += renderKidHistory(kid.id);
+}
+
+document.getElementById("content").innerHTML = html;
+
+
+}
+
+// --- SEPARATE BUILDER FOR LEDGER CARD LISTS ---
+function generateActivityHistoryHtml(activityList) {
+if (!activityList || activityList.length === 0) {
+return <p style="font-size:0.85rem; color:var(--text-muted); text-align:center; padding:12px;">No activity logged over the past 7 days.</p>;
+}
+
+return activityList.map(item => {
+  const ptsClass = item.points >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+  const ptsSign = item.points >= 0 ? `+${item.points}` : `${item.points}`;
+
+  return `
+    <div class="card" style="border-left-color: ${ptsClass};">
+      <div>
+        <strong style="font-size:0.95rem;">${item.title}</strong><br>
+        <small style="color:var(--text-muted);">${item.displayDate}</small>
+      </div>
+      <strong style="color:${ptsClass}; font-size:1rem;">${ptsSign} pts</strong>
+    </div>
+  `;
+}).join('');
+
+
+}
+
+// --- 1-WEEK HISTORY & REWARDS VIEW ---
+function renderKidHistory(kidId) {
+const kidLogs = logs.filter(l => l.kid_id === kidId);
+const kidReds = redemptions.filter(r => r.kid_id === kidId);
+const totalEarned = kidLogs.reduce((sum, l) => sum + l.points, 0);
+const totalSpent = kidReds.reduce((sum, r) => sum + r.points_spent, 0);
+const available = totalEarned - totalSpent;
+
+// Dynamic settings
+const redeemThreshold = getRedeemThreshold();
+const currentExchangeRate = getExchangeRate();
+const calculatedCashValue = (redeemThreshold / currentExchangeRate).toFixed(2);
+
+let html = `
+  <div class="score-banner" style="background:#f8fafc; border-color:var(--border);">
+    <h3 style="margin:0 0 5px 0; color:var(--text); font-weight:700;">Available Balance</h3>
+    <div style="font-size:2.2rem; font-weight:800; color:var(--accent-blue);">${available} pts</div>
+    <p style="font-size:0.85rem; color:var(--text-muted); margin:6px 0 0 0; font-weight:600;">
+      Total Earned: ${totalEarned} | Redeemed: ${totalSpent}
+    </p>
+  </div>
+`;
+
+html += `<div style="text-align: center; margin: 20px 0;">`;
+if (available >= redeemThreshold) {
+  html += `
+    <button class="btn btn-primary" style="background: var(--accent-gold); color: white; padding: 14px 20px; font-size: 1.05rem; width:100%; box-shadow:0 4px 10px rgba(245, 158, 11, 0.25);" onclick="requestRedeem(${kidId})">
+      🎁 Request $${calculatedCashValue} Apple Cash (${redeemThreshold} pts)
+    </button>
+  `;
+} else {
+  const needed = redeemThreshold - available;
+  const progressPercent = Math.min(100, Math.round((available / redeemThreshold) * 100));
+
+  html += `
+    <div style="background:#fffbeb; padding:14px; border-radius:12px; border:1px solid #fef3c7; color:#b45309; font-weight:700; font-size:0.9rem;">
+      <div style="margin-bottom:8px;">Earn ${needed} more points to redeem $${calculatedCashValue} Apple Cash!</div>
+      <div style="background:#fef3c7; border-radius:10px; height:8px; overflow:hidden; width:100%;">
+        <div style="background:var(--accent-gold); width:${progressPercent}%; height:100%;"></div>
+      </div>
+    </div>
+  `;
+}
+html += `</div>`;
+
+// Filter events for the last 7 days
+const sevenDaysAgo = new Date();
+sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+sevenDaysAgo.setHours(0, 0, 0, 0);
+const activityList = [];
+
+kidLogs.forEach(l => {
+  const itemDate = l.created_at ? new Date(l.created_at) : parseLocalDate(l.log_date);
+  if (itemDate >= sevenDaysAgo) {
+    activityList.push({
+      id: l.id,
+      type: 'log',
+      title: l.notes || (l.points >= 0 ? 'Completed Chores' : 'Manual Point Deduction'),
+      points: l.points,
+      displayDate: formatDate(l.log_date || l.created_at),
+      timestamp: itemDate.getTime()
     });
+  }
+});
 
-    kidReds.forEach(r => {
-      const itemDate = r.created_at ? new Date(r.created_at) : parseLocalDate(r.redeem_date);
-      if (itemDate >= sevenDaysAgo) {
-        activityList.push({
-          id: r.id,
-          type: 'redemption',
-          title: `$${r.amount.toFixed(2)} Apple Cash Redemption`,
-          points: -r.points_spent,
-          displayDate: formatDate(r.redeem_date || r.created_at),
-          timestamp: itemDate.getTime()
-        });
-      }
+kidReds.forEach(r => {
+  const itemDate = r.created_at ? new Date(r.created_at) : parseLocalDate(r.redeem_date);
+  if (itemDate >= sevenDaysAgo) {
+    activityList.push({
+      id: r.id,
+      type: 'redemption',
+      title: `$${r.amount.toFixed(2)} Apple Cash Redemption`,
+      points: -r.points_spent,
+      displayDate: formatDate(r.redeem_date || r.created_at),
+      timestamp: itemDate.getTime()
     });
-
-    // Sort newest first
-    activityList.sort((a, b) => b.timestamp - a.timestamp);
-
-    html += `<div class="section-title">📅 7-DAY ACTIVITY HISTORY</div>`;
-    html += generateActivityHistoryHtml(activityList);
-
-    return html;
   }
+});
 
-  // --- INTERACTIVE ACTIONS ---
-  function toggle(id) {
-    let p = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
-    if (p.includes(id)) {
-      p = p.filter(i => i !== id);
-    } else {
-      p.push(id);
-    }
-    localStorage.setItem(`pend_${selectedKidId}`, JSON.stringify(p));
-    render(); 
-  }
+// Sort newest first
+activityList.sort((a, b) => b.timestamp - a.timestamp);
 
-  function resetToggles() {
-    localStorage.removeItem(`pend_${selectedKidId}`);
-    render();
-  }
+html += `<div class="section-title">📅 7-DAY ACTIVITY HISTORY</div>`;
+html += generateActivityHistoryHtml(activityList);
 
-  async function send() {
-    const p = JSON.parse(localStorage.getItem(`pend_${selectedKidId}`) || "[]");
-    if (p.length === 0) return showAlert("⚠️ Please select at least one task or penalty before sending!", "error");
+return html;
 
-    const selectedChores = p.map(id => chores.find(item => item.id == id)).filter(Boolean);
-    let total = selectedChores.reduce((sum, c) => sum + c.points, 0);
 
-    // Build log notes detail
-    let logNotes = selectedChores.map(c => c.name).join(", ");
+}
 
-    // Check for streak milestone bonus (Requires a 4-day streak and logging at least 3 daily chores in this action)
-    const currentStreak = getActiveStreak(selectedKidId);
-    const dailyChoresCountInSubmission = selectedChores.filter(c => c.points >= 0 && (c.frequency === 'daily' || !c.frequency)).length;
+// --- INTERACTIVE ACTIONS ---
+function toggle(id) {
+let p = JSON.parse(localStorage.getItem(pend_${selectedKidId}) || "[]");
+if (p.includes(id)) {
+p = p.filter(i => i !== id);
+} else {
+p.push(id);
+}
+localStorage.setItem(pend_${selectedKidId}, JSON.stringify(p));
+render();
+}
 
-    if (currentStreak === 4 && dailyChoresCountInSubmission >= 3) {
-      total += 5; // Add +5 points streak bonus
-      logNotes += " (+5 Streak Milestone Bonus! 🔥)";
-      showAlert("🔥 5-Day Streak Milestone Unlocked! +5 points bonus added!", "success");
-    }
+function resetToggles() {
+localStorage.removeItem(pend_${selectedKidId});
+render();
+}
 
-    // Try/Catch fallback in case notes column migration hasn't been run yet
-    try {
-      const { error } = await supabaseClient.from("pending_requests").insert({ 
+async function send() {
+const p = JSON.parse(localStorage.getItem(pend_${selectedKidId}) || "[]");
+if (p.length === 0) return showAlert("⚠️ Please select at least one task or penalty before sending!", "error");
+
+const selectedChores = p.map(id => chores.find(item => item.id == id)).filter(Boolean);
+let total = selectedChores.reduce((sum, c) => sum + c.points, 0);
+
+// Build log notes detail
+let logNotes = selectedChores.map(c => c.name).join(", ");
+
+// Check for streak milestone bonus (Requires a 4-day streak and logging at least 3 daily chores in this action)
+const currentStreak = getActiveStreak(selectedKidId);
+const dailyChoresCountInSubmission = selectedChores.filter(c => c.points >= 0 && (c.frequency === 'daily' || !c.frequency)).length;
+
+if (currentStreak === 4 && dailyChoresCountInSubmission >= 3) {
+  total += 5; // Add +5 points streak bonus
+  logNotes += " (+5 Streak Milestone Bonus! 🔥)";
+  showAlert("🔥 5-Day Streak Milestone Unlocked! +5 points bonus added!", "success");
+}
+
+// Try/Catch fallback in case notes column migration hasn't been run yet
+try {
+  const { error } = await supabaseClient.from("pending_requests").insert({ 
+    kid_id: selectedKidId, 
+    chore_ids: p, 
+    total_points: total, 
+    log_date: selectedTaskDate, 
+    notes: logNotes,
+    status: 'pending'
+  });
+
+  if (error) {
+    if (error.message.includes("notes")) {
+      // Graceful fallback inserting without notes
+      const { error: fbError } = await supabaseClient.from("pending_requests").insert({ 
         kid_id: selectedKidId, 
         chore_ids: p, 
         total_points: total, 
         log_date: selectedTaskDate, 
-        notes: logNotes,
         status: 'pending'
       });
-
-      if (error) {
-        if (error.message.includes("notes")) {
-          // Graceful fallback inserting without notes
-          const { error: fbError } = await supabaseClient.from("pending_requests").insert({ 
-            kid_id: selectedKidId, 
-            chore_ids: p, 
-            total_points: total, 
-            log_date: selectedTaskDate, 
-            status: 'pending'
-          });
-          if (fbError) throw fbError;
-          showAlert("🚀 Request sent (Notes omitted: Run SQL script to see detailed chore lists)", "info");
-        } else {
-          throw error;
-        }
-      } else {
-        showAlert("🚀 Request successfully sent to Parents!", "success"); 
-      }
-    } catch(err) {
-      console.error(err);
-      return showAlert("❌ Failed to send request: " + err.message, "error");
-    }
-
-    localStorage.removeItem(`pend_${selectedKidId}`);
-    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-    await loadData();
-  }
-
-  async function requestRedeem(kidId) {
-    const redeemThreshold = getRedeemThreshold();
-    const currentExchangeRate = getExchangeRate();
-    const calculatedCashValue = (redeemThreshold / currentExchangeRate).toFixed(2);
-
-    if(!confirm(`Are you sure you want to request $${calculatedCashValue} for ${redeemThreshold} points?`)) return;
-    const today = getLocalTodayISO();
-
-    const { error } = await supabaseClient.from("pending_requests").insert({ 
-      kid_id: kidId, 
-      chore_ids: [], 
-      total_points: redeemThreshold, 
-      log_date: today, 
-      status: 'pending_redeem'
-    });
-
-    if (error) return showAlert("❌ Failed to send request: " + error.message, "error");
-    showAlert(`🎁 Apple Cash redemption request sent for $${calculatedCashValue}!`, "success");
-    await loadData();
-  }
-
-  // --- KID PROFILE EDIT ACTIONS ---
-  function startKidProfileEdit(id) {
-    editingKidProfileId = id;
-    render();
-  }
-
-  function cancelKidProfileEdit() {
-    editingKidProfileId = null;
-    render();
-  }
-
-  async function saveKidProfile(id) {
-    const nameInput = document.getElementById(`editKidName_${id}`);
-    const avatarInput = document.getElementById(`editKidAvatar_${id}`);
-    if (!nameInput || !avatarInput) return;
-
-    const newName = nameInput.value.trim();
-    const newAvatar = avatarInput.value;
-
-    if (!newName) return showAlert("⚠️ Kid name cannot be empty", "error");
-
-    const { error } = await supabaseClient.from("kids").update({ name: newName, avatar: newAvatar }).eq("id", id);
-    if (error) return showAlert("❌ Failed to update profile: " + error.message, "error");
-
-    editingKidProfileId = null;
-    showAlert("✨ Kid profile updated successfully!", "success");
-    await loadData();
-  }
-
-  // --- PARENT APPROVAL EDITORS ---
-  function startPendingEdit(id) {
-    editingPendingId = id;
-    render();
-  }
-
-  function cancelPendingEdit() {
-    editingPendingId = null;
-    render();
-  }
-
-  async function savePendingEdit(rid, kidId, originalDate) {
-    const editNotesInput = document.getElementById(`editPendingNotes_${rid}`);
-    const editPtsInput = document.getElementById(`editPendingPoints_${rid}`);
-
-    if (!editNotesInput || !editPtsInput) return;
-
-    const newNotes = editNotesInput.value.trim();
-    const newPts = parseInt(editPtsInput.value, 10);
-
-    if (isNaN(newPts)) return showAlert("⚠️ Points must be a valid number", "error");
-
-    const payload = { 
-      kid_id: kidId, 
-      points: newPts, 
-      log_date: originalDate, 
-      notes: newNotes || "Edited Chores Log" 
-    };
-
-    const { error: logError } = await supabaseClient.from("task_logs").insert(payload);
-    if (logError) return showAlert("❌ Failed to log approved chores: " + logError.message, "error");
-
-    await supabaseClient.from("pending_requests").update({ status: 'banked' }).eq('id', rid);
-
-    editingPendingId = null;
-    showAlert("🎉 Custom points approved and banked successfully!", "success");
-
-    confetti({ particleCount: 50, spread: 60, colors: ['#10b981', '#3b82f6'] });
-    await loadData();
-  }
-
-  async function approve(rid, kidId, pts, originalDate, encodedChoreNames = "", defaultNotes = "") {
-    let choreNames = decodeURIComponent(encodedChoreNames);
-    let rawNotes = decodeURIComponent(defaultNotes);
-    const payload = { kid_id: kidId, points: pts, log_date: originalDate };
-
-    if (rawNotes && rawNotes.trim() !== "") {
-      payload.notes = rawNotes;
-    } else if (choreNames && choreNames.trim() !== "") {
-      payload.notes = choreNames;
-    }
-
-    const { error } = await supabaseClient.from("task_logs").insert(payload);
-    if (error) {
-      return showAlert("❌ Failed to approve: " + error.message, "error");
-    }
-    await supabaseClient.from("pending_requests").update({ status: 'banked' }).eq('id', rid);
-    showAlert("🎉 Points successfully banked!", "success");
-
-    confetti({ particleCount: 60, spread: 80 });
-    await loadData();
-  }
-
-  async function approveRedeem(rid, kidId, pts, originalDate) {
-    const currentExchangeRate = getExchangeRate();
-    const amount = pts / currentExchangeRate;
-
-    await supabaseClient.from("redemptions").insert({ 
-      kid_id: kidId, 
-      amount: amount, 
-      points_spent: pts, 
-      redeem_date: originalDate 
-    });
-
-    await supabaseClient.from("pending_requests").update({ status: 'banked' }).eq('id', rid);
-    showAlert(`💵 Approved: $${amount.toFixed(2)} Apple Cash has been redeemed!`, "success");
-
-    confetti({ particleCount: 80, spread: 90, colors: ['#f59e0b', '#10b981'] });
-    await loadData();
-  }
-
-  async function declineRequest(rid) {
-    const { error } = await supabaseClient.from("pending_requests").update({ status: 'declined' }).eq('id', rid);
-    if (error) showAlert("❌ Failed to decline: " + error.message, "error");
-    else {
-      showAlert("🚫 Request declined successfully", "info");
-      await loadData();
-    }
-  }
-
-  // --- KID AND ACTION CREATOR FUNCTIONS ---
-  async function addKid() {
-    const name = document.getElementById("kidName").value.trim();
-    const avatar = document.getElementById("kidAvatarSelect").value;
-    if (!name) return showAlert("⚠️ Please enter a name", "error");
-
-    const { error } = await supabaseClient.from("kids").insert({ name: name, avatar: avatar });
-    if (error) {
-      // Fallback
-      const { error: fallbackError } = await supabaseClient.from("kids").insert({ name: name });
-      if (fallbackError) return showAlert("❌ Failed to add kid: " + fallbackError.message, "error");
-    }
-
-    showAlert(`✨ Added ${name}!`, "success");
-    document.getElementById("kidName").value = '';
-    await loadData();
-  }
-
-  async function addBulkChores() {
-    const kidId = document.getElementById("choreKid").value;
-    const frequency = document.getElementById("choreFrequency").value;
-    const list = document.getElementById("choreList").value;
-    if (!kidId || !list.trim()) return showAlert("⚠️ Missing kid or chores list", "error");
-
-    const lines = list.split('\n');
-    const inserts = [];
-    for (let line of lines) {
-      if (!line.trim()) continue;
-      const parts = line.split(',');
-      if (parts.length >= 2) {
-        const name = parts[0].trim();
-        const pts = parseInt(parts[1].trim(), 10);
-        if (!isNaN(pts)) inserts.push({ kid_id: kidId, name: name, points: pts, frequency: frequency });
-      }
-    }
-
-    if (inserts.length > 0) {
-      const { error } = await supabaseClient.from("chores").insert(inserts);
-      if (error) {
-        // Fallback without frequency
-        const fallbackInserts = inserts.map(i => ({ kid_id: i.kid_id, name: i.name, points: i.points }));
-        const { error: fbErr } = await supabaseClient.from("chores").insert(fallbackInserts);
-        if (fbErr) return showAlert("❌ Failed to save chores: " + fbErr.message, "error");
-        showAlert("✅ Chores saved! (Frequency defaulted: Run SQL script to separate daily/weekly)", "info");
-      } else {
-        showAlert("✅ Actions added successfully!", "success");
-      }
-      document.getElementById("choreList").value = '';
-      await loadData();
+      if (fbError) throw fbError;
+      showAlert("🚀 Request sent (Notes omitted: Run SQL script to see detailed chore lists)", "info");
     } else {
-      showAlert("⚠️ Could not parse actions. Format: 'Name, Points'", "error");
+      throw error;
     }
+  } else {
+    showAlert("🚀 Request successfully sent to Parents!", "success"); 
   }
+} catch(err) {
+  console.error(err);
+  return showAlert("❌ Failed to send request: " + err.message, "error");
+}
 
-  async function adjustPoints() {
-    const kidId = document.getElementById("adjustKid").value;
-    const pts = parseInt(document.getElementById("adjustPoints").value, 10);
-    const note = document.getElementById("adjustNote").value.trim();
-    if (!kidId || isNaN(pts)) return showAlert("⚠️ Invalid kid or points amount", "error");
-    if (!note) return showAlert("⚠️ A note/comment is required for manual adjustments!", "error");
+localStorage.removeItem(`pend_${selectedKidId}`);
+confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+await loadData();
 
-    const today = getLocalTodayISO();
-    const { error } = await supabaseClient.from("task_logs").insert({ 
-      kid_id: kidId, 
-      points: pts, 
-      notes: note,
-      log_date: today 
-    });
-    if (error) return showAlert("❌ Adjustment failed: " + error.message, "error");
-    showAlert("✅ Manual adjustment applied!", "success");
-    document.getElementById("adjustPoints").value = '';
-    document.getElementById("adjustNote").value = '';
-    await loadData();
+
+}
+
+async function requestRedeem(kidId) {
+const redeemThreshold = getRedeemThreshold();
+const currentExchangeRate = getExchangeRate();
+const calculatedCashValue = (redeemThreshold / currentExchangeRate).toFixed(2);
+
+if(!confirm(`Are you sure you want to request $${calculatedCashValue} for ${redeemThreshold} points?`)) return;
+const today = getLocalTodayISO();
+
+const { error } = await supabaseClient.from("pending_requests").insert({ 
+  kid_id: kidId, 
+  chore_ids: [], 
+  total_points: redeemThreshold, 
+  log_date: today, 
+  status: 'pending_redeem'
+});
+
+if (error) return showAlert("❌ Failed to send request: " + error.message, "error");
+showAlert(`🎁 Apple Cash redemption request sent for $${calculatedCashValue}!`, "success");
+await loadData();
+
+
+}
+
+// --- KID PROFILE EDIT ACTIONS ---
+function startKidProfileEdit(id) {
+editingKidProfileId = id;
+render();
+}
+
+function cancelKidProfileEdit() {
+editingKidProfileId = null;
+render();
+}
+
+async function saveKidProfile(id) {
+const nameInput = document.getElementById(editKidName_${id});
+const avatarInput = document.getElementById(editKidAvatar_${id});
+if (!nameInput || !avatarInput) return;
+
+const newName = nameInput.value.trim();
+const newAvatar = avatarInput.value;
+
+if (!newName) return showAlert("⚠️ Kid name cannot be empty", "error");
+
+const { error } = await supabaseClient.from("kids").update({ name: newName, avatar: newAvatar }).eq("id", id);
+if (error) return showAlert("❌ Failed to update profile: " + error.message, "error");
+
+editingKidProfileId = null;
+showAlert("✨ Kid profile updated successfully!", "success");
+await loadData();
+
+
+}
+
+// --- PARENT APPROVAL EDITORS ---
+function startPendingEdit(id) {
+editingPendingId = id;
+render();
+}
+
+function cancelPendingEdit() {
+editingPendingId = null;
+render();
+}
+
+async function savePendingEdit(rid, kidId, originalDate) {
+const editNotesInput = document.getElementById(editPendingNotes_${rid});
+const editPtsInput = document.getElementById(editPendingPoints_${rid});
+
+if (!editNotesInput || !editPtsInput) return;
+
+const newNotes = editNotesInput.value.trim();
+const newPts = parseInt(editPtsInput.value, 10);
+
+if (isNaN(newPts)) return showAlert("⚠️ Points must be a valid number", "error");
+
+const payload = { 
+  kid_id: kidId, 
+  points: newPts, 
+  log_date: originalDate, 
+  notes: newNotes || "Edited Chores Log" 
+};
+
+const { error: logError } = await supabaseClient.from("task_logs").insert(payload);
+if (logError) return showAlert("❌ Failed to log approved chores: " + logError.message, "error");
+
+await supabaseClient.from("pending_requests").update({ status: 'banked' }).eq('id', rid);
+
+editingPendingId = null;
+showAlert("🎉 Custom points approved and banked successfully!", "success");
+
+confetti({ particleCount: 50, spread: 60, colors: ['#10b981', '#3b82f6'] });
+await loadData();
+
+
+}
+
+async function approve(rid, kidId, pts, originalDate, encodedChoreNames = "", defaultNotes = "") {
+let choreNames = decodeURIComponent(encodedChoreNames);
+let rawNotes = decodeURIComponent(defaultNotes);
+const payload = { kid_id: kidId, points: pts, log_date: originalDate };
+
+if (rawNotes && rawNotes.trim() !== "") {
+  payload.notes = rawNotes;
+} else if (choreNames && choreNames.trim() !== "") {
+  payload.notes = choreNames;
+}
+
+const { error } = await supabaseClient.from("task_logs").insert(payload);
+if (error) {
+  return showAlert("❌ Failed to approve: " + error.message, "error");
+}
+await supabaseClient.from("pending_requests").update({ status: 'banked' }).eq('id', rid);
+showAlert("🎉 Points successfully banked!", "success");
+
+confetti({ particleCount: 60, spread: 80 });
+await loadData();
+
+
+}
+
+async function approveRedeem(rid, kidId, pts, originalDate) {
+const currentExchangeRate = getExchangeRate();
+const amount = pts / currentExchangeRate;
+
+await supabaseClient.from("redemptions").insert({ 
+  kid_id: kidId, 
+  amount: amount, 
+  points_spent: pts, 
+  redeem_date: originalDate 
+});
+
+await supabaseClient.from("pending_requests").update({ status: 'banked' }).eq('id', rid);
+showAlert(`💵 Approved: $${amount.toFixed(2)} Apple Cash has been redeemed!`, "success");
+
+confetti({ particleCount: 80, spread: 90, colors: ['#f59e0b', '#10b981'] });
+await loadData();
+
+
+}
+
+async function declineRequest(rid) {
+const { error } = await supabaseClient.from("pending_requests").update({ status: 'declined' }).eq('id', rid);
+if (error) showAlert("❌ Failed to decline: " + error.message, "error");
+else {
+showAlert("🚫 Request declined successfully", "info");
+await loadData();
+}
+}
+
+// --- KID AND ACTION CREATOR FUNCTIONS ---
+async function addKid() {
+const name = document.getElementById("kidName").value.trim();
+const avatar = document.getElementById("kidAvatarSelect").value;
+if (!name) return showAlert("⚠️ Please enter a name", "error");
+
+const { error } = await supabaseClient.from("kids").insert({ name: name, avatar: avatar });
+if (error) {
+  // Fallback
+  const { error: fallbackError } = await supabaseClient.from("kids").insert({ name: name });
+  if (fallbackError) return showAlert("❌ Failed to add kid: " + fallbackError.message, "error");
+}
+
+showAlert(`✨ Added ${name}!`, "success");
+document.getElementById("kidName").value = '';
+await loadData();
+
+
+}
+
+async function addBulkChores() {
+const kidId = document.getElementById("choreKid").value;
+const frequency = document.getElementById("choreFrequency").value;
+const list = document.getElementById("choreList").value;
+if (!kidId || !list.trim()) return showAlert("⚠️ Missing kid or chores list", "error");
+
+const lines = list.split('\n');
+const inserts = [];
+for (let line of lines) {
+  if (!line.trim()) continue;
+  const parts = line.split(',');
+  if (parts.length >= 2) {
+    const name = parts[0].trim();
+    const pts = parseInt(parts[1].trim(), 10);
+    if (!isNaN(pts)) inserts.push({ kid_id: kidId, name: name, points: pts, frequency: frequency });
   }
+}
 
-  // --- INLINE ACTION EDITOR ---
-  function startInlineEdit(id) { editingChoreId = id; render(); }
-  function cancelInlineEdit() { editingChoreId = null; render(); }
-
-  async function saveInlineEdit(id) {
-    const nameInput = document.getElementById(`editName_${id}`);
-    const ptsInput = document.getElementById(`editPts_${id}`);
-    const freqInput = document.getElementById(`editFreq_${id}`);
-    if (!nameInput || !ptsInput) return;
-
-    const newName = nameInput.value.trim();
-    const newPts = parseInt(ptsInput.value, 10);
-    const newFreq = freqInput ? freqInput.value : 'daily';
-
-    if (!newName || isNaN(newPts)) return showAlert("⚠️ Invalid values", "error");
-
-    const { error } = await supabaseClient.from("chores").update({ name: newName, points: newPts, frequency: newFreq }).eq("id", id);
-    if (error) {
-      // Fallback
-      await supabaseClient.from("chores").update({ name: newName, points: newPts }).eq("id", id);
-    }
-
-    editingChoreId = null;
-    showAlert("✏️ Action updated successfully!", "success");
-    await loadData();
+if (inserts.length > 0) {
+  const { error } = await supabaseClient.from("chores").insert(inserts);
+  if (error) {
+    // Fallback without frequency
+    const fallbackInserts = inserts.map(i => ({ kid_id: i.kid_id, name: i.name, points: i.points }));
+    const { error: fbErr } = await supabaseClient.from("chores").insert(fallbackInserts);
+    if (fbErr) return showAlert("❌ Failed to save chores: " + fbErr.message, "error");
+    showAlert("✅ Chores saved! (Frequency defaulted: Run SQL script to separate daily/weekly)", "info");
+  } else {
+    showAlert("✅ Actions added successfully!", "success");
   }
+  document.getElementById("choreList").value = '';
+  await loadData();
+} else {
+  showAlert("⚠️ Could not parse actions. Format: 'Name, Points'", "error");
+}
 
-  async function deleteChore(id) {
-    if(confirm("Are you sure you want to delete this action?")) {
-      await supabaseClient.from("chores").delete().eq("id", id);
-      showAlert("Action deleted", "info");
-      await loadData();
-    }
-  }
+
+}
+
+async function adjustPoints() {
+const kidId = document.getElementById("adjustKid").value;
+const pts = parseInt(document.getElementById("adjustPoints").value, 10);
+const note = document.getElementById("adjustNote").value.trim();
+if (!kidId || isNaN(pts)) return showAlert("⚠️ Invalid kid or points amount", "error");
+if (!note) return showAlert("⚠️ A note/comment is required for manual adjustments!", "error");
+
+const today = getLocalTodayISO();
+const { error } = await supabaseClient.from("task_logs").insert({ 
+  kid_id: kidId, 
+  points: pts, 
+  notes: note,
+  log_date: today 
+});
+if (error) return showAlert("❌ Adjustment failed: " + error.message, "error");
+showAlert("✅ Manual adjustment applied!", "success");
+document.getElementById("adjustPoints").value = '';
+document.getElementById("adjustNote").value = '';
+await loadData();
+
+
+}
+
+// --- INLINE ACTION EDITOR ---
+function startInlineEdit(id) { editingChoreId = id; render(); }
+function cancelInlineEdit() { editingChoreId = null; render(); }
+
+async function saveInlineEdit(id) {
+const nameInput = document.getElementById(editName_${id});
+const ptsInput = document.getElementById(editPts_${id});
+const freqInput = document.getElementById(editFreq_${id});
+if (!nameInput || !ptsInput) return;
+
+const newName = nameInput.value.trim();
+const newPts = parseInt(ptsInput.value, 10);
+const newFreq = freqInput ? freqInput.value : 'daily';
+
+if (!newName || isNaN(newPts)) return showAlert("⚠️ Invalid values", "error");
+
+const { error } = await supabaseClient.from("chores").update({ name: newName, points: newPts, frequency: newFreq }).eq("id", id);
+if (error) {
+  // Fallback
+  await supabaseClient.from("chores").update({ name: newName, points: newPts }).eq("id", id);
+}
+
+editingChoreId = null;
+showAlert("✏️ Action updated successfully!", "success");
+await loadData();
+
+
+}
+
+async function deleteChore(id) {
+if(confirm("Are you sure you want to delete this action?")) {
+await supabaseClient.from("chores").delete().eq("id", id);
+showAlert("Action deleted", "info");
+await loadData();
+}
+}
 </script>
+
 </body>
 </html>
